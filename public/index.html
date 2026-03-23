@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Third Space Cafe — Financial Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    body::before {
+      top: -10%;
+      right: -5%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(13, 148, 136, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    body::after {
+      bottom: -15%;
+      left: -10%;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(217, 119, 6, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: #ffffff;
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 600;
+      font-size: 1.125rem;
+      color: #0f172a;
+      text-decoration: none;
+    }
+
+    .nav-icon {
+      width: 28px;
+      height: 28px;
+      color: #0d9488;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0;
+      margin-left: auto;
+    }
+
+    .nav-links a {
+      padding: 0.5rem 1.5rem;
+      text-decoration: none;
+      color: #64748b;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      color: #0f172a;
+    }
+
+    .nav-links a.active {
+      color: #0d9488;
+      background: rgba(13, 148, 136, 0.08);
+    }
+
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 4rem;
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #0f172a 0%, #0d9488 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: #64748b;
+    }
+
+    section {
+      opacity: 0;
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    section:nth-of-type(2) { animation-delay: 0.1s; }
+    section:nth-of-type(3) { animation-delay: 0.2s; }
+    section:nth-of-type(4) { animation-delay: 0.3s; }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .kpi-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      border-left: 3px solid #0d9488;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .kpi-card.amber { border-left-color: #d97706; }
+    .kpi-card.red { border-left-color: #dc2626; }
+    .kpi-card.blue { border-left-color: #3b82f6; }
+    .kpi-card.purple { border-left-color: #7c3aed; }
+    .kpi-card.green { border-left-color: #059669; }
+
+    .kpi-label {
+      font-size: 0.875rem;
+      color: #64748b;
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-value {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .kpi-value.positive { color: #059669; }
+    .kpi-value.negative { color: #dc2626; }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .chart-container {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .chart-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 300px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .tab-button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: none;
+      color: #64748b;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-button:hover {
+      color: #0f172a;
+    }
+
+    .tab-button.active {
+      color: #0d9488;
+      border-bottom-color: #0d9488;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    thead {
+      background: #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+      padding: 0.875rem 1rem;
+      text-align: left;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 0.875rem 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.95rem;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: #ffffff;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    tbody tr:last-child {
+      background: #f1f5f9;
+      font-weight: 600;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    tbody tr:hover {
+      background: #f0f9ff;
+    }
+
+    input[type="number"],
+    input[type="text"] {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-align: right;
+      transition: border-color 0.2s ease;
+      background: #ffffff;
+      color: #0f172a;
+      font-family: inherit;
+    }
+
+    input[type="number"]:focus,
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #0d9488;
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+    }
+
+    .plan-value {
+      display: block;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-top: 0.25rem;
+    }
+
+    .positive { color: #059669; }
+    .negative { color: #dc2626; }
+    .neutral { color: #64748b; }
+
+    .input-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .breakeven-note {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      color: #166534;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        padding: 0 1rem;
+        gap: 1rem;
+      }
+
+      .nav-links a {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+      }
+
+      main {
+        padding: 2rem 1rem;
+      }
+
+      .hero h1 {
+        font-size: 1.75rem;
+      }
+
+      .hero p {
+        font-size: 0.95rem;
+      }
+
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-wrapper {
+        height: 250px;
+      }
+
+      table {
+        font-size: 0.85rem;
+      }
+
+      th, td {
+        padding: 0.5rem;
+      }
+    }
+
+    .variance-table {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+    }
+
+    .variance-table table {
+      min-width: 1200px;
+    }
+
+    .value-positive {
+      color: #059669;
+      font-weight: 600;
+    }
+
+    .value-negative {
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .input-group label {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #0f172a;
+      min-width: 150px;
+    }
+
+    .input-group input {
+      width: 200px;
+    }
+
+    .funding-metric {
+      font-size: 0.95rem;
+      color: #64748b;
+      margin-top: 0.5rem;
+    }
+
+    .funding-metric strong {
+      color: #0f172a;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="#" class="nav-brand">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+      </svg>
+      Third Space Cafe
+    </a>
+    <div class="nav-links">
+      <a href="#overview" class="nav-link active">Overview</a>
+      <a href="#breakeven" class="nav-link">Break-Even</a>
+      <a href="#actuals" class="nav-link">Actuals</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="hero">
+      <h1>Third Space Cafe — Financial Tracker</h1>
+      <p>15-Week Business Plan · Track Actuals vs Plan</p>
+    </div>
+
+    <section id="overview">
+      <h2 class="section-title">Overview</h2>
+
+      <div class="kpi-grid">
+        <div class="kpi-card teal">
+          <div class="kpi-label">Plan Revenue</div>
+          <div class="kpi-value">€59,103</div>
+        </div>
+        <div class="kpi-card amber">
+          <div class="kpi-label">Plan Costs</div>
+          <div class="kpi-value">€69,710</div>
+        </div>
+        <div class="kpi-card red">
+          <div class="kpi-label">Plan P&L</div>
+          <div class="kpi-value negative">−€10,607</div>
+        </div>
+        <div class="kpi-card purple">
+          <div class="kpi-label">Fit-Out Investment</div>
+          <div class="kpi-value">€27,100</div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-container">
+          <div class="chart-title">Weekly Revenue vs Costs (Fit-Out + Operating)</div>
+          <div class="chart-wrapper">
+            <canvas id="revenueVsCostsChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-container">
+          <div class="chart-title">Cumulative P&L</div>
+          <div class="chart-wrapper">
+            <canvas id="cumulativePnLChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="breakeven">
+      <h2 class="section-title">Break-Even Analysis</h2>
+
+      <div class="breakeven-note">
+        <strong>3 Scenarios:</strong> Current Plan shows the base case. Corrected Costs accounts for improved vendor rates. Optimized includes additional revenue growth and cost controls.
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-container" style="grid-column: 1 / -1;">
+          <div class="chart-title">Break-Even Projection — 3 Scenarios</div>
+          <div class="chart-wrapper" style="height: 350px;">
+            <canvas id="breakEvenChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="actuals">
+      <h2 class="section-title">Actuals Tracker</h2>
+
+      <div class="tabs">
+        <button class="tab-button active" data-tab="entry">Entry</button>
+        <button class="tab-button" data-tab="variance">Variance</button>
+        <button class="tab-button" data-tab="cashflow">Cashflow & Funding</button>
+      </div>
+
+      <div class="tab-content active" id="entry">
+        <table id="entryTable">
+          <thead>
+            <tr>
+              <th>Week</th>
+              <th>Investment</th>
+              <th>Revenue</th>
+              <th>Running Costs</th>
+              <th>Total Costs</th>
+              <th>Weekly P&L</th>
+            </tr>
+          </thead>
+          <tbody id="entryTableBody">
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tab-content" id="variance">
+        <div class="kpi-grid">
+          <div class="kpi-card green">
+            <div class="kpi-label">Revenue Variance</div>
+            <div class="kpi-value" id="revenueVarianceValue">€0</div>
+            <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;" id="revenueVarianceLabel"></div>
+          </div>
+          <div class="kpi-card green">
+            <div class="kpi-label">Cost Variance</div>
+            <div class="kpi-value" id="costVarianceValue">€0</div>
+            <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;" id="costVarianceLabel"></div>
+          </div>
+          <div class="kpi-card green">
+            <div class="kpi-label">P&L Variance</div>
+            <div class="kpi-value" id="pnlVarianceValue">€0</div>
+            <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;" id="pnlVarianceLabel"></div>
+          </div>
+        </div>
+
+        <div class="chart-grid">
+          <div class="chart-container">
+            <div class="chart-title">Revenue: Plan vs Actual</div>
+            <div class="chart-wrapper">
+              <canvas id="revenuePlanVsActualChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div class="chart-title">Cumulative P&L: Plan vs Actual</div>
+            <div class="chart-wrapper">
+              <canvas id="cumulativePnLVarianceChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-grid">
+          <div class="chart-container" style="grid-column: 1 / -1;">
+            <div class="chart-title">Costs Breakdown: Fit-Out vs Operating (Plan vs Actual)</div>
+            <div class="chart-wrapper" style="height: 300px;">
+              <canvas id="costsBreakdownChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="variance-table">
+          <table id="varianceTable">
+            <thead>
+              <tr>
+                <th>Week</th>
+                <th>Plan Rev</th>
+                <th>Actual Rev</th>
+                <th>Rev Var (€)</th>
+                <th>Plan Cost</th>
+                <th>Actual Cost</th>
+                <th>Cost Var (€)</th>
+                <th>Plan P&L</th>
+                <th>Actual P&L</th>
+                <th>P&L Var (€)</th>
+              </tr>
+            </thead>
+            <tbody id="varianceTableBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" id="cashflow">
+        <div class="input-group">
+          <label for="startingCash">Starting Cash Position:</label>
+          <div class="input-wrapper">
+            <input type="number" id="startingCash" value="40000">
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card teal">
+            <div class="kpi-label">Current Cash Position</div>
+            <div class="kpi-value" id="currentCashValue">€40,000</div>
+            <div class="funding-metric">Latest week with data</div>
+          </div>
+          <div class="kpi-card red">
+            <div class="kpi-label">Peak Cash Deficit</div>
+            <div class="kpi-value" id="peakDeficitValue">€0</div>
+            <div class="funding-metric">Lowest point reached</div>
+          </div>
+          <div class="kpi-card blue">
+            <div class="kpi-label">Funding Runway</div>
+            <div class="kpi-value" id="fundingRunwayValue">∞</div>
+            <div class="funding-metric">Weeks at current burn rate</div>
+          </div>
+        </div>
+
+        <div class="chart-grid">
+          <div class="chart-container">
+            <div class="chart-title">Cash Balance Over Time</div>
+            <div class="chart-wrapper">
+              <canvas id="cashBalanceChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div class="chart-title">Weekly Cash Flow</div>
+            <div class="chart-wrapper">
+              <canvas id="weeklyCashFlowChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const planCosts = {
+      rent:        [0, 0, 0, 0, 1700, 0, 0, 0, 0, 1700, 0, 0, 0, 1700, 0],
+      rentTax:     [0, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0],
+      staffWage:   [0, 0, 0, 0, 0, 0, 0, 7800, 0, 0, 0, 0, 8400, 0, 0],
+      utilities:   [0, 0, 0, 0, 0, 1300, 0, 0, 0, 0, 1300, 0, 0, 0, 1300],
+      terrace:     [0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 250, 0, 0, 0, 250],
+      stock:       [0, 0, 0, 0, 0, 0, 500, 500, 650, 750, 750, 750, 750, 800, 800],
+      unexpected:  [0, 0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+      deposit:     [3400, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      permissions: [0, 1000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      renovation:  [0, 3000, 0, 8000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      equipment:   [6100, 5000, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      barTable:    [0, 0, 0, 0, 0, 2000, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      firstBatch:  [0, 0, 0, 0, 2500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    };
+
+    const planRevenue = [0, 0, 0, 0, 4200, 4450, 4570, 4890, 5100, 5400, 5600, 5800, 6000, 6630, 6463];
+    const planPnL = [-9500, -9000, -5000, -8000, 0, 1050, 3720, -8400, 4095, 4395, 3200, 4950, -3505, 4030, -2450];
+    const weeks = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10', 'W11', 'W12', 'W13', 'W14', 'W15'];
+
+    const planCostsTotals = weeks.map((_, i) => {
+      return Object.keys(planCosts).reduce((sum, key) => sum + (planCosts[key][i] || 0), 0);
+    });
+
+    const investmentCategories = ['deposit', 'permissions', 'renovation', 'equipment', 'barTable', 'firstBatch'];
+    const runningCostCategories = ['rent', 'rentTax', 'staffWage', 'utilities', 'terrace', 'stock', 'unexpected'];
+
+    function getInvestmentTotal(week) {
+      return investmentCategories.reduce((sum, cat) => sum + (planCosts[cat][week] || 0), 0);
+    }
+
+    function getRunningCostsTotal(week) {
+      return runningCostCategories.reduce((sum, cat) => sum + (planCosts[cat][week] || 0), 0);
+    }
+
+    const actuals = {
+      revenue: [...planRevenue],
+      investment: weeks.map((_, i) => getInvestmentTotal(i)),
+      runningCosts: weeks.map((_, i) => getRunningCostsTotal(i)),
+    };
+
+    function eurFormat(value) {
+      if (value === null || value === undefined || isNaN(value)) return '€0';
+      const sign = value < 0 ? '−' : '';
+      const abs = Math.abs(value);
+      const formatted = new Intl.NumberFormat('de-DE', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(Math.round(abs));
+      return `${sign}€${formatted}`;
+    }
+
+    function getColorClass(value) {
+      if (value > 0) return 'positive';
+      if (value < 0) return 'negative';
+      return 'neutral';
+    }
+
+    Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+    Chart.defaults.color = '#334155';
+
+    const chartPlugins = {
+      tooltip: {
+        backgroundColor: '#ffffff',
+        titleColor: '#0f172a',
+        bodyColor: '#0f172a',
+        borderColor: '#e2e8f0',
+        borderWidth: 1,
+        padding: 12,
+        displayColors: true,
+        callbacks: {
+          label: function(context) {
+            let value = context.parsed.y !== undefined ? context.parsed.y : context.parsed;
+            return eurFormat(value);
+          }
+        }
+      },
+      legend: {
+        labels: {
+          boxWidth: 12,
+          padding: 15,
+          font: { size: 12, weight: '500' },
+        },
+      },
+    };
+
+    function getTotalWeeklyRevenue() {
+      return actuals.revenue.reduce((a, b) => a + b, 0);
+    }
+
+    function getTotalWeeklyCosts() {
+      return weeks.reduce((sum, _, i) => {
+        return sum + actuals.investment[i] + actuals.runningCosts[i];
+      }, 0);
+    }
+
+    function getWeeklyTotalCosts(week) {
+      return actuals.investment[week] + actuals.runningCosts[week];
+    }
+
+    function getWeeklyPnL(week) {
+      return actuals.revenue[week] - getWeeklyTotalCosts(week);
+    }
+
+    function getLastWeekWithData() {
+      for (let i = weeks.length - 1; i >= 0; i--) {
+        if (actuals.revenue[i] > 0 || actuals.investment[i] > 0 || actuals.runningCosts[i] > 0) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const tabName = e.target.dataset.tab;
+
+        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+        e.target.classList.add('active');
+        document.getElementById(tabName).classList.add('active');
+
+        setTimeout(() => {
+          if (tabName === 'variance') {
+            revenuePlanVsActualChart.resize();
+            cumulativePnLVarianceChart.resize();
+            if (costsBreakdownChart) costsBreakdownChart.resize();
+          } else if (tabName === 'cashflow') {
+            cashBalanceChart.resize();
+            weeklyCashFlowChart.resize();
+          }
+        }, 100);
+      });
+    });
+
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('section');
+
+    function updateActiveNavLink() {
+      let currentSection = '';
+
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        if (window.scrollY >= sectionTop - 100) {
+          currentSection = section.getAttribute('id');
+        }
+      });
+
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${currentSection}`) {
+          link.classList.add('active');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', updateActiveNavLink);
+
+    function buildEntryTable() {
+      const tbody = document.getElementById('entryTableBody');
+      tbody.innerHTML = '';
+
+      weeks.forEach((week, i) => {
+        const row = document.createElement('tr');
+
+        const investment = getInvestmentTotal(i);
+        const revenue = planRevenue[i];
+        const runningCosts = getRunningCostsTotal(i);
+        const totalCosts = investment + runningCosts;
+
+        row.innerHTML = `
+          <td><strong>${week}</strong></td>
+          <td>
+            <div class="input-wrapper">
+              <input type="number" class="investment-input" data-week="${i}" value="${actuals.investment[i]}" oninput="updateActualFromEntry(${i}, 'investment', this.value)">
+              <span class="plan-value">Plan: ${eurFormat(investment)}</span>
+            </div>
+          </td>
+          <td>
+            <div class="input-wrapper">
+              <input type="number" class="revenue-input" data-week="${i}" value="${actuals.revenue[i]}" oninput="updateActualFromEntry(${i}, 'revenue', this.value)">
+              <span class="plan-value">Plan: ${eurFormat(revenue)}</span>
+            </div>
+          </td>
+          <td>
+            <div class="input-wrapper">
+              <input type="number" class="running-costs-input" data-week="${i}" value="${actuals.runningCosts[i]}" oninput="updateActualFromEntry(${i}, 'runningCosts', this.value)">
+              <span class="plan-value">Plan: ${eurFormat(runningCosts)}</span>
+            </div>
+          </td>
+          <td>${eurFormat(getWeeklyTotalCosts(i))}</td>
+          <td>
+            <span class="${getColorClass(getWeeklyPnL(i))}">${eurFormat(getWeeklyPnL(i))}</span>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      const totalsRow = document.createElement('tr');
+      totalsRow.innerHTML = `
+        <td><strong>Totals</strong></td>
+        <td>${eurFormat(actuals.investment.reduce((a, b) => a + b, 0))}</td>
+        <td>${eurFormat(getTotalWeeklyRevenue())}</td>
+        <td>${eurFormat(weeks.reduce((sum, _, i) => sum + actuals.runningCosts[i], 0))}</td>
+        <td>${eurFormat(getTotalWeeklyCosts())}</td>
+        <td>
+          <span class="${getColorClass(getTotalWeeklyRevenue() - getTotalWeeklyCosts())}">${eurFormat(getTotalWeeklyRevenue() - getTotalWeeklyCosts())}</span>
+        </td>
+      `;
+      tbody.appendChild(totalsRow);
+    }
+
+    function updateActualFromEntry(week, type, value) {
+      const numValue = parseFloat(value) || 0;
+      actuals[type][week] = numValue;
+
+      buildEntryTable();
+      updateVarianceTab();
+      updateCashflowTab();
+      updateOverviewCharts();
+    }
+
+    function calculateVariances() {
+      const totalPlanRev = planRevenue.reduce((a, b) => a + b, 0);
+      const totalActualRev = getTotalWeeklyRevenue();
+      const revVar = totalActualRev - totalPlanRev;
+
+      const totalPlanCosts = planCostsTotals.reduce((a, b) => a + b, 0);
+      const totalActualCosts = getTotalWeeklyCosts();
+      const costVar = totalPlanCosts - totalActualCosts;
+
+      const totalPlanPnL = planPnL.reduce((a, b) => a + b, 0);
+      const totalActualPnL = getTotalWeeklyRevenue() - getTotalWeeklyCosts();
+      const pnlVar = totalActualPnL - totalPlanPnL;
+
+      return { revVar, costVar, pnlVar };
+    }
+
+    function updateVarianceTab() {
+      const { revVar, costVar, pnlVar } = calculateVariances();
+
+      const revVarEl = document.getElementById('revenueVarianceValue');
+      revVarEl.textContent = eurFormat(revVar);
+      revVarEl.className = `kpi-value ${getColorClass(revVar)}`;
+
+      const costVarEl = document.getElementById('costVarianceValue');
+      costVarEl.textContent = eurFormat(costVar);
+      costVarEl.className = `kpi-value ${getColorClass(costVar)}`;
+
+      const pnlVarEl = document.getElementById('pnlVarianceValue');
+      pnlVarEl.textContent = eurFormat(pnlVar);
+      pnlVarEl.className = `kpi-value ${getColorClass(pnlVar)}`;
+
+      const varianceTbody = document.getElementById('varianceTableBody');
+      varianceTbody.innerHTML = '';
+
+      weeks.forEach((week, i) => {
+        const planRevW = planRevenue[i];
+        const actualRevW = actuals.revenue[i];
+        const revVarW = actualRevW - planRevW;
+
+        const planCostW = planCostsTotals[i];
+        const actualCostW = getWeeklyTotalCosts(i);
+        const costVarW = planCostW - actualCostW;
+
+        const planPnLW = planPnL[i];
+        const actualPnLW = getWeeklyPnL(i);
+        const pnlVarW = actualPnLW - planPnLW;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong>${week}</strong></td>
+          <td>${eurFormat(planRevW)}</td>
+          <td>${eurFormat(actualRevW)}</td>
+          <td class="${getColorClass(revVarW)}">${eurFormat(revVarW)}</td>
+          <td>${eurFormat(planCostW)}</td>
+          <td>${eurFormat(actualCostW)}</td>
+          <td class="${getColorClass(costVarW)}">${eurFormat(costVarW)}</td>
+          <td>${eurFormat(planPnLW)}</td>
+          <td>${eurFormat(actualPnLW)}</td>
+          <td class="${getColorClass(pnlVarW)}">${eurFormat(pnlVarW)}</td>
+        `;
+        varianceTbody.appendChild(row);
+      });
+
+      const totalsRow = document.createElement('tr');
+      const totalPlanRev = planRevenue.reduce((a, b) => a + b, 0);
+      const totalActualRev = getTotalWeeklyRevenue();
+      const totalRevVar = totalActualRev - totalPlanRev;
+      const totalPlanCosts = planCostsTotals.reduce((a, b) => a + b, 0);
+      const totalActualCosts = getTotalWeeklyCosts();
+      const totalCostVar = totalPlanCosts - totalActualCosts;
+      const totalPlanPnL = planPnL.reduce((a, b) => a + b, 0);
+      const totalActualPnL = getTotalWeeklyRevenue() - getTotalWeeklyCosts();
+      const totalPnLVar = totalActualPnL - totalPlanPnL;
+
+      totalsRow.innerHTML = `
+        <td><strong>Totals</strong></td>
+        <td>${eurFormat(totalPlanRev)}</td>
+        <td>${eurFormat(totalActualRev)}</td>
+        <td class="${getColorClass(totalRevVar)}">${eurFormat(totalRevVar)}</td>
+        <td>${eurFormat(totalPlanCosts)}</td>
+        <td>${eurFormat(totalActualCosts)}</td>
+        <td class="${getColorClass(totalCostVar)}">${eurFormat(totalCostVar)}</td>
+        <td>${eurFormat(totalPlanPnL)}</td>
+        <td>${eurFormat(totalActualPnL)}</td>
+        <td class="${getColorClass(totalPnLVar)}">${eurFormat(totalPnLVar)}</td>
+      `;
+      varianceTbody.appendChild(totalsRow);
+
+      updateVarianceCharts();
+    }
+
+    function updateCashflowTab() {
+      const startingCash = parseFloat(document.getElementById('startingCash').value) || 40000;
+
+      const cashBalances = [startingCash];
+      for (let i = 0; i < weeks.length; i++) {
+        const prevBalance = cashBalances[i];
+        const pnl = getWeeklyPnL(i);
+        cashBalances.push(prevBalance + pnl);
+      }
+
+      let peakDeficit = 0;
+      for (let balance of cashBalances) {
+        if (balance < 0) {
+          peakDeficit = Math.min(peakDeficit, balance);
+        }
+      }
+
+      const lastWeek = getLastWeekWithData();
+      const currentCash = lastWeek >= 0 ? cashBalances[lastWeek + 1] : startingCash;
+
+      let runway = Infinity;
+      if (lastWeek >= 0) {
+        const totalPnL = getTotalWeeklyRevenue() - getTotalWeeklyCosts();
+        const avgWeeklyBurn = totalPnL / (lastWeek + 1);
+        if (avgWeeklyBurn < 0) {
+          runway = Math.ceil(currentCash / Math.abs(avgWeeklyBurn));
+        }
+      }
+
+      document.getElementById('currentCashValue').textContent = eurFormat(currentCash);
+      document.getElementById('currentCashValue').className = `kpi-value ${getColorClass(currentCash)}`;
+
+      document.getElementById('peakDeficitValue').textContent = eurFormat(Math.abs(peakDeficit));
+      document.getElementById('peakDeficitValue').className = `kpi-value ${peakDeficit < 0 ? 'negative' : 'neutral'}`;
+
+      const runwayText = runway === Infinity ? '∞' : `${runway} weeks`;
+      document.getElementById('fundingRunwayValue').textContent = runwayText;
+
+      updateCashflowCharts(cashBalances, startingCash);
+    }
+
+    let revenueVsCostsChart, cumulativePnLChart, breakEvenChart;
+    let revenuePlanVsActualChart, cumulativePnLVarianceChart, costsBreakdownChart;
+    let cashBalanceChart, weeklyCashFlowChart;
+
+    function updateOverviewCharts() {
+      const fitOutData = weeks.map((_, i) => actuals.investment[i]);
+      const operatingData = weeks.map((_, i) => actuals.runningCosts[i]);
+
+      const ctx1 = document.getElementById('revenueVsCostsChart').getContext('2d');
+      if (revenueVsCostsChart) revenueVsCostsChart.destroy();
+      revenueVsCostsChart = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: weeks,
+          datasets: [
+            {
+              label: 'Revenue',
+              data: actuals.revenue,
+              backgroundColor: '#0d9488',
+              borderRadius: 4,
+              stack: 'revenue',
+            },
+            {
+              label: 'Fit-Out Investment',
+              data: fitOutData,
+              backgroundColor: '#7c3aed',
+              borderRadius: 4,
+              stack: 'costs',
+            },
+            {
+              label: 'Operating Costs',
+              data: operatingData,
+              backgroundColor: '#d97706',
+              borderRadius: 4,
+              stack: 'costs',
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              stacked: true,
+              grid: { display: false },
+            },
+            y: {
+              stacked: true,
+              grid: { color: '#e2e8f0' },
+              ticks: {
+                callback: (value) => eurFormat(value),
+              },
+            },
+          },
+          plugins: {
+            ...chartPlugins,
+            tooltip: {
+              ...chartPlugins.tooltip,
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + eurFormat(context.parsed.y);
+                },
+                afterBody: function(tooltipItems) {
+                  const idx = tooltipItems[0].dataIndex;
+                  const fitOut = fitOutData[idx] || 0;
+                  const operating = operatingData[idx] || 0;
+                  return 'Total Costs: ' + eurFormat(fitOut + operating);
+                }
+              }
+            }
+          },
+        },
+      });
+
+      const cumulativePnLData = [];
+      let cumsum = 0;
+      for (let i = 0; i < weeks.length; i++) {
+        cumsum += getWeeklyPnL(i);
+        cumulativePnLData.push(cumsum);
+      }
+
+      const ctx2 = document.getElementById('cumulativePnLChart').getContext('2d');
+      if (cumulativePnLChart) cumulativePnLChart.destroy();
+      cumulativePnLChart = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: weeks,
+          datasets: [
+            {
+              label: 'Cumulative P&L',
+              data: cumulativePnLData,
+              borderColor: '#0d9488',
+              backgroundColor: 'rgba(13, 148, 136, 0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: '#0d9488',
+              pointRadius: 4,
+              pointHoverRadius: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              grid: { color: '#e2e8f0' },
+              ticks: {
+                callback: (value) => eurFormat(value),
+              },
+            },
+          },
+          plugins: chartPlugins,
+        },
+      });
+    }
+
+    function initBreakEvenChart() {
+      const scenarios = {
+        'Current Plan': planCostsTotals,
+        'Corrected Costs': planCostsTotals.map(c => c * 0.95),
+        'Optimized': planCostsTotals.map((c, i) => {
+          const revAdj = planRevenue[i] * 1.1;
+          const costAdj = c * 0.90;
+          return Math.max(0, costAdj - revAdj);
+        }),
+      };
+
+      const cumulativeData = {};
+      for (let scenario in scenarios) {
+        cumulativeData[scenario] = [];
+        let cumsum = 0;
+        for (let i = 0; i < weeks.length; i++) {
+          cumsum += planRevenue[i] - scenarios[scenario][i];
+          cumulativeData[scenario].push(cumsum);
+        }
+      }
+
+      const ctx = document.getElementById('breakEvenChart').getContext('2d');
+      if (breakEvenChart) breakEvenChart.destroy();
+      breakEvenChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: weeks,
+          datasets: [
+            {
+              label: 'Current Plan',
+              data: cumulativeData['Current Plan'],
+              borderColor: '#d97706',
+              backgroundColor: 'rgba(217, 119, 6, 0.1)',
+              borderWidth: 2,
+              fill: false,
+              tension: 0.4,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+            },
+            {
+              label: 'Corrected Costs',
+              data: cumulativeData['Corrected Costs'],
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              borderWidth: 2,
+              fill: false,
+              tension: 0.4,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+            },
+            {
+              label: 'Optimized',
+              data: cumulativeData['Optimized'],
+              borderColor: '#059669',
+              backgroundColor: 'rgba(5, 150, 105, 0.1)',
+              borderWidth: 2,
+              fill: false,
+              tension: 0.4,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              grid: { color: '#e2e8f0' },
+              ticks: {
+                callback: (value) => eurFormat(value),
+              },
+            },
+          },
+          plugins: chartPlugins,
+        },
+      });
+    }
+
+    function updateVarianceCharts() {
+      const ctx1 = document.getElementById('revenuePlanVsActualChart').getContext('2d');
+      if (revenuePlanVsActualChart) revenuePlanVsActualChart.destroy();
+      revenuePlanVsActualChart = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: weeks,
+          datasets: [
+            {
+              label: 'Plan Revenue',
+              data: planRevenue,
+              backgroundColor: '#d97706',
+              borderRadius: 4,
+            },
+            {
+              label: 'Actual Revenue',
+              data: actuals.revenue,
+              backgroundColor: '#0d9488',
+              borderRadius: 4,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              stacked: false,
+              grid: { color: '#e2e8f0' },
+              ticks: {
+                callback: (value) => eurFormat(value),
+              },
+            },
+          },
+          plugins: chartPlugins,
+        },
+      });
+
+      const planCumulativePnL = [];
+      let planCumSum = 0;
+      for (let i = 0; i < weeks.length; i++) {
+        planCumSum += planPnL[i];
+        planCumulativePnL.push(planCumSum);
+      }
+
+      const actualCumulativePnL = [];
+      let actualCumSum = 0;
+      for (let i = 0; i < weeks.length; i++) {
+        actualCumSum += getWeeklyPnL(i);
+        actualCumulativePnL.push(actualCumSum);
+      }
+
+      const ctx2 = document.getElementById('cumulativePnLVarianceChart').getContext('2d');
+      if (cumulativePnLVarianceChart) cumulativePnLVarianceChart.destroy();
+      cumulativePnLVarianceChart = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: weeks,
+          datasets: [
+            {
+              label: 'Plan P&L',
+              data: planCumulativePnL,
+              borderColor: '#d97706',
+              borderDash: [5, 5],
+              backgroundColor: 'rgba(217, 119, 6, 0.1)',
+              borderWidth: 2,
+              fill: false,
+              tension: 0.4,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+            },
+            {
+              label: 'Actual P&L',
+              data: actualCumulativePnL,
+              borderColor: '#0d9488',
+              backgroundColor: 'rgba(13, 148, 136, 0.1)',
+              borderWidth: 2,
+              fill: false,
+              tension: 0.4,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              grid: { color: '#e2e8f0' },
+              ticks: {
+                callback: (value) => eurFormat(value),
+              },
+            },
+          },
+          plugins: chartPlugins,
+        },
+      });
+
+      // Costs Breakdown: Fit-Out vs Operating (Plan vs Actual)
+      const planFitOut = weeks.map((_, i) => getInvestmentTotal(i));
+      const planOperating = weeks.map((_, i) => getRunningCostsTotal(i));
+      const actualFitOut = actuals.investment;
+      const actualOperating = actuals.runningCosts;
+
+      const ctx3 = document.getElementById('costsBreakdownChart').getContext('2d');
+      if (costsBreakdownChart) costsBreakdownChart.destroy();
+      costsBreakdownChart = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: weeks,
+          datasets: [
+            {
+              label: 'Plan: Fit-Out',
+              data: planFitOut,
+              backgroundColor: 'rgba(124, 58, 237, 0.35)',
+              borderColor: '#7c3aed',
+              borderWidth: 1,
+              borderRadius: 3,
+              stack: 'plan',
+            },
+            {
+              label: 'Plan: Operating',
+              data: planOperating,
+              backgroundColor: 'rgba(217, 119, 6, 0.35)',
+              borderColor: '#d97706',
+              borderWidth: 1,
+              borderRadius: 3,
+              stack: 'plan',
+            },
+            {
+              label: 'Actual: Fit-Out',
+              data: [...actualFitOut],
+              backgroundColor: 'rgba(124, 58, 237, 0.85)',
+              borderColor: '#7c3aed',
+              borderWidth: 1,
+              borderRadius: 3,
+              stack: 'actual',
+            },
+            {
+              label: 'Actual: Operating',
+              data: [...actualOperating],
+              backgroundColor: 'rgba(217, 119, 6, 0.85)',
+              borderColor: '#d97706',
+              borderWidth: 1,
+              borderRadius: 3,
+              stack: 'actual',
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { stacked: true, grid: { display: false } },
+            y: {
+              stacked: true,
+              grid: { color: '#e2e8f0' },
+              ticks: { callback: (value) => eurFormat(value) },
+            },
+          },
+          plugins: {
+            ...chartPlugins,
+            tooltip: {
+              ...chartPlugins.tooltip,
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + eurFormat(context.parsed.y);
+                }
+              }
+            }
+          },
+        },
+      });
+    }
+
+    function updateCashflowCharts(cashBalances, startingCash) {
+      const planCashBalances = [startingCash];
+      let planCumSum = 0;
+      for (let i = 0; i < weeks.length; i++) {
+        planCumSum += planPnL[i];
+        planCashBalances.push(startingCash + planCumSum);
+      }
+
+      const ctx1 = document.getElementById('cashBalanceChart').getContext('2d');
+      if (cashBalanceChart) cashBalanceChart.destroy();
+      cashBalanceChart = new Chart(ctx1, {
+        type: 'line',
+        data: {
+          labels: ['Start', ...weeks],
+          datasets: [
+            {
+              label: 'Plan Cash Balance',
+              data: planCashBalances,
+              borderColor: '#d97706',
+              borderDash: [5, 5],
+              backgroundColor: 'rgba(217, 119, 6, 0.05)',
+              borderWidth: 2,
+              fill: false,
+              tension: 0.4,
+              pointRadius: 2,
+              pointHoverRadius: 4,
+            },
+            {
+              label: 'Actual Cash Balance',
+              data: cashBalances,
+              borderColor: '#0d9488',
+              backgroundColor: 'rgba(13, 148, 136, 0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+            },
+            {
+              label: 'Zero Line',
+              data: Array(cashBalances.length).fill(0),
+              borderColor: '#dc2626',
+              borderDash: [3, 3],
+              borderWidth: 1,
+              fill: false,
+              pointRadius: 0,
+              showLine: true,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              grid: { color: '#e2e8f0' },
+              ticks: {
+                callback: (value) => eurFormat(value),
+              },
+            },
+          },
+          plugins: chartPlugins,
+        },
+      });
+
+      const ctx2 = document.getElementById('weeklyCashFlowChart').getContext('2d');
+      if (weeklyCashFlowChart) weeklyCashFlowChart.destroy();
+
+      const weeklyCashFlows = weeks.map((_, i) => getWeeklyPnL(i));
+      const colors = weeklyCashFlows.map(val => val >= 0 ? '#059669' : '#dc2626');
+
+      weeklyCashFlowChart = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: weeks,
+          datasets: [
+            {
+              label: 'Weekly P&L',
+              data: weeklyCashFlows,
+              backgroundColor: colors,
+              borderRadius: 4,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              grid: { color: '#e2e8f0' },
+              ticks: {
+                callback: (value) => eurFormat(value),
+              },
+            },
+          },
+          plugins: chartPlugins,
+        },
+      });
+    }
+
+    document.getElementById('startingCash').addEventListener('input', () => {
+      updateCashflowTab();
+    });
+
+    function init() {
+      buildEntryTable();
+      updateOverviewCharts();
+      initBreakEvenChart();
+      updateVarianceTab();
+      updateCashflowTab();
+    }
+
+    init();
+  </script>
+</body>
+</html>
