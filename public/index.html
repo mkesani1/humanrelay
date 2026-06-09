@@ -9,13 +9,112 @@
   <meta property="og:title" content="HumanRelay — The Human Layer for AI Agents &amp; Robots" />
   <meta property="og:description" content="Egocentric capture, annotation, a HITL API for agents, and teleoperation for robot fleets — for agent builders, humanoid companies, and frontier labs. Managed teams, not gig workers." />
   <meta property="og:url" content="https://humanrelay.vercel.app/" />
-  <meta name="twitter:card" content="summary" />
+  <meta property="og:site_name" content="HumanRelay" />
+  <meta property="og:image" content="https://humanrelay.vercel.app/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="HumanRelay — The Human Layer for AI Agents &amp; Robots" />
   <meta name="twitter:description" content="One partner for the human side of AI: capture, annotation, judgment for agents, teleoperation for robots." />
+  <meta name="twitter:image" content="https://humanrelay.vercel.app/og.png" />
+  <link rel="canonical" href="https://humanrelay.vercel.app/" />
+  <meta name="theme-color" content="#F5F0E8" />
+  <meta name="robots" content="index, follow" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23E05A33'/%3E%3Ccircle cx='22' cy='32' r='7' fill='%23F5F0E8'/%3E%3Ccircle cx='44' cy='32' r='7' fill='none' stroke='%23F5F0E8' stroke-width='4'/%3E%3Cpath d='M29 32h8' stroke='%23F5F0E8' stroke-width='4'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://humanrelay.vercel.app/#org",
+        "name": "HumanRelay",
+        "url": "https://humanrelay.vercel.app/",
+        "logo": "https://humanrelay.vercel.app/og.png",
+        "email": "hello@humanrelay.ai",
+        "slogan": "The human layer for agents and robots",
+        "description": "One partner for the human side of AI: egocentric data capture, annotation and evaluation (with sister company IndiVillage), a real-time human-judgment API for AI agents, and teleoperation for deployed robot fleets — powered by 1,200+ managed, office-based professionals.",
+        "memberOf": { "@type": "Organization", "name": "IndiVillage", "url": "https://indivillage.com" }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://humanrelay.vercel.app/#website",
+        "url": "https://humanrelay.vercel.app/",
+        "name": "HumanRelay",
+        "publisher": { "@id": "https://humanrelay.vercel.app/#org" }
+      },
+      {
+        "@type": "OfferCatalog",
+        "name": "HumanRelay Products",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "name": "Capture — Egocentric Data Collection",
+            "description": "4K first-person video of real human tasks, captured daily in managed centers. Priced per delivered data-hour.",
+            "category": "Robot training data"
+          },
+          {
+            "@type": "Offer",
+            "name": "Annotate — Labeling & Evaluation",
+            "description": "Video, sensor, and 3D/pose labeling, RLHF ranking, and rubric evaluation via IndiVillage. Priced per asset or per hour; pilots from 10 hours.",
+            "category": "Data annotation"
+          },
+          {
+            "@type": "Offer",
+            "name": "Judge — Human-in-the-Loop API",
+            "description": "Five primitives (Classify, Judge, Extract, Escalate, Resolve) via REST API or MCP server. Sub-minute human judgment for AI agents.",
+            "priceSpecification": { "@type": "PriceSpecification", "minPrice": 0.50, "maxPrice": 2.50, "priceCurrency": "USD", "description": "Per call: Basic $0.50, Complex $1.00, Expert $2.50" },
+            "category": "Human-in-the-loop API"
+          },
+          {
+            "@type": "Offer",
+            "name": "Operate — Teleoperation",
+            "description": "24/7 human teleoperation fallback for deployed robot fleets, with safety gating. Standby SLA plus per-intervention pricing; every intervention returned as annotated training data.",
+            "category": "Robot teleoperation"
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is HumanRelay?",
+            "acceptedAnswer": { "@type": "Answer", "text": "One partner for the human side of AI — software agents and embodied AI alike: egocentric data capture, annotation and evaluation (run with sister company IndiVillage), a real-time human-judgment API agents call when they shouldn't guess, and teleoperation for deployed robot fleets. One workforce of 1,200+ managed professionals powers all four." }
+          },
+          {
+            "@type": "Question",
+            "name": "How is HumanRelay different from Scale AI or gig-based platforms?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Three ways. Workforce: salaried, trained, office-based teams — not an anonymous crowd — which holds 99%+ accuracy and passes security review. Real time: sub-minute judgment calls and live teleoperation, not just batch labeling queues. Full lifecycle: capture, annotation, judgment, and teleop under one roof, so every deployment escalation flows back into training data without a vendor hand-off." }
+          },
+          {
+            "@type": "Question",
+            "name": "What egocentric data does HumanRelay capture?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Head-mounted 4K at 30/60 fps with synced audio and IMU (gaze optional), covering real manipulation tasks: cooking, cleaning, folding, assembly, picking, repair. Hundreds of hours daily, scaling weekly. Customers can buy from standing programs or direct their own taxonomy, task scripts, and environments. All capture is consent-first with provenance metadata and PII scrubbing." }
+          },
+          {
+            "@type": "Question",
+            "name": "Who is IndiVillage?",
+            "acceptedAnswer": { "@type": "Answer", "text": "IndiVillage is HumanRelay's sister company and the engine behind its annotation track record — 500M+ annotations delivered to global AI teams from managed delivery centers, with an impact-sourcing model of salaried professionals in offices." }
+          },
+          {
+            "@type": "Question",
+            "name": "How fast are responses?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Judge calls target sub-minute resolution, tiered by complexity. Teleoperation runs on standby SLAs: for fleets under coverage, a trained operator is on task in seconds. Annotation and capture programs run on agreed delivery schedules, from 48-hour pilots to standing daily throughput." }
+          },
+          {
+            "@type": "Question",
+            "name": "How does pricing work?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Judge: $0.50 (basic), $1.00 (complex), or $2.50 (expert) per call. Capture: per delivered data-hour. Annotate: per asset or per hour, pilots from 10 hours. Operate: standby SLA plus per-intervention. Volume discounts at scale." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
   <style>
     /* ============ TOKENS & RESET ============ */
     :root {

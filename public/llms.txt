@@ -1,0 +1,22 @@
+# HumanRelay
+
+> HumanRelay is the human layer for AI agents and robots: one partner for the entire human side of an AI stack. Four products — egocentric data capture, annotation & evaluation, a real-time human-in-the-loop (HITL) judgment API, and teleoperation for deployed robot fleets — powered by 1,200+ managed, salaried, office-based professionals (not gig workers). Annotation is delivered with sister company IndiVillage (https://indivillage.com), which has shipped 500M+ annotations for global AI teams.
+
+Key facts:
+- Hundreds of hours of 4K egocentric (first-person) video captured daily, growing weekly. Head-mounted 4K @ 30/60 fps with synced audio + IMU (gaze optional). Consent-first, provenance metadata, PII-scrubbed. Delivered raw, curated, or annotation-ready.
+- Judge (HITL API): five primitives — Classify, Judge, Extract, Escalate, Resolve — via REST API or MCP server. Sub-minute human responses with full audit trail. Pricing per call: Basic $0.50, Complex $1.00, Expert $2.50. Relay, the intelligence layer, decomposes complex questions into priced binary decisions, runs them in parallel, and reassembles the answer with a full trace.
+- Operate (teleoperation): 24/7 staffed operator benches for deployed robot fleets. Safety-confirmation binary gates every session. Standby SLA + per-intervention pricing. Every intervention is returned as an annotated, training-ready demonstration ("every intervention is a labeled demonstration").
+- Annotate: egocentric video labeling, 3D pose & hand tracking, object & affordance tagging, RLHF preference ranking, agent trace evaluation, content moderation, document extraction, custom taxonomy design. Dual-pass QA, gold-set sampling, 99%+ accuracy, 98% client retention. Pilots from 10 hours.
+- Workforce: managed teams in access-controlled offices under NDA, SOC 2 compliant. Impact-sourcing model via IndiVillage.
+- Audiences: agent builders (HITL judgment on tap), humanoid/robotics companies (pretraining data + teleop fallback), frontier labs (VLA/world-model data, RLHF, evals), investors.
+
+## Contact
+
+- Email: hello@humanrelay.ai (pilots scoped within a week; Judge pilot results in 48 hours)
+- Pilot requests: subject "Pilot request" to hello@humanrelay.ai
+- Sample datasets: subject "Sample dataset request" to hello@humanrelay.ai
+- Investor memo: subject "Investor memo request" to hello@humanrelay.ai
+
+## Site
+
+- [Home](https://humanrelay.vercel.app/): single-page site covering the four products (Capture, Annotate, Judge, Operate), the data flywheel, workforce model, pricing, and FAQ.
