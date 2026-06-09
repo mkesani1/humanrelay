@@ -10,7 +10,7 @@ the worker quality engine, **Operate** (teleop safety gate + flywheel), and **Ca
 cd platform
 npm install
 npm start            # http://localhost:8787 — no DATABASE_URL needed (in-process PGlite dev mode)
-npm test             # 27 specs over real Postgres semantics
+npm test             # 32 specs over real Postgres semantics
 npm run typecheck
 ```
 
@@ -58,7 +58,8 @@ curl -s localhost:8787/v1/relay/<id> -H 'authorization: Bearer hr_live_...'
 | `src/api/app.ts` | Hono REST API: 5 primitives, relay, teleop, datasets, webhooks (HMAC + backoff), usage, worker bench, admin |
 | `src/mcp/server.ts` | MCP server: `humanrelay_classify/judge/extract/escalate/resolve/relay` tools for agents |
 | `src/console/console.html` | Keyboard-first worker bench |
-| `tests/` | vitest suite (core, relay, api e2e, teleop) |
+| `tests/` | vitest suite (core, relay, api e2e, teleop, sdk) |
+| `src/sdk/client.ts` | TypeScript customer SDK — the `hr.judge(...)` from the website, real |
 
 ## API surface
 

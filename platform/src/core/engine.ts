@@ -190,6 +190,10 @@ export class TaskEngine {
     const task = await this.getTask(a.task_id);
     if (!task) throw new ApiError(404, "task not found");
     if (task.status !== "assigned") throw new ApiError(409, `task is ${task.status}`);
+    // Expert-tier accountability: a verdict without reasoning is not deliverable.
+    if (task.tier === "expert" && !task.is_gold && !rationale?.trim()) {
+      throw new ApiError(422, "rationale is required for expert-tier tasks");
+    }
 
     const goldCorrect = task.is_gold ? verdictMatches(verdict, task.gold_expected) : null;
 

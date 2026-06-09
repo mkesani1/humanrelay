@@ -62,16 +62,29 @@ export function createApp(deps: AppDeps) {
 
   // ---------- customer API auth ----------
 
+  // Sliding-window rate limiter per API key (in-memory; move to Redis when horizontal).
+  const rateBuckets = new Map<string, number[]>();
+
   const requireOrg = async (c: Context<Env>, next: Next) => {
     const header = c.req.header("authorization") ?? "";
     const raw = header.startsWith("Bearer ") ? header.slice(7) : null;
     if (!raw) return c.json({ error: "missing bearer token" }, 401);
-    const { rows } = await db.query<{ org_id: string }>(
-      `select org_id from api_keys where key_hash = $1 and revoked_at is null`,
+    const { rows } = await db.query<{ id: string; org_id: string; rate_limit_per_min: number }>(
+      `select id, org_id, rate_limit_per_min from api_keys where key_hash = $1 and revoked_at is null`,
       [hashKey(raw)],
     );
-    if (!rows[0]) return c.json({ error: "invalid api key" }, 401);
-    c.set("orgId", rows[0].org_id);
+    const key = rows[0];
+    if (!key) return c.json({ error: "invalid api key" }, 401);
+
+    const now = Date.now();
+    const window = (rateBuckets.get(key.id) ?? []).filter((t) => now - t < 60_000);
+    if (window.length >= Number(key.rate_limit_per_min)) {
+      return c.json({ error: "rate limit exceeded", limit_per_min: Number(key.rate_limit_per_min) }, 429);
+    }
+    window.push(now);
+    rateBuckets.set(key.id, window);
+
+    c.set("orgId", key.org_id);
     await next();
   };
 
