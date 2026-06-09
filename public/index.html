@@ -1,1530 +1,882 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Third Space Cafe — Financial Tracker</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HumanRelay — The Human Layer for Embodied AI</title>
+  <meta name="description" content="Egocentric data capture, expert annotation, real-time human judgment, and teleoperation — one partner for the entire human side of your robot stack. 1,200+ managed professionals. Not gig workers." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="HumanRelay — The Human Layer for Embodied AI" />
+  <meta property="og:description" content="Egocentric capture, annotation, HITL API, and teleoperation for humanoid companies and frontier labs. Hundreds of hours of 4K first-person data daily, from managed teams — not gig workers." />
+  <meta property="og:url" content="https://humanrelay.vercel.app/" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="HumanRelay — The Human Layer for Embodied AI" />
+  <meta name="twitter:description" content="One partner for the human side of embodied AI: capture, annotation, judgment, teleoperation." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23E05A33'/%3E%3Ccircle cx='22' cy='32' r='7' fill='%23F5F0E8'/%3E%3Ccircle cx='44' cy='32' r='7' fill='none' stroke='%23F5F0E8' stroke-width='4'/%3E%3Cpath d='M29 32h8' stroke='%23F5F0E8' stroke-width='4'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    /* ============ TOKENS & RESET ============ */
+    :root {
+      --paper:      #F5F0E8;
+      --paper-deep: #EDE7DA;
+      --ink:        #23211C;
+      --ink-soft:   #57534A;
+      --muted:      #6E6A60;
+      --vermillion: #E05A33;
+      --vermillion-deep: #C44A27;
+      --border:     #DCD6C8;
+      --card:       #FFFFFF;
+      --dark:       #201E1A;
+      --dark-card:  #2B2926;
+      --dark-border:#3D3A35;
+      --dark-text:  #EDE8DD;
+      --dark-muted: #A8A296;
+      --serif: 'Fraunces', Georgia, serif;
+      --sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --radius: 14px;
+      --max-w: 1160px;
     }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); background: var(--paper); color: var(--ink); line-height: 1.65; font-size: 16px; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    img, svg { display: block; }
+    .wrap { max-width: var(--max-w); margin: 0 auto; padding: 0 32px; }
+    section { scroll-margin-top: 80px; }
 
-    html {
-      scroll-behavior: smooth;
+    h1, h2, .display { font-family: var(--serif); font-weight: 600; letter-spacing: -0.015em; line-height: 1.08; }
+    .accent { color: var(--vermillion); font-style: italic; }
+
+    .kicker {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--vermillion);
     }
+    .kicker::before { content: ''; width: 26px; height: 2px; background: var(--vermillion); }
+    .section-head { max-width: 760px; margin-bottom: 56px; }
+    .section-head h2 { font-size: clamp(2rem, 4.2vw, 3rem); margin: 14px 0 16px; }
+    .section-head p { color: var(--muted); font-size: 1.08rem; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f8fafc;
-      color: #0f172a;
-      position: relative;
-      overflow-x: hidden;
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px 26px; border-radius: 10px; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; border: none; transition: transform 0.12s ease, background 0.2s, border-color 0.2s; font-family: var(--sans); }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--ink); color: #fff; }
+    .btn-primary:hover { background: #000; }
+    .btn-accent { background: var(--vermillion); color: #fff; }
+    .btn-accent:hover { background: var(--vermillion-deep); }
+    .btn-outline { background: transparent; color: var(--ink); border: 1.5px solid var(--border); }
+    .btn-outline:hover { border-color: var(--ink); }
+
+    /* ============ NAV ============ */
+    .nav { position: sticky; top: 0; z-index: 100; background: rgba(245,240,232,0.92); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: var(--max-w); margin: 0 auto; padding: 0 32px; height: 66px;
+      display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .logo { font-weight: 700; font-size: 1.22rem; letter-spacing: -0.03em; white-space: nowrap; }
+    .logo span { color: var(--vermillion); }
+    .nav-links { display: flex; gap: 26px; align-items: center; }
+    .nav-links a { font-size: 0.88rem; font-weight: 500; color: var(--muted); transition: color 0.2s; white-space: nowrap; }
+    .nav-links a:hover { color: var(--ink); }
+    .nav .btn { padding: 10px 20px; font-size: 0.88rem; }
+
+    /* ============ HERO ============ */
+    .hero { padding: 96px 0 64px; }
+    .hero-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 56px; align-items: center; }
+    .hero h1 { font-size: clamp(2.7rem, 5.6vw, 4.4rem); margin: 20px 0 22px; }
+    .hero-sub { font-size: 1.15rem; color: var(--ink-soft); max-width: 560px; margin-bottom: 34px; }
+    .hero-sub strong { color: var(--ink); }
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .hero-card { background: var(--dark); color: var(--dark-text); border-radius: var(--radius);
+      padding: 28px; font-size: 0.86rem; box-shadow: 0 24px 60px rgba(35,33,28,0.18); }
+    .hero-card .hc-label { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dark-muted); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .hero-card .hc-label::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #5BBF7A; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+    .hc-row { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--dark-border); }
+    .hc-row:last-child { border-bottom: none; }
+    .hc-row .k { color: var(--dark-muted); }
+    .hc-row .v { font-weight: 600; text-align: right; }
+    .hc-row .v em { color: var(--vermillion); font-style: normal; }
+
+    .stat-bar { margin-top: 72px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      display: grid; grid-template-columns: repeat(4, 1fr); }
+    .stat { padding: 28px 24px; border-right: 1px solid var(--border); }
+    .stat:last-child { border-right: none; }
+    .stat .n { font-family: var(--serif); font-size: 2rem; font-weight: 600; color: var(--ink); line-height: 1.1; }
+    .stat .l { font-size: 0.85rem; color: var(--muted); margin-top: 6px; }
+
+    /* ============ STACK ============ */
+    .stack { padding: 110px 0 90px; }
+    .stack-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+    .pillar { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 34px 32px; display: flex; flex-direction: column; gap: 14px; transition: transform 0.18s ease, box-shadow 0.18s ease; }
+    .pillar:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(35,33,28,0.08); }
+    .pillar .num { font-family: var(--serif); font-style: italic; color: var(--vermillion); font-size: 1rem; }
+    .pillar h3 { font-size: 1.45rem; font-family: var(--serif); font-weight: 600; }
+    .pillar .tag { color: var(--ink-soft); font-size: 0.98rem; }
+    .pillar ul { margin-top: 4px; display: flex; flex-direction: column; gap: 9px; }
+    .pillar li { font-size: 0.9rem; color: var(--muted); padding-left: 22px; position: relative; }
+    .pillar li::before { content: '—'; position: absolute; left: 0; color: var(--vermillion); }
+    .pillar .more { margin-top: auto; padding-top: 14px; font-size: 0.88rem; font-weight: 600; color: var(--vermillion); }
+
+    /* ============ FLYWHEEL (dark) ============ */
+    .flywheel { background: var(--dark); color: var(--dark-text); padding: 110px 0; }
+    .flywheel .kicker { color: var(--vermillion); }
+    .flywheel h2 { font-size: clamp(2rem, 4.2vw, 3rem); margin: 14px 0 16px; }
+    .flywheel .section-head p { color: var(--dark-muted); }
+    .loop { display: flex; align-items: stretch; gap: 0; flex-wrap: wrap; margin: 40px 0 12px; }
+    .loop-step { flex: 1 1 150px; background: var(--dark-card); border: 1px solid var(--dark-border);
+      padding: 20px 18px; position: relative; }
+    .loop-step:first-child { border-radius: 12px 0 0 12px; }
+    .loop-step:last-child { border-radius: 0 12px 12px 0; }
+    .loop-step + .loop-step { border-left: none; }
+    .loop-step .ls-n { font-size: 0.7rem; letter-spacing: 0.12em; color: var(--vermillion); font-weight: 700; }
+    .loop-step .ls-t { font-weight: 600; margin: 4px 0 6px; font-size: 1rem; }
+    .loop-step .ls-d { font-size: 0.8rem; color: var(--dark-muted); line-height: 1.5; }
+    .loop-step::after { content: '→'; position: absolute; right: -9px; top: 50%; transform: translateY(-50%);
+      color: var(--vermillion); font-weight: 700; z-index: 2; background: var(--dark); border-radius: 50%; line-height: 1; }
+    .loop-step:last-child::after { content: ''; }
+    .loop-return { text-align: center; color: var(--vermillion); font-size: 0.88rem; font-weight: 600; margin-bottom: 48px; }
+    .fly-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .fly-card { border: 1px solid var(--dark-border); border-radius: 12px; padding: 24px; }
+    .fly-card .n { font-family: var(--serif); font-size: 1.7rem; color: var(--vermillion); }
+    .fly-card .l { font-size: 0.88rem; color: var(--dark-muted); margin-top: 6px; }
+
+    /* ============ PRODUCT SECTIONS ============ */
+    .product { padding: 100px 0; }
+    .product.alt { background: var(--paper-deep); }
+    .prod-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: start; }
+    .prod-grid .section-head { margin-bottom: 24px; }
+    .prod-copy p { color: var(--ink-soft); margin-bottom: 18px; max-width: 540px; }
+    .checks { display: flex; flex-direction: column; gap: 12px; margin: 22px 0 28px; }
+    .checks li { padding-left: 30px; position: relative; font-size: 0.95rem; color: var(--ink-soft); }
+    .checks li strong { color: var(--ink); }
+    .checks li::before { content: '✓'; position: absolute; left: 0; top: 3px; width: 20px; height: 20px;
+      background: var(--vermillion); color: #fff; border-radius: 6px; font-size: 0.7rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; }
+    .spec-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .spec-card .sc-head { background: var(--ink); color: #fff; padding: 16px 24px; font-size: 0.78rem;
+      letter-spacing: 0.13em; text-transform: uppercase; font-weight: 700; }
+    .spec-row { display: flex; justify-content: space-between; gap: 18px; padding: 15px 24px; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
+    .spec-row:last-child { border-bottom: none; }
+    .spec-row .k { color: var(--muted); white-space: nowrap; }
+    .spec-row .v { font-weight: 600; text-align: right; }
+    .note-card { margin-top: 20px; background: rgba(224,90,51,0.08); border: 1px solid rgba(224,90,51,0.3);
+      border-radius: 12px; padding: 18px 22px; font-size: 0.92rem; color: var(--ink-soft); }
+    .note-card strong { color: var(--vermillion-deep); }
+
+    /* IndiVillage callout */
+    .iv-callout { background: var(--card); border: 1px solid var(--border); border-left: 5px solid var(--vermillion);
+      border-radius: var(--radius); padding: 30px 34px; margin-bottom: 36px; }
+    .iv-callout h3 { font-family: var(--serif); font-size: 1.4rem; margin-bottom: 10px; }
+    .iv-callout p { color: var(--ink-soft); max-width: 820px; }
+    .iv-callout a { color: var(--vermillion); font-weight: 600; border-bottom: 1.5px solid currentColor; }
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+    .chip { background: var(--card); border: 1px solid var(--border); border-radius: 999px;
+      padding: 10px 20px; font-size: 0.9rem; font-weight: 500; color: var(--ink-soft); }
+    .chip b { color: var(--vermillion); font-weight: 700; margin-right: 6px; }
+
+    /* Primitives */
+    .prim-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 56px; }
+    .prim { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 20px; }
+    .prim h4 { font-family: var(--serif); font-size: 1.1rem; margin-bottom: 6px; }
+    .prim p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+    /* Relay demo */
+    .relay-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; margin-bottom: 56px; }
+    .decomp { background: var(--dark); color: var(--dark-text); border-radius: var(--radius); padding: 28px; font-size: 0.88rem; }
+    .decomp .d-line { color: var(--dark-muted); font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; margin: 18px 0 8px; }
+    .decomp .d-line:first-child { margin-top: 0; }
+    .decomp .d-q { background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 10px; padding: 13px 16px; font-weight: 500; }
+    .decomp .d-bin { display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 10px; padding: 11px 16px; margin-bottom: 8px; }
+    .decomp .d-bin .price { color: var(--vermillion); font-weight: 700; white-space: nowrap; }
+    .decomp .d-bin .tier { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dark-muted); }
+    .decomp .d-result { background: rgba(224,90,51,0.12); border: 1px solid rgba(224,90,51,0.45); border-radius: 10px; padding: 13px 16px; font-weight: 500; }
+    .decomp .d-meta { margin-top: 14px; font-size: 0.8rem; color: var(--dark-muted); text-align: center; }
+
+    /* Code block */
+    .code-block { background: var(--dark); border-radius: var(--radius); overflow: hidden; }
+    .code-tabs { display: flex; border-bottom: 1px solid var(--dark-border); }
+    .code-tab { background: none; border: none; color: var(--dark-muted); font-family: var(--sans);
+      font-size: 0.85rem; font-weight: 600; padding: 14px 22px; cursor: pointer; border-bottom: 2px solid transparent; }
+    .code-tab.active { color: var(--dark-text); border-bottom-color: var(--vermillion); }
+    .code-pane { display: none; padding: 24px 26px; font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+      font-size: 0.82rem; line-height: 1.7; color: #D8D3C8; white-space: pre; overflow-x: auto; }
+    .code-pane.active { display: block; }
+    .code-pane .kw { color: #E08A6E; } .code-pane .st { color: #A8C896; } .code-pane .fn { color: #8FB8D8; } .code-pane .cm { color: #7A766C; }
+    .price-chips { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+
+    /* ============ WORKFORCE ============ */
+    .workforce { padding: 110px 0; background: var(--dark); color: var(--dark-text); }
+    .workforce h2 { font-size: clamp(2rem, 4.2vw, 3rem); margin: 14px 0 16px; }
+    .workforce .section-head p { color: var(--dark-muted); }
+    .wf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .wf-card { background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: var(--radius); padding: 30px 28px; }
+    .wf-card .ico { width: 42px; height: 42px; border-radius: 10px; background: rgba(224,90,51,0.15);
+      color: var(--vermillion); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 16px; }
+    .wf-card h3 { font-family: var(--serif); font-size: 1.3rem; margin-bottom: 10px; }
+    .wf-card p { font-size: 0.92rem; color: var(--dark-muted); }
+
+    /* ============ FIT ============ */
+    .fit { padding: 110px 0; }
+    .fit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .fit-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 32px 30px; display: flex; flex-direction: column; }
+    .fit-card .for { font-size: 0.74rem; letter-spacing: 0.13em; text-transform: uppercase; font-weight: 700; color: var(--vermillion); margin-bottom: 10px; }
+    .fit-card h3 { font-family: var(--serif); font-size: 1.5rem; margin-bottom: 12px; }
+    .fit-card p { font-size: 0.94rem; color: var(--muted); margin-bottom: 22px; }
+    .fit-card a { margin-top: auto; font-weight: 700; font-size: 0.92rem; color: var(--ink); }
+    .fit-card a:hover { color: var(--vermillion); }
+
+    /* ============ PRICING ============ */
+    .pricing { padding: 100px 0; background: var(--paper-deep); }
+    .price-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .price-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 26px; display: flex; flex-direction: column; gap: 10px; }
+    .price-card.hot { border-color: var(--vermillion); box-shadow: 0 12px 32px rgba(224,90,51,0.12); }
+    .price-card .p-name { font-family: var(--serif); font-size: 1.25rem; font-weight: 600; }
+    .price-card .p-meter { color: var(--vermillion); font-weight: 700; font-size: 0.95rem; }
+    .price-card .p-desc { font-size: 0.88rem; color: var(--muted); }
+    .price-card ul { display: flex; flex-direction: column; gap: 7px; margin-top: 4px; }
+    .price-card li { font-size: 0.84rem; color: var(--muted); padding-left: 18px; position: relative; }
+    .price-card li::before { content: '·'; position: absolute; left: 4px; color: var(--vermillion); font-weight: 700; }
+    .price-foot { text-align: center; color: var(--muted); font-size: 0.9rem; margin-top: 30px; }
+
+    /* ============ FAQ ============ */
+    .faq { padding: 110px 0; }
+    .faq-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; }
+    .faq-filter { background: var(--card); border: 1px solid var(--border); border-radius: 999px;
+      padding: 8px 18px; font-size: 0.85rem; font-weight: 600; color: var(--muted); cursor: pointer; font-family: var(--sans); transition: all 0.15s; }
+    .faq-filter.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .faq-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+    .faq-q { width: 100%; text-align: left; background: none; border: none; font-family: var(--sans);
+      font-size: 1rem; font-weight: 600; color: var(--ink); padding: 20px 24px; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .faq-q::after { content: '+'; font-size: 1.3rem; color: var(--vermillion); flex-shrink: 0; transition: transform 0.2s; }
+    .faq-item.open .faq-q::after { transform: rotate(45deg); }
+    .faq-a { display: none; padding: 0 24px 20px; color: var(--muted); font-size: 0.94rem; max-width: 850px; }
+    .faq-item.open .faq-a { display: block; }
+
+    /* ============ CTA ============ */
+    .cta { padding: 110px 0; background: var(--vermillion); color: #fff; text-align: center; }
+    .cta h2 { font-size: clamp(2.1rem, 4.6vw, 3.4rem); max-width: 800px; margin: 0 auto 18px; }
+    .cta p.sub { opacity: 0.92; max-width: 560px; margin: 0 auto 36px; }
+    .cta-form { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 22px; }
+    .cta-input { padding: 14px 20px; border-radius: 10px; border: none; font-size: 1rem; min-width: 300px; font-family: var(--sans); }
+    .cta .btn { background: var(--ink); color: #fff; padding: 14px 30px; font-size: 1rem; }
+    .cta .btn:hover { background: #000; }
+    .cta-note { font-size: 0.88rem; opacity: 0.85; }
+    .cta-email a { font-weight: 700; border-bottom: 1.5px solid rgba(255,255,255,0.6); }
+
+    /* ============ FOOTER ============ */
+    footer { padding: 48px 0; }
+    .foot-inner { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+    .foot-links { display: flex; gap: 22px; flex-wrap: wrap; }
+    .foot-links a { font-size: 0.86rem; color: var(--muted); }
+    .foot-links a:hover { color: var(--ink); }
+    .foot-meta { font-size: 0.84rem; color: var(--muted); }
+    .foot-meta a { color: var(--vermillion); font-weight: 600; }
+
+    /* ============ ANIMATION ============ */
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 980px) {
+      .nav-links { display: none; }
+      .hero-grid, .prod-grid, .relay-demo { grid-template-columns: 1fr; gap: 36px; }
+      .stack-grid { grid-template-columns: 1fr; }
+      .stat-bar { grid-template-columns: repeat(2, 1fr); }
+      .stat:nth-child(2) { border-right: none; }
+      .stat:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
+      .prim-grid { grid-template-columns: repeat(2, 1fr); }
+      .fly-cards, .wf-grid, .fit-grid { grid-template-columns: 1fr; }
+      .price-grid { grid-template-columns: repeat(2, 1fr); }
+      .loop-step { flex: 1 1 100%; border-radius: 0 !important; }
+      .loop-step + .loop-step { border-left: 1px solid var(--dark-border); border-top: none; }
+      .loop-step::after { content: '↓'; right: 50%; top: auto; bottom: -11px; transform: translateX(50%); }
+      .loop-step:last-child::after { content: ''; }
     }
-
-    body::before,
-    body::after {
-      content: '';
-      position: fixed;
-      z-index: -1;
-      pointer-events: none;
-    }
-
-    body::before {
-      top: -10%;
-      right: -5%;
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(13, 148, 136, 0.08) 0%, transparent 70%);
-      border-radius: 50%;
-    }
-
-    body::after {
-      bottom: -15%;
-      left: -10%;
-      width: 700px;
-      height: 700px;
-      background: radial-gradient(circle, rgba(217, 119, 6, 0.08) 0%, transparent 70%);
-      border-radius: 50%;
-    }
-
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: #ffffff;
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid #e2e8f0;
-      padding: 0 2rem;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      gap: 3rem;
-    }
-
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-weight: 600;
-      font-size: 1.125rem;
-      color: #0f172a;
-      text-decoration: none;
-    }
-
-    .nav-icon {
-      width: 28px;
-      height: 28px;
-      color: #0d9488;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 0;
-      margin-left: auto;
-    }
-
-    .nav-links a {
-      padding: 0.5rem 1.5rem;
-      text-decoration: none;
-      color: #64748b;
-      font-size: 0.95rem;
-      font-weight: 500;
-      border-radius: 8px;
-      transition: all 0.2s ease;
-      position: relative;
-    }
-
-    .nav-links a:hover {
-      color: #0f172a;
-    }
-
-    .nav-links a.active {
-      color: #0d9488;
-      background: rgba(13, 148, 136, 0.08);
-    }
-
-    main {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 3rem 2rem;
-    }
-
-    .hero {
-      text-align: center;
-      margin-bottom: 4rem;
-      animation: fadeInUp 0.8s ease forwards;
-    }
-
-    .hero h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, #0f172a 0%, #0d9488 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .hero p {
-      font-size: 1.1rem;
-      color: #64748b;
-    }
-
-    section {
-      opacity: 0;
-      animation: fadeInUp 0.8s ease forwards;
-    }
-
-    section:nth-of-type(2) { animation-delay: 0.1s; }
-    section:nth-of-type(3) { animation-delay: 0.2s; }
-    section:nth-of-type(4) { animation-delay: 0.3s; }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .section-title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: #0f172a;
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 2px solid #e2e8f0;
-    }
-
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2.5rem;
-    }
-
-    .kpi-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-      border-left: 3px solid #0d9488;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .kpi-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    }
-
-    .kpi-card.amber { border-left-color: #d97706; }
-    .kpi-card.red { border-left-color: #dc2626; }
-    .kpi-card.blue { border-left-color: #3b82f6; }
-    .kpi-card.purple { border-left-color: #7c3aed; }
-    .kpi-card.green { border-left-color: #059669; }
-
-    .kpi-label {
-      font-size: 0.875rem;
-      color: #64748b;
-      font-weight: 500;
-      margin-bottom: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .kpi-value {
-      font-size: 1.875rem;
-      font-weight: 700;
-      color: #0f172a;
-    }
-
-    .kpi-value.positive { color: #059669; }
-    .kpi-value.negative { color: #dc2626; }
-
-    .chart-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 2rem;
-      margin-bottom: 2.5rem;
-    }
-
-    .chart-container {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    }
-
-    .chart-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #0f172a;
-      margin-bottom: 1.5rem;
-    }
-
-    .chart-wrapper {
-      position: relative;
-      height: 300px;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .tab-button {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      background: none;
-      color: #64748b;
-      font-size: 0.95rem;
-      font-weight: 500;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
-      transition: all 0.2s ease;
-    }
-
-    .tab-button:hover {
-      color: #0f172a;
-    }
-
-    .tab-button.active {
-      color: #0d9488;
-      border-bottom-color: #0d9488;
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 1.5rem;
-    }
-
-    thead {
-      background: #f1f5f9;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    th {
-      padding: 0.875rem 1rem;
-      text-align: left;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #475569;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    td {
-      padding: 0.875rem 1rem;
-      border-bottom: 1px solid #e2e8f0;
-      font-size: 0.95rem;
-    }
-
-    tbody tr:nth-child(odd) {
-      background: #ffffff;
-    }
-
-    tbody tr:nth-child(even) {
-      background: #f8fafc;
-    }
-
-    tbody tr:last-child {
-      background: #f1f5f9;
-      font-weight: 600;
-      border-top: 2px solid #e2e8f0;
-    }
-
-    tbody tr:hover {
-      background: #f0f9ff;
-    }
-
-    input[type="number"],
-    input[type="text"] {
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      padding: 0.5rem 0.75rem;
-      font-size: 0.95rem;
-      font-weight: 500;
-      text-align: right;
-      transition: border-color 0.2s ease;
-      background: #ffffff;
-      color: #0f172a;
-      font-family: inherit;
-    }
-
-    input[type="number"]:focus,
-    input[type="text"]:focus {
-      outline: none;
-      border-color: #0d9488;
-      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
-    }
-
-    .plan-value {
-      display: block;
-      font-size: 0.75rem;
-      color: #94a3b8;
-      margin-top: 0.25rem;
-    }
-
-    .positive { color: #059669; }
-    .negative { color: #dc2626; }
-    .neutral { color: #64748b; }
-
-    .input-wrapper {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .breakeven-note {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      color: #166534;
-      font-size: 0.9rem;
-    }
-
-    @media (max-width: 768px) {
-      nav {
-        padding: 0 1rem;
-        gap: 1rem;
-      }
-
-      .nav-links a {
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
-      }
-
-      main {
-        padding: 2rem 1rem;
-      }
-
-      .hero h1 {
-        font-size: 1.75rem;
-      }
-
-      .hero p {
-        font-size: 0.95rem;
-      }
-
-      .kpi-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .chart-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .chart-wrapper {
-        height: 250px;
-      }
-
-      table {
-        font-size: 0.85rem;
-      }
-
-      th, td {
-        padding: 0.5rem;
-      }
-    }
-
-    .variance-table {
-      overflow-x: auto;
-      margin: 1.5rem 0;
-    }
-
-    .variance-table table {
-      min-width: 1200px;
-    }
-
-    .value-positive {
-      color: #059669;
-      font-weight: 600;
-    }
-
-    .value-negative {
-      color: #dc2626;
-      font-weight: 600;
-    }
-
-    .input-group {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 1.5rem;
-    }
-
-    .input-group label {
-      font-size: 1rem;
-      font-weight: 500;
-      color: #0f172a;
-      min-width: 150px;
-    }
-
-    .input-group input {
-      width: 200px;
-    }
-
-    .funding-metric {
-      font-size: 0.95rem;
-      color: #64748b;
-      margin-top: 0.5rem;
-    }
-
-    .funding-metric strong {
-      color: #0f172a;
-      font-weight: 600;
+    @media (max-width: 600px) {
+      .wrap, .nav-inner { padding: 0 20px; }
+      .hero { padding: 64px 0 48px; }
+      .stat-bar, .price-grid, .prim-grid { grid-template-columns: 1fr; }
+      .stat { border-right: none; border-bottom: 1px solid var(--border); }
+      .stat:last-child { border-bottom: none; }
+      .cta-input { min-width: 0; width: 100%; }
     }
   </style>
 </head>
 <body>
-  <nav>
-    <a href="#" class="nav-brand">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-      </svg>
-      Third Space Cafe
-    </a>
-    <div class="nav-links">
-      <a href="#overview" class="nav-link active">Overview</a>
-      <a href="#breakeven" class="nav-link">Break-Even</a>
-      <a href="#actuals" class="nav-link">Actuals</a>
+
+  <!-- ============ NAV ============ -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#top" class="logo">Human<span>Relay</span></a>
+      <div class="nav-links">
+        <a href="#stack">The Stack</a>
+        <a href="#capture">Capture</a>
+        <a href="#annotate">Annotate</a>
+        <a href="#judge">Judge</a>
+        <a href="#operate">Operate</a>
+        <a href="#workforce">Workforce</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <a class="btn btn-accent" href="mailto:hello@humanrelay.ai?subject=Pilot%20request">Start a Pilot</a>
     </div>
   </nav>
 
-  <main>
-    <div class="hero">
-      <h1>Third Space Cafe — Financial Tracker</h1>
-      <p>15-Week Business Plan · Track Actuals vs Plan</p>
+  <!-- ============ HERO ============ -->
+  <header class="hero" id="top">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <span class="kicker">Human data infrastructure for embodied AI</span>
+          <h1>The <span class="accent">human layer</span> for embodied&nbsp;AI.</h1>
+          <p class="hero-sub">Egocentric capture, expert annotation, real-time judgment, and teleoperation — <strong>one partner for the entire human side of your robot stack.</strong> Built on 1,200+ managed professionals in offices we run. Not gig workers.</p>
+          <div class="hero-ctas">
+            <a class="btn btn-primary" href="mailto:hello@humanrelay.ai?subject=Pilot%20request">Start a Pilot</a>
+            <a class="btn btn-outline" href="mailto:hello@humanrelay.ai?subject=Sample%20dataset%20request">Request Sample Data</a>
+          </div>
+        </div>
+        <div class="hero-card reveal">
+          <div class="hc-label">Live across our centers</div>
+          <div class="hc-row"><span class="k">Egocentric capture</span><span class="v"><em>100s of hrs</em> / day, 4K</span></div>
+          <div class="hc-row"><span class="k">Annotation throughput</span><span class="v">500M+ delivered</span></div>
+          <div class="hc-row"><span class="k">HITL response</span><span class="v">sub-minute</span></div>
+          <div class="hc-row"><span class="k">Teleop benches</span><span class="v">staffed 24/7</span></div>
+          <div class="hc-row"><span class="k">Workforce</span><span class="v">managed, in-office</span></div>
+        </div>
+      </div>
+
+      <div class="stat-bar">
+        <div class="stat reveal"><div class="n">100s of hrs</div><div class="l">4K egocentric video captured daily — and growing</div></div>
+        <div class="stat reveal"><div class="n">500M+</div><div class="l">Annotations delivered via IndiVillage</div></div>
+        <div class="stat reveal"><div class="n">1,200+</div><div class="l">Managed professionals — salaried, trained, in-office</div></div>
+        <div class="stat reveal"><div class="n">99%+</div><div class="l">QA accuracy · 98% client retention</div></div>
+      </div>
     </div>
+  </header>
 
-    <section id="overview">
-      <h2 class="section-title">Overview</h2>
+  <!-- ============ THE STACK ============ -->
+  <section class="stack" id="stack">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">The Stack</span>
+        <h2>One partner. The whole human stack.</h2>
+        <p>Everything a robotics program needs humans for — from pretraining data to deployment fallback. Four products, one workforce, one API.</p>
+      </div>
+      <div class="stack-grid">
+        <a class="pillar reveal" href="#capture">
+          <span class="num">01 / Capture</span>
+          <h3>Egocentric data collection</h3>
+          <p class="tag">First-person 4K video of real people doing real work — hands, tools, homes, kitchens, warehouses.</p>
+          <ul>
+            <li>Hundreds of hours captured daily, growing fast</li>
+            <li>Head-mounted 4K rigs with synced audio + IMU</li>
+            <li>Scripted task coverage or naturalistic capture</li>
+            <li>Consent-first, full provenance metadata</li>
+          </ul>
+          <span class="more">Explore Capture →</span>
+        </a>
+        <a class="pillar reveal" href="#annotate">
+          <span class="num">02 / Annotate</span>
+          <h3>Labeling &amp; evaluation</h3>
+          <p class="tag">Delivered by IndiVillage, our sister company — 500M+ annotations for global AI teams.</p>
+          <ul>
+            <li>Video, sensor, and 3D/pose labeling</li>
+            <li>Taxonomy &amp; ontology design</li>
+            <li>RLHF preference ranking &amp; rubric evals</li>
+            <li>Dual-pass QA at 99%+ accuracy</li>
+          </ul>
+          <span class="more">Explore Annotate →</span>
+        </a>
+        <a class="pillar reveal" href="#judge">
+          <span class="num">03 / Judge</span>
+          <h3>Human-in-the-loop API</h3>
+          <p class="tag">Five primitives your agents call when they need a human: Classify, Judge, Extract, Escalate, Resolve.</p>
+          <ul>
+            <li>One REST API or MCP server</li>
+            <li>Relay decomposes complex questions into priced binaries</li>
+            <li>Sub-minute responses, full audit trail</li>
+            <li>From $0.50 per call</li>
+          </ul>
+          <span class="more">Explore Judge →</span>
+        </a>
+        <a class="pillar reveal" href="#operate">
+          <span class="num">04 / Operate</span>
+          <h3>Teleoperation</h3>
+          <p class="tag">When a deployed robot hesitates, a trained operator takes over in seconds.</p>
+          <ul>
+            <li>24/7 operator benches, latency-tiered</li>
+            <li>Safety confirmation before risky actions</li>
+            <li>Full intervention trace returned via API</li>
+            <li>Every intervention becomes training data</li>
+          </ul>
+          <span class="more">Explore Operate →</span>
+        </a>
+      </div>
+    </div>
+  </section>
 
-      <div class="kpi-grid">
-        <div class="kpi-card teal">
-          <div class="kpi-label">Plan Revenue</div>
-          <div class="kpi-value">€59,103</div>
+  <!-- ============ FLYWHEEL ============ -->
+  <section class="flywheel" id="flywheel">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">The Flywheel</span>
+        <h2>Every intervention is a labeled demonstration.</h2>
+        <p>Your fleet's hardest moments become your model's best data. A robot gets stuck. Our operator resolves it live. The recording comes back annotated and training-ready. Next quarter's model escalates less. That loop is the product.</p>
+      </div>
+      <div class="loop">
+        <div class="loop-step reveal"><div class="ls-n">1</div><div class="ls-t">Capture</div><div class="ls-d">Egocentric human video at scale seeds the model.</div></div>
+        <div class="loop-step reveal"><div class="ls-n">2</div><div class="ls-t">Train</div><div class="ls-d">Annotated, taxonomy-aligned data goes into pretraining.</div></div>
+        <div class="loop-step reveal"><div class="ls-n">3</div><div class="ls-t">Deploy</div><div class="ls-d">Your robots ship before the model is perfect — safely.</div></div>
+        <div class="loop-step reveal"><div class="ls-n">4</div><div class="ls-t">Escalate</div><div class="ls-d">Edge case hit: the robot requests a human via API.</div></div>
+        <div class="loop-step reveal"><div class="ls-n">5</div><div class="ls-t">Intervene</div><div class="ls-d">Judgment call or full teleop — resolved in seconds.</div></div>
+        <div class="loop-step reveal"><div class="ls-n">6</div><div class="ls-t">Annotate</div><div class="ls-d">The intervention returns as a labeled demonstration.</div></div>
+      </div>
+      <div class="loop-return">↺ &nbsp;back into training — fewer escalations every cycle</div>
+      <div class="fly-cards">
+        <div class="fly-card reveal"><div class="n">Seconds</div><div class="l">from escalation to a trained human on task</div></div>
+        <div class="fly-card reveal"><div class="n">100%</div><div class="l">of interventions returned as training-ready data</div></div>
+        <div class="fly-card reveal"><div class="n">One vendor</div><div class="l">from pretraining data to deployment fallback</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CAPTURE ============ -->
+  <section class="product" id="capture">
+    <div class="wrap">
+      <div class="prod-grid">
+        <div class="prod-copy">
+          <div class="section-head">
+            <span class="kicker">01 — Capture</span>
+            <h2>Hundreds of hours of 4K egocentric video. Every day.</h2>
+          </div>
+          <p>Robots learn manipulation from human hands. We run managed capture centers where trained collectors — on staff, not crowdsourced — record first-person video of real tasks: cooking, cleaning, folding, assembly, picking, repair.</p>
+          <p>You direct the taxonomy. We deliver the hours — raw, curated, or fully annotation-ready through our own labeling teams.</p>
+          <ul class="checks">
+            <li><strong>Already running.</strong> Hundreds of hours of 4K capture per day, scaling weekly.</li>
+            <li><strong>Directable.</strong> Scripted task programs against your taxonomy, or naturalistic full-day capture.</li>
+            <li><strong>Clean provenance.</strong> Consent-first collection, full metadata, PII scrubbing.</li>
+            <li><strong>One pipeline.</strong> Capture and annotation under one roof — no vendor hand-off.</li>
+          </ul>
+          <a class="btn btn-primary" href="mailto:hello@humanrelay.ai?subject=Sample%20dataset%20request">Request a Sample Dataset</a>
         </div>
-        <div class="kpi-card amber">
-          <div class="kpi-label">Plan Costs</div>
-          <div class="kpi-value">€69,710</div>
+        <div>
+          <div class="spec-card reveal">
+            <div class="sc-head">Capture Spec</div>
+            <div class="spec-row"><span class="k">Rig</span><span class="v">Head-mounted 4K @ 30/60 fps</span></div>
+            <div class="spec-row"><span class="k">Streams</span><span class="v">Video · audio · IMU (gaze optional)</span></div>
+            <div class="spec-row"><span class="k">Coverage</span><span class="v">Scripted tasks or naturalistic days</span></div>
+            <div class="spec-row"><span class="k">Throughput</span><span class="v">100s of hours / day, growing</span></div>
+            <div class="spec-row"><span class="k">Provenance</span><span class="v">Consent-first · metadata · PII-scrubbed</span></div>
+            <div class="spec-row"><span class="k">Delivery</span><span class="v">Raw · curated · annotation-ready</span></div>
+          </div>
+          <div class="note-card reveal"><strong>Custom programs:</strong> need a specific environment, tool set, or demographic mix? We stand up dedicated capture programs against your spec.</div>
         </div>
-        <div class="kpi-card red">
-          <div class="kpi-label">Plan P&L</div>
-          <div class="kpi-value negative">−€10,607</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ANNOTATE ============ -->
+  <section class="product alt" id="annotate">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">02 — Annotate</span>
+        <h2>Annotation that's already proven at scale.</h2>
+        <p>We don't claim a labeling capability — we point at one. Our annotation operation is run with our sister company, IndiVillage.</p>
+      </div>
+      <div class="iv-callout reveal">
+        <h3>Powered by IndiVillage</h3>
+        <p><a href="https://indivillage.com" target="_blank" rel="noopener">IndiVillage</a> has delivered <strong>500M+ annotations</strong> for global AI teams from managed delivery centers — salaried professionals working in offices, trained per project, retained for years. Its impact-sourcing model builds tech careers in communities that rarely get them: quality your ML team can verify, and a workforce story your stakeholders can be proud of.</p>
+      </div>
+      <div class="chip-grid reveal">
+        <span class="chip"><b>›</b>Egocentric video labeling</span>
+        <span class="chip"><b>›</b>3D pose &amp; hand tracking</span>
+        <span class="chip"><b>›</b>Object &amp; affordance tagging</span>
+        <span class="chip"><b>›</b>RLHF preference ranking</span>
+        <span class="chip"><b>›</b>Agent trace evaluation</span>
+        <span class="chip"><b>›</b>Multi-turn conversation rating</span>
+        <span class="chip"><b>›</b>Content moderation</span>
+        <span class="chip"><b>›</b>Document extraction</span>
+        <span class="chip"><b>›</b>Custom taxonomy &amp; ontology design</span>
+      </div>
+      <div class="note-card reveal" style="max-width:680px;"><strong>QA built in:</strong> dual-pass review, gold-set sampling, and calibration sessions hold delivered accuracy above 99%. Pilots start from as few as 10 hours.</div>
+    </div>
+  </section>
+
+  <!-- ============ JUDGE ============ -->
+  <section class="product" id="judge">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">03 — Judge</span>
+        <h2>An API for human judgment.</h2>
+        <p>Five primitives your agents and robots call when they need a human. One REST API or MCP server. Sub-minute responses with full audit trails.</p>
+      </div>
+
+      <div class="prim-grid">
+        <div class="prim reveal"><h4>Classify</h4><p>Binary or multi-class categorization by trained humans.</p></div>
+        <div class="prim reveal"><h4>Judge</h4><p>Pairwise comparison, RLHF ranking, subjective evaluation.</p></div>
+        <div class="prim reveal"><h4>Extract</h4><p>Structured data from documents, images, or video.</p></div>
+        <div class="prim reveal"><h4>Escalate</h4><p>Route high-risk or low-confidence cases to specialists.</p></div>
+        <div class="prim reveal"><h4>Resolve</h4><p>End-to-end human resolution with rationale and audit trail.</p></div>
+      </div>
+
+      <div class="relay-demo">
+        <div>
+          <h3 style="font-family:var(--serif); font-size:1.6rem; margin-bottom:12px;">Relay: complex questions, priced binaries.</h3>
+          <p style="color:var(--ink-soft); margin-bottom:18px;">Relay is the intelligence layer between your agent and our humans. It decomposes any question into binary decisions, routes each to the right tier, runs them in parallel, and reassembles the answer — with the full trace returned for your learning loop.</p>
+          <ul class="checks">
+            <li><strong>Negotiate.</strong> Already a binary? It routes directly. If not, Relay proposes a decomposition.</li>
+            <li><strong>Decompose.</strong> Independent binaries run in parallel across workers.</li>
+            <li><strong>Reassemble.</strong> Answers compose into a final response with reasoning.</li>
+          </ul>
+          <div class="price-chips">
+            <span class="chip"><b>Basic</b>$0.50 / call</span>
+            <span class="chip"><b>Complex</b>$1.00 / call</span>
+            <span class="chip"><b>Expert</b>$2.50 / call</span>
+          </div>
         </div>
-        <div class="kpi-card purple">
-          <div class="kpi-label">Fit-Out Investment</div>
-          <div class="kpi-value">€27,100</div>
+        <div class="decomp reveal">
+          <div class="d-line">Your robot asks</div>
+          <div class="d-q">"Should I replace this boiler or repair it?"</div>
+          <div class="d-line">Relay decomposes</div>
+          <div class="d-bin"><span>Is the unit more than 15 years old?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
+          <div class="d-bin"><span>Visible corrosion on the heat exchanger?</span><span><span class="tier">Expert</span> <span class="price">$2.50</span></span></div>
+          <div class="d-bin"><span>Flue gas reading within safe limits?</span><span><span class="tier">Expert</span> <span class="price">$2.50</span></span></div>
+          <div class="d-line">Relay reassembles</div>
+          <div class="d-result">"Replace. Corrosion present, flue reading borderline, unit is 18 years old."</div>
+          <div class="d-meta">3 binaries · 2 in parallel · 47 seconds · $5.50 total</div>
         </div>
       </div>
 
-      <div class="chart-grid">
-        <div class="chart-container">
-          <div class="chart-title">Weekly Revenue vs Costs (Fit-Out + Operating)</div>
-          <div class="chart-wrapper">
-            <canvas id="revenueVsCostsChart"></canvas>
-          </div>
+      <div class="code-block reveal">
+        <div class="code-tabs">
+          <button class="code-tab active" data-pane="py">Python</button>
+          <button class="code-tab" data-pane="curl">cURL</button>
+          <button class="code-tab" data-pane="mcp">MCP</button>
         </div>
-        <div class="chart-container">
-          <div class="chart-title">Cumulative P&L</div>
-          <div class="chart-wrapper">
-            <canvas id="cumulativePnLChart"></canvas>
+        <div class="code-pane active" id="pane-py"><span class="kw">from</span> humanrelay <span class="kw">import</span> <span class="fn">HumanRelay</span>
+
+hr = <span class="fn">HumanRelay</span>(api_key=<span class="st">"hr_live_..."</span>)
+
+result = hr.<span class="fn">judge</span>(
+    content={<span class="st">"a"</span>: response_a, <span class="st">"b"</span>: response_b},
+    rubric=<span class="st">"Which response is more helpful?"</span>,
+    tier=<span class="st">"expert"</span>,
+)
+
+<span class="fn">print</span>(result.verdict)    <span class="cm"># "Response A"</span>
+<span class="fn">print</span>(result.rationale)  <span class="cm"># "Response A provides..."</span></div>
+        <div class="code-pane" id="pane-curl">curl https://api.humanrelay.ai/v1/judge \
+  -H <span class="st">"Authorization: Bearer hr_live_..."</span> \
+  -H <span class="st">"Content-Type: application/json"</span> \
+  -d <span class="st">'{
+    "content": { "a": "...", "b": "..." },
+    "rubric": "Which response is more helpful?",
+    "tier": "expert"
+  }'</span></div>
+        <div class="code-pane" id="pane-mcp"><span class="cm">// claude_desktop_config.json / .mcp.json</span>
+{
+  <span class="st">"mcpServers"</span>: {
+    <span class="st">"humanrelay"</span>: {
+      <span class="st">"command"</span>: <span class="st">"npx"</span>,
+      <span class="st">"args"</span>: [<span class="st">"-y"</span>, <span class="st">"@humanrelay/mcp"</span>],
+      <span class="st">"env"</span>: { <span class="st">"HUMANRELAY_API_KEY"</span>: <span class="st">"hr_live_..."</span> }
+    }
+  }
+}</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OPERATE ============ -->
+  <section class="product alt" id="operate">
+    <div class="wrap">
+      <div class="prod-grid">
+        <div class="prod-copy">
+          <div class="section-head">
+            <span class="kicker">04 — Operate</span>
+            <h2>A human hand on the wheel, in seconds.</h2>
           </div>
+          <p>Deployed fleets meet the long tail: a jammed gripper, an ambiguous object, a customer at the door. Operate puts trained teleoperators behind your robots around the clock.</p>
+          <p>The robot requests help. We confirm safety. An operator takes over. Control hands back. You get the resolution — and the recording, annotated, as a demonstration for your next training run.</p>
+          <ul class="checks">
+            <li><strong>Staffed benches, 24/7.</strong> Operators on shift in our centers — not on-call gig workers.</li>
+            <li><strong>Latency-tiered routing.</strong> Standby SLAs matched to task risk.</li>
+            <li><strong>Safety gate.</strong> A $0.50 confirmation binary before any consequential physical action.</li>
+            <li><strong>Data exhaust included.</strong> Full intervention trace plus annotated demonstration, returned via API.</li>
+          </ul>
+          <a class="btn btn-primary" href="mailto:hello@humanrelay.ai?subject=Teleoperation%20pilot">Discuss a Teleop Pilot</a>
+        </div>
+        <div>
+          <div class="spec-card reveal">
+            <div class="sc-head">Intervention Lifecycle</div>
+            <div class="spec-row"><span class="k">1 · Escalation</span><span class="v">Robot calls the API with context</span></div>
+            <div class="spec-row"><span class="k">2 · Safety check</span><span class="v">Confirmation binary, sub-minute</span></div>
+            <div class="spec-row"><span class="k">3 · Session</span><span class="v">Operator takes control (low-latency)</span></div>
+            <div class="spec-row"><span class="k">4 · Handback</span><span class="v">Robot resumes autonomous operation</span></div>
+            <div class="spec-row"><span class="k">5 · Return</span><span class="v">Trace + annotated demonstration</span></div>
+          </div>
+          <div class="note-card reveal"><strong>No fleet yet?</strong> We also run scripted teleoperation programs purely for data collection — on your rigs or ours.</div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section id="breakeven">
-      <h2 class="section-title">Break-Even Analysis</h2>
-
-      <div class="breakeven-note">
-        <strong>3 Scenarios:</strong> Current Plan shows the base case. Corrected Costs accounts for improved vendor rates. Optimized includes additional revenue growth and cost controls.
+  <!-- ============ WORKFORCE ============ -->
+  <section class="workforce" id="workforce">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">The Workforce</span>
+        <h2>Managed teams. Not gig workers.</h2>
+        <p>Gig platforms churn anonymous workers through your data. We put named, trained, salaried professionals on your project — in offices we run — and keep them there.</p>
       </div>
-
-      <div class="chart-grid">
-        <div class="chart-container" style="grid-column: 1 / -1;">
-          <div class="chart-title">Break-Even Projection — 3 Scenarios</div>
-          <div class="chart-wrapper" style="height: 350px;">
-            <canvas id="breakEvenChart"></canvas>
-          </div>
+      <div class="wf-grid">
+        <div class="wf-card reveal">
+          <div class="ico">◎</div>
+          <h3>Quality</h3>
+          <p>Same people on your project every day. Project-specific training, calibration sessions, dual-pass QA. That's how you hold 99%+ accuracy and 98% client retention — numbers a revolving crowd can't reach.</p>
         </div>
-      </div>
-    </section>
-
-    <section id="actuals">
-      <h2 class="section-title">Actuals Tracker</h2>
-
-      <div class="tabs">
-        <button class="tab-button active" data-tab="entry">Entry</button>
-        <button class="tab-button" data-tab="variance">Variance</button>
-        <button class="tab-button" data-tab="cashflow">Cashflow & Funding</button>
-      </div>
-
-      <div class="tab-content active" id="entry">
-        <table id="entryTable">
-          <thead>
-            <tr>
-              <th>Week</th>
-              <th>Investment</th>
-              <th>Revenue</th>
-              <th>Running Costs</th>
-              <th>Total Costs</th>
-              <th>Weekly P&L</th>
-            </tr>
-          </thead>
-          <tbody id="entryTableBody">
-          </tbody>
-        </table>
-      </div>
-
-      <div class="tab-content" id="variance">
-        <div class="kpi-grid">
-          <div class="kpi-card green">
-            <div class="kpi-label">Revenue Variance</div>
-            <div class="kpi-value" id="revenueVarianceValue">€0</div>
-            <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;" id="revenueVarianceLabel"></div>
-          </div>
-          <div class="kpi-card green">
-            <div class="kpi-label">Cost Variance</div>
-            <div class="kpi-value" id="costVarianceValue">€0</div>
-            <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;" id="costVarianceLabel"></div>
-          </div>
-          <div class="kpi-card green">
-            <div class="kpi-label">P&L Variance</div>
-            <div class="kpi-value" id="pnlVarianceValue">€0</div>
-            <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;" id="pnlVarianceLabel"></div>
-          </div>
+        <div class="wf-card reveal">
+          <div class="ico">▣</div>
+          <h3>Security</h3>
+          <p>Access-controlled floors, NDAs, managed devices, SOC 2 compliance. Your pretraining data and customer footage never touch an anonymous crowd — every person who sees it is accountable by name.</p>
         </div>
-
-        <div class="chart-grid">
-          <div class="chart-container">
-            <div class="chart-title">Revenue: Plan vs Actual</div>
-            <div class="chart-wrapper">
-              <canvas id="revenuePlanVsActualChart"></canvas>
-            </div>
-          </div>
-          <div class="chart-container">
-            <div class="chart-title">Cumulative P&L: Plan vs Actual</div>
-            <div class="chart-wrapper">
-              <canvas id="cumulativePnLVarianceChart"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <div class="chart-grid">
-          <div class="chart-container" style="grid-column: 1 / -1;">
-            <div class="chart-title">Costs Breakdown: Fit-Out vs Operating (Plan vs Actual)</div>
-            <div class="chart-wrapper" style="height: 300px;">
-              <canvas id="costsBreakdownChart"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <div class="variance-table">
-          <table id="varianceTable">
-            <thead>
-              <tr>
-                <th>Week</th>
-                <th>Plan Rev</th>
-                <th>Actual Rev</th>
-                <th>Rev Var (€)</th>
-                <th>Plan Cost</th>
-                <th>Actual Cost</th>
-                <th>Cost Var (€)</th>
-                <th>Plan P&L</th>
-                <th>Actual P&L</th>
-                <th>P&L Var (€)</th>
-              </tr>
-            </thead>
-            <tbody id="varianceTableBody">
-            </tbody>
-          </table>
+        <div class="wf-card reveal">
+          <div class="ico">✳</div>
+          <h3>Impact</h3>
+          <p>Through IndiVillage's impact-sourcing model, this work builds careers in communities that rarely get them. Procurement will like the security posture. Your board will like the story.</p>
         </div>
       </div>
+    </div>
+  </section>
 
-      <div class="tab-content" id="cashflow">
-        <div class="input-group">
-          <label for="startingCash">Starting Cash Position:</label>
-          <div class="input-wrapper">
-            <input type="number" id="startingCash" value="40000">
-          </div>
+  <!-- ============ FIT ============ -->
+  <section class="fit" id="fit">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Who it's for</span>
+        <h2>Built for the people building embodied AI.</h2>
+      </div>
+      <div class="fit-grid">
+        <div class="fit-card reveal">
+          <div class="for">For humanoid companies</div>
+          <h3>Deploy before the model is perfect.</h3>
+          <p>Pretraining ego-video at scale, evaluation pipelines, and a 24/7 teleop fallback behind every unit in the field — so the fleet ships now and improves monthly.</p>
+          <a href="mailto:hello@humanrelay.ai?subject=Humanoid%20program%20pilot">Start a pilot →</a>
         </div>
-
-        <div class="kpi-grid">
-          <div class="kpi-card teal">
-            <div class="kpi-label">Current Cash Position</div>
-            <div class="kpi-value" id="currentCashValue">€40,000</div>
-            <div class="funding-metric">Latest week with data</div>
-          </div>
-          <div class="kpi-card red">
-            <div class="kpi-label">Peak Cash Deficit</div>
-            <div class="kpi-value" id="peakDeficitValue">€0</div>
-            <div class="funding-metric">Lowest point reached</div>
-          </div>
-          <div class="kpi-card blue">
-            <div class="kpi-label">Funding Runway</div>
-            <div class="kpi-value" id="fundingRunwayValue">∞</div>
-            <div class="funding-metric">Weeks at current burn rate</div>
-          </div>
+        <div class="fit-card reveal">
+          <div class="for">For frontier labs</div>
+          <h3>Data you can put in the model card.</h3>
+          <p>Diverse, consented, provenance-clean human data for VLA and world models. RLHF, rubric evals, and red-teaming by trained specialists — not a marketplace.</p>
+          <a href="mailto:hello@humanrelay.ai?subject=Sample%20dataset%20request">Request sample data →</a>
         </div>
-
-        <div class="chart-grid">
-          <div class="chart-container">
-            <div class="chart-title">Cash Balance Over Time</div>
-            <div class="chart-wrapper">
-              <canvas id="cashBalanceChart"></canvas>
-            </div>
-          </div>
-          <div class="chart-container">
-            <div class="chart-title">Weekly Cash Flow</div>
-            <div class="chart-wrapper">
-              <canvas id="weeklyCashFlowChart"></canvas>
-            </div>
-          </div>
+        <div class="fit-card reveal">
+          <div class="for">For investors</div>
+          <h3>The bottleneck is the business.</h3>
+          <p>Embodied AI's constraint isn't compute — it's human data. Ask for the memo: traction, the IndiVillage moat, and the intervention flywheel.</p>
+          <a href="mailto:hello@humanrelay.ai?subject=Investor%20memo%20request">Request the memo →</a>
         </div>
       </div>
-    </section>
-  </main>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section class="pricing" id="pricing">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Pricing</span>
+        <h2>Four products. Simple meters.</h2>
+        <p>Pay for delivered hours, labeled assets, resolved calls, or completed interventions. No platform fees, no seat licenses.</p>
+      </div>
+      <div class="price-grid">
+        <div class="price-card reveal">
+          <div class="p-name">Capture</div>
+          <div class="p-meter">per data-hour</div>
+          <p class="p-desc">Program-based egocentric capture, priced per delivered hour by spec.</p>
+          <ul>
+            <li>Pilot batches to standing daily capture</li>
+            <li>Raw, curated, or annotation-ready</li>
+            <li>Custom environments &amp; taxonomies</li>
+          </ul>
+        </div>
+        <div class="price-card reveal">
+          <div class="p-name">Annotate</div>
+          <div class="p-meter">per asset / per hour</div>
+          <p class="p-desc">Labeling and evaluation with QA included, via IndiVillage delivery centers.</p>
+          <ul>
+            <li>Pilots from as few as 10 hours</li>
+            <li>Volume pricing at scale</li>
+            <li>Dedicated teams for standing work</li>
+          </ul>
+        </div>
+        <div class="price-card hot reveal">
+          <div class="p-name">Judge</div>
+          <div class="p-meter">$0.50 – $2.50 per call</div>
+          <p class="p-desc">Human judgment by API: Basic $0.50 · Complex $1.00 · Expert $2.50.</p>
+          <ul>
+            <li>Sub-minute response targets</li>
+            <li>Relay decomposition for complex asks</li>
+            <li>Full audit trail on every call</li>
+          </ul>
+        </div>
+        <div class="price-card reveal">
+          <div class="p-name">Operate</div>
+          <div class="p-meter">standby + per intervention</div>
+          <p class="p-desc">Teleoperation SLAs tiered by latency and risk, plus per-intervention pricing.</p>
+          <ul>
+            <li>24/7 staffed coverage</li>
+            <li>Safety-gated control sessions</li>
+            <li>Annotated demonstrations included</li>
+          </ul>
+        </div>
+      </div>
+      <p class="price-foot">Volume discounts at scale · SLA guarantees available · <a href="mailto:hello@humanrelay.ai?subject=Quote%20request" style="color:var(--vermillion); font-weight:600;">hello@humanrelay.ai</a> for a quote</p>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="faq" id="faq">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">FAQ</span>
+        <h2>Questions, answered straight.</h2>
+      </div>
+      <div class="faq-filters">
+        <button class="faq-filter active" data-cat="all">All</button>
+        <button class="faq-filter" data-cat="general">General</button>
+        <button class="faq-filter" data-cat="data">Data</button>
+        <button class="faq-filter" data-cat="api">API &amp; Teleop</button>
+        <button class="faq-filter" data-cat="security">Security</button>
+        <button class="faq-filter" data-cat="pricing">Pricing</button>
+      </div>
+
+      <div class="faq-item" data-cat="general">
+        <button class="faq-q">What is HumanRelay?</button>
+        <div class="faq-a">One partner for the human side of embodied AI: egocentric data capture, annotation and evaluation (run with our sister company IndiVillage), a real-time human-judgment API, and teleoperation for deployed robot fleets. One workforce of 1,200+ managed professionals powers all four.</div>
+      </div>
+      <div class="faq-item" data-cat="general">
+        <button class="faq-q">How are you different from Scale AI or gig-based platforms?</button>
+        <div class="faq-a">Three ways. First, workforce: our people are salaried, trained, office-based teams — not an anonymous crowd — which is what holds 99%+ accuracy and lets us pass security review. Second, real time: sub-minute judgment calls and live teleoperation, not just batch labeling queues. Third, the full lifecycle: capture, annotation, judgment, and teleop under one roof, so every deployment escalation flows back into your training data without a vendor hand-off.</div>
+      </div>
+      <div class="faq-item" data-cat="data">
+        <button class="faq-q">What egocentric data do you capture — and can we direct it?</button>
+        <div class="faq-a">Head-mounted 4K at 30/60 fps with synced audio and IMU (gaze optional), covering real manipulation tasks: cooking, cleaning, folding, assembly, picking, repair. We're capturing hundreds of hours daily and scaling weekly. You can buy from standing programs or direct your own: your taxonomy, your task scripts, your environment requirements. All capture is consent-first with full provenance metadata and PII scrubbing.</div>
+      </div>
+      <div class="faq-item" data-cat="general">
+        <button class="faq-q">Who is IndiVillage and what's the relationship?</button>
+        <div class="faq-a"><a href="https://indivillage.com" target="_blank" rel="noopener" style="color:var(--vermillion); font-weight:600;">IndiVillage</a> is our sister company and the engine behind our annotation track record — 500M+ annotations delivered to global AI teams from managed delivery centers. It pioneered an impact-sourcing model: salaried professionals in offices, building tech careers in communities that rarely get them. HumanRelay productizes that workforce for the embodied-AI era.</div>
+      </div>
+      <div class="faq-item" data-cat="api">
+        <button class="faq-q">How fast are responses?</button>
+        <div class="faq-a">Judge calls target sub-minute resolution, tiered by complexity. Teleoperation runs on standby SLAs: for fleets under coverage, a trained operator is on task in seconds. Annotation and capture programs run on agreed delivery schedules, from 48-hour pilots to standing daily throughput.</div>
+      </div>
+      <div class="faq-item" data-cat="api">
+        <button class="faq-q">How does teleoperation work technically?</button>
+        <div class="faq-a">Your robot calls the escalation API with context (sensor frames, task state, requested control scope). A safety-confirmation binary gates the session. An operator connects over a low-latency channel, completes or unblocks the task, and hands control back. The full trace — video, control inputs, rationale — is returned via API as an annotated demonstration you can fold into training.</div>
+      </div>
+      <div class="faq-item" data-cat="security">
+        <button class="faq-q">How do you handle security, consent, and provenance?</button>
+        <div class="faq-a">All work happens in access-controlled offices on managed devices, under NDA, with SOC 2 compliance. Capture is consent-first with provenance metadata on every clip and PII scrubbing in the pipeline. Because our workforce is employed rather than crowdsourced, every person who touches your data is identifiable and accountable.</div>
+      </div>
+      <div class="faq-item" data-cat="pricing">
+        <button class="faq-q">How do pilots work?</button>
+        <div class="faq-a">Scoped and fast: Judge pilots return results in 48 hours; annotation pilots start from as few as 10 hours of work; capture pilots deliver a sample batch against your taxonomy; teleop pilots begin with a scoped coverage window. No commitment beyond the pilot. Email <a href="mailto:hello@humanrelay.ai?subject=Pilot%20request" style="color:var(--vermillion); font-weight:600;">hello@humanrelay.ai</a> and we'll scope it this week.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section class="cta" id="cta">
+    <div class="wrap">
+      <h2>Put 1,200 managed professionals behind your robots.</h2>
+      <p class="sub">Capture, annotation, judgment, teleoperation — scoped as a pilot this week.</p>
+      <form class="cta-form" id="pilot-form">
+        <input type="email" class="cta-input" id="pilot-email" placeholder="you@company.com" required />
+        <button type="submit" class="btn">Start a Pilot</button>
+      </form>
+      <p class="cta-note">No commitment required · Pilot results in 48 hours · SOC 2 compliant</p>
+      <p class="cta-email">Or email us directly: <a href="mailto:hello@humanrelay.ai">hello@humanrelay.ai</a></p>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="wrap foot-inner">
+      <a href="#top" class="logo">Human<span>Relay</span></a>
+      <div class="foot-links">
+        <a href="#stack">The Stack</a>
+        <a href="#capture">Capture</a>
+        <a href="#annotate">Annotate</a>
+        <a href="#judge">Judge</a>
+        <a href="#operate">Operate</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="mailto:hello@humanrelay.ai">Contact</a>
+      </div>
+      <div class="foot-meta">© 2026 HumanRelay, Inc. · Annotation by <a href="https://indivillage.com" target="_blank" rel="noopener">IndiVillage</a></div>
+    </div>
+  </footer>
 
   <script>
-    const planCosts = {
-      rent:        [0, 0, 0, 0, 1700, 0, 0, 0, 0, 1700, 0, 0, 0, 1700, 0],
-      rentTax:     [0, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0],
-      staffWage:   [0, 0, 0, 0, 0, 0, 0, 7800, 0, 0, 0, 0, 8400, 0, 0],
-      utilities:   [0, 0, 0, 0, 0, 1300, 0, 0, 0, 0, 1300, 0, 0, 0, 1300],
-      terrace:     [0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 250, 0, 0, 0, 250],
-      stock:       [0, 0, 0, 0, 0, 0, 500, 500, 650, 750, 750, 750, 750, 800, 800],
-      unexpected:  [0, 0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
-      deposit:     [3400, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      permissions: [0, 1000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      renovation:  [0, 3000, 0, 8000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      equipment:   [6100, 5000, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      barTable:    [0, 0, 0, 0, 0, 2000, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      firstBatch:  [0, 0, 0, 0, 2500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    };
-
-    const planRevenue = [0, 0, 0, 0, 4200, 4450, 4570, 4890, 5100, 5400, 5600, 5800, 6000, 6630, 6463];
-    const planPnL = [-9500, -9000, -5000, -8000, 0, 1050, 3720, -8400, 4095, 4395, 3200, 4950, -3505, 4030, -2450];
-    const weeks = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10', 'W11', 'W12', 'W13', 'W14', 'W15'];
-
-    const planCostsTotals = weeks.map((_, i) => {
-      return Object.keys(planCosts).reduce((sum, key) => sum + (planCosts[key][i] || 0), 0);
-    });
-
-    const investmentCategories = ['deposit', 'permissions', 'renovation', 'equipment', 'barTable', 'firstBatch'];
-    const runningCostCategories = ['rent', 'rentTax', 'staffWage', 'utilities', 'terrace', 'stock', 'unexpected'];
-
-    function getInvestmentTotal(week) {
-      return investmentCategories.reduce((sum, cat) => sum + (planCosts[cat][week] || 0), 0);
-    }
-
-    function getRunningCostsTotal(week) {
-      return runningCostCategories.reduce((sum, cat) => sum + (planCosts[cat][week] || 0), 0);
-    }
-
-    const actuals = {
-      revenue: [...planRevenue],
-      investment: weeks.map((_, i) => getInvestmentTotal(i)),
-      runningCosts: weeks.map((_, i) => getRunningCostsTotal(i)),
-    };
-
-    function eurFormat(value) {
-      if (value === null || value === undefined || isNaN(value)) return '€0';
-      const sign = value < 0 ? '−' : '';
-      const abs = Math.abs(value);
-      const formatted = new Intl.NumberFormat('de-DE', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(Math.round(abs));
-      return `${sign}€${formatted}`;
-    }
-
-    function getColorClass(value) {
-      if (value > 0) return 'positive';
-      if (value < 0) return 'negative';
-      return 'neutral';
-    }
-
-    Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-    Chart.defaults.color = '#334155';
-
-    const chartPlugins = {
-      tooltip: {
-        backgroundColor: '#ffffff',
-        titleColor: '#0f172a',
-        bodyColor: '#0f172a',
-        borderColor: '#e2e8f0',
-        borderWidth: 1,
-        padding: 12,
-        displayColors: true,
-        callbacks: {
-          label: function(context) {
-            let value = context.parsed.y !== undefined ? context.parsed.y : context.parsed;
-            return eurFormat(value);
-          }
-        }
-      },
-      legend: {
-        labels: {
-          boxWidth: 12,
-          padding: 15,
-          font: { size: 12, weight: '500' },
-        },
-      },
-    };
-
-    function getTotalWeeklyRevenue() {
-      return actuals.revenue.reduce((a, b) => a + b, 0);
-    }
-
-    function getTotalWeeklyCosts() {
-      return weeks.reduce((sum, _, i) => {
-        return sum + actuals.investment[i] + actuals.runningCosts[i];
-      }, 0);
-    }
-
-    function getWeeklyTotalCosts(week) {
-      return actuals.investment[week] + actuals.runningCosts[week];
-    }
-
-    function getWeeklyPnL(week) {
-      return actuals.revenue[week] - getWeeklyTotalCosts(week);
-    }
-
-    function getLastWeekWithData() {
-      for (let i = weeks.length - 1; i >= 0; i--) {
-        if (actuals.revenue[i] > 0 || actuals.investment[i] > 0 || actuals.runningCosts[i] > 0) {
-          return i;
-        }
-      }
-      return -1;
-    }
-
-    document.querySelectorAll('.tab-button').forEach(button => {
-      button.addEventListener('click', (e) => {
-        const tabName = e.target.dataset.tab;
-
-        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-        e.target.classList.add('active');
-        document.getElementById(tabName).classList.add('active');
-
-        setTimeout(() => {
-          if (tabName === 'variance') {
-            revenuePlanVsActualChart.resize();
-            cumulativePnLVarianceChart.resize();
-            if (costsBreakdownChart) costsBreakdownChart.resize();
-          } else if (tabName === 'cashflow') {
-            cashBalanceChart.resize();
-            weeklyCashFlowChart.resize();
-          }
-        }, 100);
+    /* Code tabs — switch real panes */
+    document.querySelectorAll('.code-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.code-pane').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('pane-' + tab.dataset.pane).classList.add('active');
       });
     });
 
-    const navLinks = document.querySelectorAll('.nav-link');
-    const sections = document.querySelectorAll('section');
-
-    function updateActiveNavLink() {
-      let currentSection = '';
-
-      sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        if (window.scrollY >= sectionTop - 100) {
-          currentSection = section.getAttribute('id');
-        }
+    /* FAQ accordion */
+    document.querySelectorAll('.faq-q').forEach(q => {
+      q.addEventListener('click', () => {
+        const item = q.parentElement;
+        const wasOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+        if (!wasOpen) item.classList.add('open');
       });
-
-      navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${currentSection}`) {
-          link.classList.add('active');
-        }
-      });
-    }
-
-    window.addEventListener('scroll', updateActiveNavLink);
-
-    function buildEntryTable() {
-      const tbody = document.getElementById('entryTableBody');
-      tbody.innerHTML = '';
-
-      weeks.forEach((week, i) => {
-        const row = document.createElement('tr');
-
-        const investment = getInvestmentTotal(i);
-        const revenue = planRevenue[i];
-        const runningCosts = getRunningCostsTotal(i);
-        const totalCosts = investment + runningCosts;
-
-        row.innerHTML = `
-          <td><strong>${week}</strong></td>
-          <td>
-            <div class="input-wrapper">
-              <input type="number" class="investment-input" data-week="${i}" value="${actuals.investment[i]}" oninput="updateActualFromEntry(${i}, 'investment', this.value)">
-              <span class="plan-value">Plan: ${eurFormat(investment)}</span>
-            </div>
-          </td>
-          <td>
-            <div class="input-wrapper">
-              <input type="number" class="revenue-input" data-week="${i}" value="${actuals.revenue[i]}" oninput="updateActualFromEntry(${i}, 'revenue', this.value)">
-              <span class="plan-value">Plan: ${eurFormat(revenue)}</span>
-            </div>
-          </td>
-          <td>
-            <div class="input-wrapper">
-              <input type="number" class="running-costs-input" data-week="${i}" value="${actuals.runningCosts[i]}" oninput="updateActualFromEntry(${i}, 'runningCosts', this.value)">
-              <span class="plan-value">Plan: ${eurFormat(runningCosts)}</span>
-            </div>
-          </td>
-          <td>${eurFormat(getWeeklyTotalCosts(i))}</td>
-          <td>
-            <span class="${getColorClass(getWeeklyPnL(i))}">${eurFormat(getWeeklyPnL(i))}</span>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-
-      const totalsRow = document.createElement('tr');
-      totalsRow.innerHTML = `
-        <td><strong>Totals</strong></td>
-        <td>${eurFormat(actuals.investment.reduce((a, b) => a + b, 0))}</td>
-        <td>${eurFormat(getTotalWeeklyRevenue())}</td>
-        <td>${eurFormat(weeks.reduce((sum, _, i) => sum + actuals.runningCosts[i], 0))}</td>
-        <td>${eurFormat(getTotalWeeklyCosts())}</td>
-        <td>
-          <span class="${getColorClass(getTotalWeeklyRevenue() - getTotalWeeklyCosts())}">${eurFormat(getTotalWeeklyRevenue() - getTotalWeeklyCosts())}</span>
-        </td>
-      `;
-      tbody.appendChild(totalsRow);
-    }
-
-    function updateActualFromEntry(week, type, value) {
-      const numValue = parseFloat(value) || 0;
-      actuals[type][week] = numValue;
-
-      buildEntryTable();
-      updateVarianceTab();
-      updateCashflowTab();
-      updateOverviewCharts();
-    }
-
-    function calculateVariances() {
-      const totalPlanRev = planRevenue.reduce((a, b) => a + b, 0);
-      const totalActualRev = getTotalWeeklyRevenue();
-      const revVar = totalActualRev - totalPlanRev;
-
-      const totalPlanCosts = planCostsTotals.reduce((a, b) => a + b, 0);
-      const totalActualCosts = getTotalWeeklyCosts();
-      const costVar = totalPlanCosts - totalActualCosts;
-
-      const totalPlanPnL = planPnL.reduce((a, b) => a + b, 0);
-      const totalActualPnL = getTotalWeeklyRevenue() - getTotalWeeklyCosts();
-      const pnlVar = totalActualPnL - totalPlanPnL;
-
-      return { revVar, costVar, pnlVar };
-    }
-
-    function updateVarianceTab() {
-      const { revVar, costVar, pnlVar } = calculateVariances();
-
-      const revVarEl = document.getElementById('revenueVarianceValue');
-      revVarEl.textContent = eurFormat(revVar);
-      revVarEl.className = `kpi-value ${getColorClass(revVar)}`;
-
-      const costVarEl = document.getElementById('costVarianceValue');
-      costVarEl.textContent = eurFormat(costVar);
-      costVarEl.className = `kpi-value ${getColorClass(costVar)}`;
-
-      const pnlVarEl = document.getElementById('pnlVarianceValue');
-      pnlVarEl.textContent = eurFormat(pnlVar);
-      pnlVarEl.className = `kpi-value ${getColorClass(pnlVar)}`;
-
-      const varianceTbody = document.getElementById('varianceTableBody');
-      varianceTbody.innerHTML = '';
-
-      weeks.forEach((week, i) => {
-        const planRevW = planRevenue[i];
-        const actualRevW = actuals.revenue[i];
-        const revVarW = actualRevW - planRevW;
-
-        const planCostW = planCostsTotals[i];
-        const actualCostW = getWeeklyTotalCosts(i);
-        const costVarW = planCostW - actualCostW;
-
-        const planPnLW = planPnL[i];
-        const actualPnLW = getWeeklyPnL(i);
-        const pnlVarW = actualPnLW - planPnLW;
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td><strong>${week}</strong></td>
-          <td>${eurFormat(planRevW)}</td>
-          <td>${eurFormat(actualRevW)}</td>
-          <td class="${getColorClass(revVarW)}">${eurFormat(revVarW)}</td>
-          <td>${eurFormat(planCostW)}</td>
-          <td>${eurFormat(actualCostW)}</td>
-          <td class="${getColorClass(costVarW)}">${eurFormat(costVarW)}</td>
-          <td>${eurFormat(planPnLW)}</td>
-          <td>${eurFormat(actualPnLW)}</td>
-          <td class="${getColorClass(pnlVarW)}">${eurFormat(pnlVarW)}</td>
-        `;
-        varianceTbody.appendChild(row);
-      });
-
-      const totalsRow = document.createElement('tr');
-      const totalPlanRev = planRevenue.reduce((a, b) => a + b, 0);
-      const totalActualRev = getTotalWeeklyRevenue();
-      const totalRevVar = totalActualRev - totalPlanRev;
-      const totalPlanCosts = planCostsTotals.reduce((a, b) => a + b, 0);
-      const totalActualCosts = getTotalWeeklyCosts();
-      const totalCostVar = totalPlanCosts - totalActualCosts;
-      const totalPlanPnL = planPnL.reduce((a, b) => a + b, 0);
-      const totalActualPnL = getTotalWeeklyRevenue() - getTotalWeeklyCosts();
-      const totalPnLVar = totalActualPnL - totalPlanPnL;
-
-      totalsRow.innerHTML = `
-        <td><strong>Totals</strong></td>
-        <td>${eurFormat(totalPlanRev)}</td>
-        <td>${eurFormat(totalActualRev)}</td>
-        <td class="${getColorClass(totalRevVar)}">${eurFormat(totalRevVar)}</td>
-        <td>${eurFormat(totalPlanCosts)}</td>
-        <td>${eurFormat(totalActualCosts)}</td>
-        <td class="${getColorClass(totalCostVar)}">${eurFormat(totalCostVar)}</td>
-        <td>${eurFormat(totalPlanPnL)}</td>
-        <td>${eurFormat(totalActualPnL)}</td>
-        <td class="${getColorClass(totalPnLVar)}">${eurFormat(totalPnLVar)}</td>
-      `;
-      varianceTbody.appendChild(totalsRow);
-
-      updateVarianceCharts();
-    }
-
-    function updateCashflowTab() {
-      const startingCash = parseFloat(document.getElementById('startingCash').value) || 40000;
-
-      const cashBalances = [startingCash];
-      for (let i = 0; i < weeks.length; i++) {
-        const prevBalance = cashBalances[i];
-        const pnl = getWeeklyPnL(i);
-        cashBalances.push(prevBalance + pnl);
-      }
-
-      let peakDeficit = 0;
-      for (let balance of cashBalances) {
-        if (balance < 0) {
-          peakDeficit = Math.min(peakDeficit, balance);
-        }
-      }
-
-      const lastWeek = getLastWeekWithData();
-      const currentCash = lastWeek >= 0 ? cashBalances[lastWeek + 1] : startingCash;
-
-      let runway = Infinity;
-      if (lastWeek >= 0) {
-        const totalPnL = getTotalWeeklyRevenue() - getTotalWeeklyCosts();
-        const avgWeeklyBurn = totalPnL / (lastWeek + 1);
-        if (avgWeeklyBurn < 0) {
-          runway = Math.ceil(currentCash / Math.abs(avgWeeklyBurn));
-        }
-      }
-
-      document.getElementById('currentCashValue').textContent = eurFormat(currentCash);
-      document.getElementById('currentCashValue').className = `kpi-value ${getColorClass(currentCash)}`;
-
-      document.getElementById('peakDeficitValue').textContent = eurFormat(Math.abs(peakDeficit));
-      document.getElementById('peakDeficitValue').className = `kpi-value ${peakDeficit < 0 ? 'negative' : 'neutral'}`;
-
-      const runwayText = runway === Infinity ? '∞' : `${runway} weeks`;
-      document.getElementById('fundingRunwayValue').textContent = runwayText;
-
-      updateCashflowCharts(cashBalances, startingCash);
-    }
-
-    let revenueVsCostsChart, cumulativePnLChart, breakEvenChart;
-    let revenuePlanVsActualChart, cumulativePnLVarianceChart, costsBreakdownChart;
-    let cashBalanceChart, weeklyCashFlowChart;
-
-    function updateOverviewCharts() {
-      const fitOutData = weeks.map((_, i) => actuals.investment[i]);
-      const operatingData = weeks.map((_, i) => actuals.runningCosts[i]);
-
-      const ctx1 = document.getElementById('revenueVsCostsChart').getContext('2d');
-      if (revenueVsCostsChart) revenueVsCostsChart.destroy();
-      revenueVsCostsChart = new Chart(ctx1, {
-        type: 'bar',
-        data: {
-          labels: weeks,
-          datasets: [
-            {
-              label: 'Revenue',
-              data: actuals.revenue,
-              backgroundColor: '#0d9488',
-              borderRadius: 4,
-              stack: 'revenue',
-            },
-            {
-              label: 'Fit-Out Investment',
-              data: fitOutData,
-              backgroundColor: '#7c3aed',
-              borderRadius: 4,
-              stack: 'costs',
-            },
-            {
-              label: 'Operating Costs',
-              data: operatingData,
-              backgroundColor: '#d97706',
-              borderRadius: 4,
-              stack: 'costs',
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: {
-              stacked: true,
-              grid: { display: false },
-            },
-            y: {
-              stacked: true,
-              grid: { color: '#e2e8f0' },
-              ticks: {
-                callback: (value) => eurFormat(value),
-              },
-            },
-          },
-          plugins: {
-            ...chartPlugins,
-            tooltip: {
-              ...chartPlugins.tooltip,
-              callbacks: {
-                label: function(context) {
-                  return context.dataset.label + ': ' + eurFormat(context.parsed.y);
-                },
-                afterBody: function(tooltipItems) {
-                  const idx = tooltipItems[0].dataIndex;
-                  const fitOut = fitOutData[idx] || 0;
-                  const operating = operatingData[idx] || 0;
-                  return 'Total Costs: ' + eurFormat(fitOut + operating);
-                }
-              }
-            }
-          },
-        },
-      });
-
-      const cumulativePnLData = [];
-      let cumsum = 0;
-      for (let i = 0; i < weeks.length; i++) {
-        cumsum += getWeeklyPnL(i);
-        cumulativePnLData.push(cumsum);
-      }
-
-      const ctx2 = document.getElementById('cumulativePnLChart').getContext('2d');
-      if (cumulativePnLChart) cumulativePnLChart.destroy();
-      cumulativePnLChart = new Chart(ctx2, {
-        type: 'line',
-        data: {
-          labels: weeks,
-          datasets: [
-            {
-              label: 'Cumulative P&L',
-              data: cumulativePnLData,
-              borderColor: '#0d9488',
-              backgroundColor: 'rgba(13, 148, 136, 0.1)',
-              borderWidth: 2,
-              fill: true,
-              tension: 0.4,
-              pointBackgroundColor: '#0d9488',
-              pointRadius: 4,
-              pointHoverRadius: 6,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              grid: { color: '#e2e8f0' },
-              ticks: {
-                callback: (value) => eurFormat(value),
-              },
-            },
-          },
-          plugins: chartPlugins,
-        },
-      });
-    }
-
-    function initBreakEvenChart() {
-      const scenarios = {
-        'Current Plan': planCostsTotals,
-        'Corrected Costs': planCostsTotals.map(c => c * 0.95),
-        'Optimized': planCostsTotals.map((c, i) => {
-          const revAdj = planRevenue[i] * 1.1;
-          const costAdj = c * 0.90;
-          return Math.max(0, costAdj - revAdj);
-        }),
-      };
-
-      const cumulativeData = {};
-      for (let scenario in scenarios) {
-        cumulativeData[scenario] = [];
-        let cumsum = 0;
-        for (let i = 0; i < weeks.length; i++) {
-          cumsum += planRevenue[i] - scenarios[scenario][i];
-          cumulativeData[scenario].push(cumsum);
-        }
-      }
-
-      const ctx = document.getElementById('breakEvenChart').getContext('2d');
-      if (breakEvenChart) breakEvenChart.destroy();
-      breakEvenChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: weeks,
-          datasets: [
-            {
-              label: 'Current Plan',
-              data: cumulativeData['Current Plan'],
-              borderColor: '#d97706',
-              backgroundColor: 'rgba(217, 119, 6, 0.1)',
-              borderWidth: 2,
-              fill: false,
-              tension: 0.4,
-              pointRadius: 3,
-              pointHoverRadius: 5,
-            },
-            {
-              label: 'Corrected Costs',
-              data: cumulativeData['Corrected Costs'],
-              borderColor: '#3b82f6',
-              backgroundColor: 'rgba(59, 130, 246, 0.1)',
-              borderWidth: 2,
-              fill: false,
-              tension: 0.4,
-              pointRadius: 3,
-              pointHoverRadius: 5,
-            },
-            {
-              label: 'Optimized',
-              data: cumulativeData['Optimized'],
-              borderColor: '#059669',
-              backgroundColor: 'rgba(5, 150, 105, 0.1)',
-              borderWidth: 2,
-              fill: false,
-              tension: 0.4,
-              pointRadius: 3,
-              pointHoverRadius: 5,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              grid: { color: '#e2e8f0' },
-              ticks: {
-                callback: (value) => eurFormat(value),
-              },
-            },
-          },
-          plugins: chartPlugins,
-        },
-      });
-    }
-
-    function updateVarianceCharts() {
-      const ctx1 = document.getElementById('revenuePlanVsActualChart').getContext('2d');
-      if (revenuePlanVsActualChart) revenuePlanVsActualChart.destroy();
-      revenuePlanVsActualChart = new Chart(ctx1, {
-        type: 'bar',
-        data: {
-          labels: weeks,
-          datasets: [
-            {
-              label: 'Plan Revenue',
-              data: planRevenue,
-              backgroundColor: '#d97706',
-              borderRadius: 4,
-            },
-            {
-              label: 'Actual Revenue',
-              data: actuals.revenue,
-              backgroundColor: '#0d9488',
-              borderRadius: 4,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              stacked: false,
-              grid: { color: '#e2e8f0' },
-              ticks: {
-                callback: (value) => eurFormat(value),
-              },
-            },
-          },
-          plugins: chartPlugins,
-        },
-      });
-
-      const planCumulativePnL = [];
-      let planCumSum = 0;
-      for (let i = 0; i < weeks.length; i++) {
-        planCumSum += planPnL[i];
-        planCumulativePnL.push(planCumSum);
-      }
-
-      const actualCumulativePnL = [];
-      let actualCumSum = 0;
-      for (let i = 0; i < weeks.length; i++) {
-        actualCumSum += getWeeklyPnL(i);
-        actualCumulativePnL.push(actualCumSum);
-      }
-
-      const ctx2 = document.getElementById('cumulativePnLVarianceChart').getContext('2d');
-      if (cumulativePnLVarianceChart) cumulativePnLVarianceChart.destroy();
-      cumulativePnLVarianceChart = new Chart(ctx2, {
-        type: 'line',
-        data: {
-          labels: weeks,
-          datasets: [
-            {
-              label: 'Plan P&L',
-              data: planCumulativePnL,
-              borderColor: '#d97706',
-              borderDash: [5, 5],
-              backgroundColor: 'rgba(217, 119, 6, 0.1)',
-              borderWidth: 2,
-              fill: false,
-              tension: 0.4,
-              pointRadius: 3,
-              pointHoverRadius: 5,
-            },
-            {
-              label: 'Actual P&L',
-              data: actualCumulativePnL,
-              borderColor: '#0d9488',
-              backgroundColor: 'rgba(13, 148, 136, 0.1)',
-              borderWidth: 2,
-              fill: false,
-              tension: 0.4,
-              pointRadius: 3,
-              pointHoverRadius: 5,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              grid: { color: '#e2e8f0' },
-              ticks: {
-                callback: (value) => eurFormat(value),
-              },
-            },
-          },
-          plugins: chartPlugins,
-        },
-      });
-
-      // Costs Breakdown: Fit-Out vs Operating (Plan vs Actual)
-      const planFitOut = weeks.map((_, i) => getInvestmentTotal(i));
-      const planOperating = weeks.map((_, i) => getRunningCostsTotal(i));
-      const actualFitOut = actuals.investment;
-      const actualOperating = actuals.runningCosts;
-
-      const ctx3 = document.getElementById('costsBreakdownChart').getContext('2d');
-      if (costsBreakdownChart) costsBreakdownChart.destroy();
-      costsBreakdownChart = new Chart(ctx3, {
-        type: 'bar',
-        data: {
-          labels: weeks,
-          datasets: [
-            {
-              label: 'Plan: Fit-Out',
-              data: planFitOut,
-              backgroundColor: 'rgba(124, 58, 237, 0.35)',
-              borderColor: '#7c3aed',
-              borderWidth: 1,
-              borderRadius: 3,
-              stack: 'plan',
-            },
-            {
-              label: 'Plan: Operating',
-              data: planOperating,
-              backgroundColor: 'rgba(217, 119, 6, 0.35)',
-              borderColor: '#d97706',
-              borderWidth: 1,
-              borderRadius: 3,
-              stack: 'plan',
-            },
-            {
-              label: 'Actual: Fit-Out',
-              data: [...actualFitOut],
-              backgroundColor: 'rgba(124, 58, 237, 0.85)',
-              borderColor: '#7c3aed',
-              borderWidth: 1,
-              borderRadius: 3,
-              stack: 'actual',
-            },
-            {
-              label: 'Actual: Operating',
-              data: [...actualOperating],
-              backgroundColor: 'rgba(217, 119, 6, 0.85)',
-              borderColor: '#d97706',
-              borderWidth: 1,
-              borderRadius: 3,
-              stack: 'actual',
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: { stacked: true, grid: { display: false } },
-            y: {
-              stacked: true,
-              grid: { color: '#e2e8f0' },
-              ticks: { callback: (value) => eurFormat(value) },
-            },
-          },
-          plugins: {
-            ...chartPlugins,
-            tooltip: {
-              ...chartPlugins.tooltip,
-              callbacks: {
-                label: function(context) {
-                  return context.dataset.label + ': ' + eurFormat(context.parsed.y);
-                }
-              }
-            }
-          },
-        },
-      });
-    }
-
-    function updateCashflowCharts(cashBalances, startingCash) {
-      const planCashBalances = [startingCash];
-      let planCumSum = 0;
-      for (let i = 0; i < weeks.length; i++) {
-        planCumSum += planPnL[i];
-        planCashBalances.push(startingCash + planCumSum);
-      }
-
-      const ctx1 = document.getElementById('cashBalanceChart').getContext('2d');
-      if (cashBalanceChart) cashBalanceChart.destroy();
-      cashBalanceChart = new Chart(ctx1, {
-        type: 'line',
-        data: {
-          labels: ['Start', ...weeks],
-          datasets: [
-            {
-              label: 'Plan Cash Balance',
-              data: planCashBalances,
-              borderColor: '#d97706',
-              borderDash: [5, 5],
-              backgroundColor: 'rgba(217, 119, 6, 0.05)',
-              borderWidth: 2,
-              fill: false,
-              tension: 0.4,
-              pointRadius: 2,
-              pointHoverRadius: 4,
-            },
-            {
-              label: 'Actual Cash Balance',
-              data: cashBalances,
-              borderColor: '#0d9488',
-              backgroundColor: 'rgba(13, 148, 136, 0.1)',
-              borderWidth: 2,
-              fill: true,
-              tension: 0.4,
-              pointRadius: 3,
-              pointHoverRadius: 5,
-            },
-            {
-              label: 'Zero Line',
-              data: Array(cashBalances.length).fill(0),
-              borderColor: '#dc2626',
-              borderDash: [3, 3],
-              borderWidth: 1,
-              fill: false,
-              pointRadius: 0,
-              showLine: true,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              grid: { color: '#e2e8f0' },
-              ticks: {
-                callback: (value) => eurFormat(value),
-              },
-            },
-          },
-          plugins: chartPlugins,
-        },
-      });
-
-      const ctx2 = document.getElementById('weeklyCashFlowChart').getContext('2d');
-      if (weeklyCashFlowChart) weeklyCashFlowChart.destroy();
-
-      const weeklyCashFlows = weeks.map((_, i) => getWeeklyPnL(i));
-      const colors = weeklyCashFlows.map(val => val >= 0 ? '#059669' : '#dc2626');
-
-      weeklyCashFlowChart = new Chart(ctx2, {
-        type: 'bar',
-        data: {
-          labels: weeks,
-          datasets: [
-            {
-              label: 'Weekly P&L',
-              data: weeklyCashFlows,
-              backgroundColor: colors,
-              borderRadius: 4,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              grid: { color: '#e2e8f0' },
-              ticks: {
-                callback: (value) => eurFormat(value),
-              },
-            },
-          },
-          plugins: chartPlugins,
-        },
-      });
-    }
-
-    document.getElementById('startingCash').addEventListener('input', () => {
-      updateCashflowTab();
     });
 
-    function init() {
-      buildEntryTable();
-      updateOverviewCharts();
-      initBreakEvenChart();
-      updateVarianceTab();
-      updateCashflowTab();
-    }
+    /* FAQ filters — actually filter */
+    document.querySelectorAll('.faq-filter').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.faq-filter').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const cat = btn.dataset.cat;
+        document.querySelectorAll('.faq-item').forEach(item => {
+          item.style.display = (cat === 'all' || item.dataset.cat === cat) ? '' : 'none';
+        });
+      });
+    });
 
-    init();
+    /* Pilot form — mailto compose until a form backend exists */
+    document.getElementById('pilot-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const email = document.getElementById('pilot-email').value;
+      const subject = encodeURIComponent('Pilot request');
+      const body = encodeURIComponent(
+        'Hi HumanRelay team,\n\nWe\'d like to scope a pilot.\n\nWork email: ' + email +
+        '\nInterested in: [Capture / Annotate / Judge / Operate]\n\nThanks!'
+      );
+      window.location.href = 'mailto:hello@humanrelay.ai?subject=' + subject + '&body=' + body;
+    });
+
+    /* Scroll reveal */
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   </script>
 </body>
 </html>

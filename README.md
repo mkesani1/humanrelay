@@ -1,29 +1,29 @@
-# Business Plan Analysis Dashboard
+# HumanRelay v2 — The Human Layer for Embodied AI
 
-Interactive 15-week financial plan analysis dashboard for a Lithuanian bar/restaurant, featuring AI Model Council insights and margin optimization tools.
+> **Note:** this branch (`claude/humanrelay-review-7985vu`) repurposes this repo to host the
+> HumanRelay v2 site rebuild, because the original humanrelay Vercel project has no linked
+> Git repository (it was deployed via CLI) and this session could not create a new repo.
+> `main` still contains the Third Space Cafe business-plan dashboard.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmkesani1%2Fbusiness-plan-dashboard)
+## Contents
 
-## Features
+- `BRIEF.md` — positioning, audience, design, and IA brief for the v2 site
+- `public/index.html` — the new single-file site (no build step)
+- `v1/index.html` — snapshot of the previous site as deployed at humanrelay.vercel.app
 
-- **Financial Overview** — Weekly revenue vs expenses, cumulative P&L trajectory
-- **Revenue Breakdown** — Stacked area chart (drinks/food/wine) + daily revenue bars
-- **Cost Structure** — Side-by-side doughnut charts comparing plan vs industry COGS
-- **AI Model Council** — Cross-model analysis from GPT 5.4, Claude Opus 4.6, and Gemini 3.1 Pro
-- **Scenario Modeling** — Interactive sliders and toggles for P&L adjustment
-- **Margin Optimizer** — Editable 7-day x 3-category matrix (food/wine/drinks) to maximise gross profit
-- **Break-Even Analysis** — 3-scenario projection to 30 weeks
+## The story
 
-## Tech Stack
+HumanRelay is the one-stop shop for HITL robot and agent data:
 
-- Pure HTML/CSS/JS (no build step required)
-- Chart.js for data visualization
-- Responsive dark-themed UI
+1. **Capture** — egocentric data collection (hundreds of hours of 4K first-person video daily)
+2. **Annotate** — labeling & evaluation, proven via sister company [IndiVillage](https://indivillage.com) (500M+ annotations)
+3. **Judge** — human-in-the-loop API (Classify, Judge, Extract, Escalate, Resolve + Relay decomposition)
+4. **Operate** — teleoperation for deployed fleets
 
-## Quick Start
+Connected by the flywheel: *every intervention is a labeled demonstration.*
 
-Just open `index.html` in a browser, or deploy to any static hosting provider.
+## Deploy
 
-## License
-
-MIT
+Static site, no build: deploy the repo to Vercel (`outputDirectory: public`) or any static host.
+Recommended: move this to a dedicated `humanrelay` repo and link it to the existing
+`humanrelay` Vercel project, then disable deployment protection for public launch.
