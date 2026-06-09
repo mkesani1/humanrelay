@@ -12,11 +12,11 @@ Key facts:
 
 ## Contact
 
-- Email: hello@humanrelay.ai (pilots scoped within a week; Judge pilot results in 48 hours)
-- Pilot requests: subject "Pilot request" to hello@humanrelay.ai
-- Sample datasets: subject "Sample dataset request" to hello@humanrelay.ai
-- Investor memo: subject "Investor memo request" to hello@humanrelay.ai
+- Email: hello@humanrelay.com (pilots scoped within a week; Judge pilot results in 48 hours)
+- Pilot requests: subject "Pilot request" to hello@humanrelay.com
+- Sample datasets: subject "Sample dataset request" to hello@humanrelay.com
+- Investor memo: subject "Investor memo request" to hello@humanrelay.com
 
 ## Site
 
-- [Home](https://humanrelay.vercel.app/): single-page site covering the four products (Capture, Annotate, Judge, Operate), the data flywheel, workforce model, pricing, and FAQ.
+- [Home](https://humanrelay.com/): single-page site covering the four products (Capture, Annotate, Judge, Operate), the data flywheel, workforce model, pricing, and FAQ.

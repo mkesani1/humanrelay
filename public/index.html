@@ -8,16 +8,16 @@
   <meta property="og:type" content="website" />
   <meta property="og:title" content="HumanRelay — The Human Layer for AI Agents &amp; Robots" />
   <meta property="og:description" content="Egocentric capture, annotation, a HITL API for agents, and teleoperation for robot fleets — for agent builders, humanoid companies, and frontier labs. Managed teams, not gig workers." />
-  <meta property="og:url" content="https://humanrelay.vercel.app/" />
+  <meta property="og:url" content="https://humanrelay.com/" />
   <meta property="og:site_name" content="HumanRelay" />
-  <meta property="og:image" content="https://humanrelay.vercel.app/og.png" />
+  <meta property="og:image" content="https://humanrelay.com/og.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="HumanRelay — The Human Layer for AI Agents &amp; Robots" />
   <meta name="twitter:description" content="One partner for the human side of AI: capture, annotation, judgment for agents, teleoperation for robots." />
-  <meta name="twitter:image" content="https://humanrelay.vercel.app/og.png" />
-  <link rel="canonical" href="https://humanrelay.vercel.app/" />
+  <meta name="twitter:image" content="https://humanrelay.com/og.png" />
+  <link rel="canonical" href="https://humanrelay.com/" />
   <meta name="theme-color" content="#F5F0E8" />
   <meta name="robots" content="index, follow" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23E05A33'/%3E%3Ccircle cx='22' cy='32' r='7' fill='%23F5F0E8'/%3E%3Ccircle cx='44' cy='32' r='7' fill='none' stroke='%23F5F0E8' stroke-width='4'/%3E%3Cpath d='M29 32h8' stroke='%23F5F0E8' stroke-width='4'/%3E%3C/svg%3E" />
@@ -30,21 +30,21 @@
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://humanrelay.vercel.app/#org",
+        "@id": "https://humanrelay.com/#org",
         "name": "HumanRelay",
-        "url": "https://humanrelay.vercel.app/",
-        "logo": "https://humanrelay.vercel.app/og.png",
-        "email": "hello@humanrelay.ai",
+        "url": "https://humanrelay.com/",
+        "logo": "https://humanrelay.com/og.png",
+        "email": "hello@humanrelay.com",
         "slogan": "The human layer for agents and robots",
         "description": "One partner for the human side of AI: egocentric data capture, annotation and evaluation (with sister company IndiVillage), a real-time human-judgment API for AI agents, and teleoperation for deployed robot fleets — powered by 1,200+ managed, office-based professionals.",
         "memberOf": { "@type": "Organization", "name": "IndiVillage", "url": "https://indivillage.com" }
       },
       {
         "@type": "WebSite",
-        "@id": "https://humanrelay.vercel.app/#website",
-        "url": "https://humanrelay.vercel.app/",
+        "@id": "https://humanrelay.com/#website",
+        "url": "https://humanrelay.com/",
         "name": "HumanRelay",
-        "publisher": { "@id": "https://humanrelay.vercel.app/#org" }
+        "publisher": { "@id": "https://humanrelay.com/#org" }
       },
       {
         "@type": "OfferCatalog",
@@ -415,7 +415,7 @@
   <!-- ============ NAV ============ -->
   <nav class="nav">
     <div class="nav-inner">
-      <a href="#top" class="logo">Human<span>Relay</span></a>
+      <a href="#top" class="logo">HumanRelay<span>.</span></a>
       <div class="nav-links">
         <a href="#stack">The Stack</a>
         <a href="#capture">Capture</a>
@@ -426,7 +426,7 @@
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
       </div>
-      <a class="btn btn-accent" href="mailto:hello@humanrelay.ai?subject=Pilot%20request">Start a Pilot</a>
+      <a class="btn btn-accent" href="mailto:hello@humanrelay.com?subject=Pilot%20request">Start a Pilot</a>
     </div>
   </nav>
 
@@ -439,8 +439,8 @@
           <h1>The <span class="accent">human layer</span> for agents and&nbsp;robots.</h1>
           <p class="hero-sub">Egocentric capture, expert annotation, real-time judgment, and teleoperation — <strong>one partner for the human side of your AI stack.</strong> When your agent needs a judgment call or your robot needs a hand, 1,200+ managed professionals answer. Not gig workers.</p>
           <div class="hero-ctas">
-            <a class="btn btn-primary" href="mailto:hello@humanrelay.ai?subject=Pilot%20request">Start a Pilot</a>
-            <a class="btn btn-outline" href="mailto:hello@humanrelay.ai?subject=Sample%20dataset%20request">Request Sample Data</a>
+            <a class="btn btn-primary" href="mailto:hello@humanrelay.com?subject=Pilot%20request">Start a Pilot</a>
+            <a class="btn btn-outline" href="mailto:hello@humanrelay.com?subject=Sample%20dataset%20request">Request Sample Data</a>
           </div>
         </div>
         <div class="hero-card reveal">
@@ -565,7 +565,7 @@
             <li><strong>Clean provenance.</strong> Consent-first collection, full metadata, PII scrubbing.</li>
             <li><strong>One pipeline.</strong> Capture and annotation under one roof — no vendor hand-off.</li>
           </ul>
-          <a class="btn btn-primary" href="mailto:hello@humanrelay.ai?subject=Sample%20dataset%20request">Request a Sample Dataset</a>
+          <a class="btn btn-primary" href="mailto:hello@humanrelay.com?subject=Sample%20dataset%20request">Request a Sample Dataset</a>
         </div>
         <div>
           <div class="spec-card reveal">
@@ -673,7 +673,7 @@ result = hr.<span class="fn">judge</span>(
 
 <span class="fn">print</span>(result.verdict)    <span class="cm"># "Response A"</span>
 <span class="fn">print</span>(result.rationale)  <span class="cm"># "Response A provides..."</span></div>
-        <div class="code-pane" id="pane-curl">curl https://api.humanrelay.ai/v1/judge \
+        <div class="code-pane" id="pane-curl">curl https://api.humanrelay.com/v1/judge \
   -H <span class="st">"Authorization: Bearer hr_live_..."</span> \
   -H <span class="st">"Content-Type: application/json"</span> \
   -d <span class="st">'{
@@ -712,7 +712,7 @@ result = hr.<span class="fn">judge</span>(
             <li><strong>Safety gate.</strong> A $0.50 confirmation binary before any consequential physical action.</li>
             <li><strong>Data exhaust included.</strong> Full intervention trace plus annotated demonstration, returned via API.</li>
           </ul>
-          <a class="btn btn-primary" href="mailto:hello@humanrelay.ai?subject=Teleoperation%20pilot">Discuss a Teleop Pilot</a>
+          <a class="btn btn-primary" href="mailto:hello@humanrelay.com?subject=Teleoperation%20pilot">Discuss a Teleop Pilot</a>
         </div>
         <div>
           <div class="spec-card reveal">
@@ -769,25 +769,25 @@ result = hr.<span class="fn">judge</span>(
           <div class="for">For agent builders</div>
           <h3>Judgment on tap for production agents.</h3>
           <p>Five HITL primitives behind one API or MCP server — moderation calls, RLHF, evals, escalation. Sub-minute human answers for the moments your agent shouldn't guess. From $0.50 a call.</p>
-          <a href="mailto:hello@humanrelay.ai?subject=Agent%20HITL%20pilot">Start a pilot →</a>
+          <a href="mailto:hello@humanrelay.com?subject=Agent%20HITL%20pilot">Start a pilot →</a>
         </div>
         <div class="fit-card reveal">
           <div class="for">For humanoid companies</div>
           <h3>Deploy before the model is perfect.</h3>
           <p>Pretraining ego-video at scale, evaluation pipelines, and a 24/7 teleop fallback behind every unit in the field — so the fleet ships now and improves monthly.</p>
-          <a href="mailto:hello@humanrelay.ai?subject=Humanoid%20program%20pilot">Start a pilot →</a>
+          <a href="mailto:hello@humanrelay.com?subject=Humanoid%20program%20pilot">Start a pilot →</a>
         </div>
         <div class="fit-card reveal">
           <div class="for">For frontier labs</div>
           <h3>Data you can put in the model card.</h3>
           <p>Diverse, consented, provenance-clean human data for VLA and world models. RLHF, rubric evals, and red-teaming by trained specialists — not a marketplace.</p>
-          <a href="mailto:hello@humanrelay.ai?subject=Sample%20dataset%20request">Request sample data →</a>
+          <a href="mailto:hello@humanrelay.com?subject=Sample%20dataset%20request">Request sample data →</a>
         </div>
         <div class="fit-card reveal">
           <div class="for">For investors</div>
           <h3>The bottleneck is the business.</h3>
           <p>Embodied AI's constraint isn't compute — it's human data. Ask for the memo: traction, the IndiVillage moat, and the intervention flywheel.</p>
-          <a href="mailto:hello@humanrelay.ai?subject=Investor%20memo%20request">Request the memo →</a>
+          <a href="mailto:hello@humanrelay.com?subject=Investor%20memo%20request">Request the memo →</a>
         </div>
       </div>
     </div>
@@ -843,7 +843,7 @@ result = hr.<span class="fn">judge</span>(
           </ul>
         </div>
       </div>
-      <p class="price-foot">Volume discounts at scale · SLA guarantees available · <a href="mailto:hello@humanrelay.ai?subject=Quote%20request" style="color:var(--vermillion); font-weight:600;">hello@humanrelay.ai</a> for a quote</p>
+      <p class="price-foot">Volume discounts at scale · SLA guarantees available · <a href="mailto:hello@humanrelay.com?subject=Quote%20request" style="color:var(--vermillion); font-weight:600;">hello@humanrelay.com</a> for a quote</p>
     </div>
   </section>
 
@@ -893,7 +893,7 @@ result = hr.<span class="fn">judge</span>(
       </div>
       <div class="faq-item" data-cat="pricing">
         <button class="faq-q">How do pilots work?</button>
-        <div class="faq-a">Scoped and fast: Judge pilots return results in 48 hours; annotation pilots start from as few as 10 hours of work; capture pilots deliver a sample batch against your taxonomy; teleop pilots begin with a scoped coverage window. No commitment beyond the pilot. Email <a href="mailto:hello@humanrelay.ai?subject=Pilot%20request" style="color:var(--vermillion); font-weight:600;">hello@humanrelay.ai</a> and we'll scope it this week.</div>
+        <div class="faq-a">Scoped and fast: Judge pilots return results in 48 hours; annotation pilots start from as few as 10 hours of work; capture pilots deliver a sample batch against your taxonomy; teleop pilots begin with a scoped coverage window. No commitment beyond the pilot. Email <a href="mailto:hello@humanrelay.com?subject=Pilot%20request" style="color:var(--vermillion); font-weight:600;">hello@humanrelay.com</a> and we'll scope it this week.</div>
       </div>
     </div>
   </section>
@@ -908,14 +908,14 @@ result = hr.<span class="fn">judge</span>(
         <button type="submit" class="btn">Start a Pilot</button>
       </form>
       <p class="cta-note">No commitment required · Pilot results in 48 hours · SOC 2 compliant</p>
-      <p class="cta-email">Or email us directly: <a href="mailto:hello@humanrelay.ai">hello@humanrelay.ai</a></p>
+      <p class="cta-email">Or email us directly: <a href="mailto:hello@humanrelay.com">hello@humanrelay.com</a></p>
     </div>
   </section>
 
   <!-- ============ FOOTER ============ -->
   <footer>
     <div class="wrap foot-inner">
-      <a href="#top" class="logo">Human<span>Relay</span></a>
+      <a href="#top" class="logo">HumanRelay<span>.</span></a>
       <div class="foot-links">
         <a href="#stack">The Stack</a>
         <a href="#capture">Capture</a>
@@ -924,7 +924,7 @@ result = hr.<span class="fn">judge</span>(
         <a href="#operate">Operate</a>
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
-        <a href="mailto:hello@humanrelay.ai">Contact</a>
+        <a href="mailto:hello@humanrelay.com">Contact</a>
       </div>
       <div class="foot-meta">© 2026 HumanRelay, Inc. · Annotation by <a href="https://indivillage.com" target="_blank" rel="noopener">IndiVillage</a></div>
     </div>
@@ -972,7 +972,7 @@ result = hr.<span class="fn">judge</span>(
         'Hi HumanRelay team,\n\nWe\'d like to scope a pilot.\n\nWork email: ' + email +
         '\nInterested in: [Capture / Annotate / Judge / Operate]\n\nThanks!'
       );
-      window.location.href = 'mailto:hello@humanrelay.ai?subject=' + subject + '&body=' + body;
+      window.location.href = 'mailto:hello@humanrelay.com?subject=' + subject + '&body=' + body;
     });
 
     /* Scroll reveal */
