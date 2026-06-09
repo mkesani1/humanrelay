@@ -139,6 +139,14 @@ export function createApp(deps: AppDeps) {
     return c.json({ relay: publicTrace(trace) });
   });
 
+  // The negotiation round-trip: answer Relay's clarification question.
+  app.post("/v1/relay/:id/clarify", requireOrg, async (c) => {
+    const body = z.object({ answer: z.string().min(1) }).parse(await c.req.json());
+    const trace = await relay.clarify((c.req.param("id") ?? ""), c.get("orgId"), body.answer);
+    if (!trace) return c.json({ error: "not found" }, 404);
+    return c.json({ relay: publicTrace(trace) }, trace.status === "running" ? 202 : 200);
+  });
+
   // ---------- Teleop ----------
 
   app.post("/v1/teleop/sessions", requireOrg, async (c) => {

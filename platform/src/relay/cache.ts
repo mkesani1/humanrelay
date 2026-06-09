@@ -46,9 +46,13 @@ export function cosine(a: number[], b: number[]): number {
 }
 
 export interface CacheHit {
+  cache_id: string;
+  tier: Tier;
   verdict: Record<string, unknown>;
   consensus_count: number;
   similarity: number;
+  /** Total times this entry has served an answer (after this hit). Drives audit sampling. */
+  uses: number;
 }
 
 export class BinaryCache {
@@ -56,20 +60,20 @@ export class BinaryCache {
 
   async lookup(question: string): Promise<CacheHit | null> {
     const hash = questionHash(question);
-    const exact = await this.db.query<{ verdict: Record<string, unknown>; consensus_count: number }>(
-      `select verdict, consensus_count from binary_cache where question_hash = $1`,
+    const exact = await this.db.query<{ id: string; tier: Tier; verdict: Record<string, unknown>; consensus_count: number; uses: number }>(
+      `select id, tier, verdict, consensus_count, uses from binary_cache where question_hash = $1`,
       [hash],
     );
     const e = exact.rows[0];
     if (e && Number(e.consensus_count) >= CACHE_MIN_CONSENSUS) {
-      return { verdict: e.verdict, consensus_count: Number(e.consensus_count), similarity: 1 };
+      return this.serve({ cache_id: e.id, tier: e.tier, verdict: e.verdict, consensus_count: Number(e.consensus_count), similarity: 1, uses: Number(e.uses) });
     }
 
     // Similarity scan over recent entries (bounded; replace with pgvector at scale).
     const candidates = await this.db.query<{
-      embedding: number[]; verdict: Record<string, unknown>; consensus_count: number;
+      id: string; tier: Tier; embedding: number[]; verdict: Record<string, unknown>; consensus_count: number; uses: number;
     }>(
-      `select embedding, verdict, consensus_count from binary_cache
+      `select id, tier, embedding, verdict, consensus_count, uses from binary_cache
         where consensus_count >= $1
         order by last_seen_at desc limit 500`,
       [CACHE_MIN_CONSENSUS],
@@ -79,10 +83,33 @@ export class BinaryCache {
     for (const c of candidates.rows) {
       const sim = cosine(qv, c.embedding);
       if (sim >= CACHE_SIMILARITY_THRESHOLD && (!best || sim > best.similarity)) {
-        best = { verdict: c.verdict, consensus_count: Number(c.consensus_count), similarity: sim };
+        best = { cache_id: c.id, tier: c.tier, verdict: c.verdict, consensus_count: Number(c.consensus_count), similarity: sim, uses: Number(c.uses) };
       }
     }
-    return best;
+    return best ? this.serve(best) : null;
+  }
+
+  private async serve(hit: CacheHit): Promise<CacheHit> {
+    await this.db.query(`update binary_cache set uses = uses + 1, last_seen_at = now() where id = $1`, [hit.cache_id]);
+    return { ...hit, uses: hit.uses + 1 };
+  }
+
+  /** Audit outcome: a human re-answered a cached question. */
+  async applyAudit(cacheId: string, humanVerdict: Record<string, unknown>): Promise<void> {
+    const { rows } = await this.db.query<{ verdict: Record<string, unknown> }>(
+      `select verdict from binary_cache where id = $1`, [cacheId]);
+    const row = rows[0];
+    if (!row) return;
+    const match = String(row.verdict["answer"] ?? "").toLowerCase() === String(humanVerdict["answer"] ?? "").toLowerCase();
+    if (match) {
+      await this.db.query(`update binary_cache set consensus_count = consensus_count + 1 where id = $1`, [cacheId]);
+    } else {
+      // Drift detected: human ground truth wins; cache must re-earn consensus.
+      await this.db.query(
+        `update binary_cache set verdict = $2, consensus_count = 1, audit_mismatches = audit_mismatches + 1 where id = $1`,
+        [cacheId, JSON.stringify(humanVerdict)],
+      );
+    }
   }
 
   /** Record a human-resolved binary. Same answer increments consensus; a different answer resets it. */

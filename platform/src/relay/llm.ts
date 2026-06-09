@@ -19,9 +19,10 @@ export const BinarySchema = z.object({
 });
 
 export const PlanSchema = z.object({
-  strategy: z.enum(["direct", "decompose"]),
+  strategy: z.enum(["direct", "decompose", "clarify"]),
   tier: z.enum(["basic", "complex", "expert"]).optional(), // for direct
   binaries: z.array(BinarySchema).default([]),
+  clarification_question: z.string().optional(),           // for clarify
 });
 export type Plan = z.infer<typeof PlanSchema>;
 
@@ -39,10 +40,18 @@ export interface RelayLlm {
   ): Promise<Reassembly>;
 }
 
-/** Deterministic mock: short clear yes/no questions go direct; everything else decomposes into a 2-wave tree. */
+/** Deterministic mock: too-vague questions trigger negotiation; short clear yes/no questions go direct; everything else decomposes into a 2-wave tree. */
 export class MockLlm implements RelayLlm {
   async plan(question: string, tierCap: Tier): Promise<Plan> {
     const q = question.trim();
+    // Negotiation: not enough signal to plan against.
+    if (q.replace(/\?+$/, "").length < 16 && !/Clarification:/i.test(q)) {
+      return {
+        strategy: "clarify",
+        binaries: [],
+        clarification_question: "What system or object does this refer to, and what outcome do you need decided?",
+      };
+    }
     const isBinaryShaped = /^(is|are|does|do|can|should|was|were|has|have)\b/i.test(q) && q.length <= 80 && !/\bor\b/i.test(q);
     if (isBinaryShaped) {
       return { strategy: "direct", tier: "basic", binaries: [] };
@@ -109,8 +118,9 @@ export class RealLlm implements RelayLlm {
             type: "object",
             additionalProperties: false,
             properties: {
-              strategy: { type: "string", enum: ["direct", "decompose"] },
+              strategy: { type: "string", enum: ["direct", "decompose", "clarify"] },
               tier: { type: "string", enum: ["basic", "complex", "expert"] },
+              clarification_question: { type: "string" },
               binaries: {
                 type: "array",
                 items: {
@@ -180,6 +190,8 @@ You receive a question an AI agent could not answer on its own. Your job is to f
 binary (yes/no) questions that trained human workers can answer to resolve it.
 
 Rules:
+- If the question lacks the context a human would need (no object, no decision criteria), return
+  strategy "clarify" with ONE clarification_question. You get exactly one round-trip — make it count.
 - If the question is already a single clear binary, return strategy "direct" with the right tier.
 - Otherwise return strategy "decompose" with 2-5 binaries. Each binary must be answerable yes/no by a
   human without seeing the other answers, unless it lists depends_on.
