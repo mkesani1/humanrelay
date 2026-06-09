@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HumanRelay — Worker Bench</title>
+<style>
+  :root { --paper:#F5F0E8; --ink:#23211C; --verm:#E05A33; --muted:#6E6A60; --border:#DCD6C8; --card:#fff; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:Inter,system-ui,sans-serif; background:var(--paper); color:var(--ink); min-height:100vh;
+         display:flex; flex-direction:column; align-items:center; padding:40px 20px; }
+  .logo { font-weight:700; font-size:1.3rem; margin-bottom:28px; } .logo span { color:var(--verm); }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:28px;
+          width:100%; max-width:640px; margin-bottom:16px; }
+  .muted { color:var(--muted); font-size:.9rem; }
+  input, textarea { width:100%; padding:12px; border:1.5px solid var(--border); border-radius:8px;
+          font-family:inherit; font-size:1rem; margin-top:8px; }
+  button { background:var(--ink); color:#fff; border:none; border-radius:8px; padding:12px 22px;
+           font-weight:600; font-size:.95rem; cursor:pointer; margin-top:14px; }
+  button.accent { background:var(--verm); }
+  button.ghost { background:transparent; color:var(--ink); border:1.5px solid var(--border); }
+  .q { font-size:1.25rem; font-weight:600; margin:10px 0 4px; line-height:1.5; }
+  .tag { display:inline-block; background:#E8E3D8; border-radius:999px; padding:3px 12px;
+         font-size:.75rem; font-weight:600; margin-right:6px; text-transform:uppercase; letter-spacing:.06em; }
+  .yn { display:flex; gap:12px; margin-top:18px; }
+  .yn button { flex:1; font-size:1.1rem; padding:16px; }
+  .stats { display:flex; gap:24px; margin-top:6px; }
+  .stats b { font-size:1.2rem; }
+  kbd { background:#E8E3D8; border-radius:4px; padding:1px 7px; font-size:.8rem; }
+  #status { margin-top:10px; min-height:1.2em; }
+</style>
+</head>
+<body>
+  <div class="logo">HumanRelay<span>.</span> <span class="muted">worker bench</span></div>
+
+  <div class="card" id="login">
+    <div class="muted">Worker ID</div>
+    <input id="wid" placeholder="uuid from your supervisor" />
+    <button onclick="start()">Start shift</button>
+  </div>
+
+  <div class="card" id="bench" style="display:none">
+    <div id="me" class="stats muted"></div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0" />
+    <div id="empty" class="muted">No tasks in your queue — checking every few seconds…</div>
+    <div id="task" style="display:none">
+      <span class="tag" id="tier"></span><span class="tag" id="primitive"></span>
+      <div class="q" id="question"></div>
+      <div class="muted" id="rubric"></div>
+      <div class="yn">
+        <button class="accent" onclick="answer('yes')">Yes <kbd>Y</kbd></button>
+        <button class="ghost" onclick="answer('no')">No <kbd>N</kbd></button>
+      </div>
+      <textarea id="rationale" rows="2" placeholder="Rationale (required for expert tier)"></textarea>
+    </div>
+    <div id="status" class="muted"></div>
+  </div>
+
+<script>
+let workerId = null, assignmentId = null, polling = null;
+
+async function start() {
+  workerId = document.getElementById('wid').value.trim();
+  if (!workerId) return;
+  const r = await fetch(`/worker/${workerId}/stats`);
+  if (!r.ok) { document.getElementById('status').textContent = 'Unknown worker id'; return; }
+  const { worker } = await r.json();
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('bench').style.display = 'block';
+  renderMe(worker);
+  poll();
+  polling = setInterval(poll, 4000);
+}
+
+function renderMe(w) {
+  document.getElementById('me').innerHTML =
+    `<div><b>${w.name}</b><br/>${w.tier} tier</div>` +
+    `<div><b>${(w.accuracy*100).toFixed(1)}%</b><br/>accuracy</div>` +
+    `<div><b>${w.answers}</b><br/>answers</div>`;
+}
+
+async function poll() {
+  if (assignmentId) return;
+  const r = await fetch('/worker/claim', { method:'POST',
+    headers:{'content-type':'application/json'}, body: JSON.stringify({ worker_id: workerId }) });
+  if (r.status === 204) { show(false); return; }
+  const { task, assignment_id } = await r.json();
+  assignmentId = assignment_id;
+  document.getElementById('tier').textContent = task.tier;
+  document.getElementById('primitive').textContent = task.primitive;
+  document.getElementById('question').textContent =
+    task.payload.question || JSON.stringify(task.payload.content || task.payload);
+  document.getElementById('rubric').textContent = task.rubric || '';
+  document.getElementById('rationale').value = '';
+  show(true);
+}
+
+function show(hasTask) {
+  document.getElementById('task').style.display = hasTask ? 'block' : 'none';
+  document.getElementById('empty').style.display = hasTask ? 'none' : 'block';
+}
+
+async function answer(ans) {
+  if (!assignmentId) return;
+  const rationale = document.getElementById('rationale').value.trim();
+  const r = await fetch('/worker/answer', { method:'POST',
+    headers:{'content-type':'application/json'},
+    body: JSON.stringify({ assignment_id: assignmentId, verdict:{ answer: ans }, rationale: rationale || undefined }) });
+  document.getElementById('status').textContent = r.ok ? `Submitted: ${ans}` : 'Submit failed: ' + (await r.text());
+  assignmentId = null;
+  const s = await fetch(`/worker/${workerId}/stats`);
+  if (s.ok) renderMe((await s.json()).worker);
+  show(false);
+  setTimeout(poll, 300);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (!assignmentId || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if (e.key === 'y' || e.key === 'Y') answer('yes');
+  if (e.key === 'n' || e.key === 'N') answer('no');
+});
+</script>
+</body>
+</html>
