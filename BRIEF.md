@@ -29,8 +29,8 @@ The site must work for all three without splitting into separate pages: lab/robo
 
 ## 3. Positioning & message hierarchy
 
-- **H1:** "The human layer for embodied AI."
-- **Core argument:** Embodied AI is starved for human data. HumanRelay runs the entire human side of the robot stack — capture, annotation, real-time judgment, teleoperation — with managed teams in offices, not anonymous gig workers.
+- **H1:** "The human layer for agents and robots."
+- **Core argument:** AI is starved for human data and human judgment. HumanRelay runs the entire human side of the AI stack — capture, annotation, real-time judgment for agents, teleoperation for robots — with managed teams in offices, not anonymous gig workers. Embodied AI is the growth story; agents that need humans in the loop are an equal, here-today market.
 - **Key differentiators (in order):**
   1. **Managed, not gig.** Salaried, trained, office-based teams. Same people on your project every day. Quality, security, and consistency that gig platforms structurally cannot offer.
   2. **Proven via IndiVillage.** The annotation claims aren't aspirational — the sister company has delivered 500M+ annotations for global AI teams.
