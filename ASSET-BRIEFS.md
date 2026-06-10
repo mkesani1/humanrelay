@@ -132,6 +132,50 @@ silhouette + patch pattern; a layperson sees "big bird." **Avoid:** majestic clo
 eagle portraits (kills the premise entirely), multiple birds, bird too near the
 turbine blades (implies a strike story we don't want).
 
+## 6. `crop.png` — "Aphids on this soybean — schedule tonight's spray pass?" (crop-scouting agent)
+
+**Role:** field photo from a scout's phone, sent by an agronomy agent. Verdict:
+*hold the spray — ladybird larvae are eating the colony; spraying kills the
+beneficials and wastes the pass.*
+
+**Prompt seed:**
+> Close-up smartphone photo taken in a commercial soybean field: the underside of a
+> green soybean leaf, with a cluster of small pale-green aphids along the leaf
+> veins — and among them, one or two dark, elongated, alligator-shaped larvae with
+> faint orange markings, slightly out of focus. A gloved fingertip steadying the
+> leaf at the frame edge is fine (no skin, no branding). Morning light, dew
+> droplets, a little field dust on the leaf, blurred crop rows as bokeh background.
+> Realistic phone-macro look: shallow depth of field, slight focus miss, mild
+> sensor noise. No text, no logos, no people beyond the gloved fingertip.
+
+**The tells:** pear-shaped clustered aphids vs. alligator-shaped orange-flecked
+ladybird larvae. **Ambiguity:** larvae partly shadowed/soft so "62% outbreak" is
+believable — at a glance they read as bigger pests. **Avoid:** textbook entomology
+sharpness, single-insect portraits, lab look.
+
+## 7. `floor.png` — "Resident is on the floor, not responding to a greeting. Call for help?" (home humanoid)
+
+**Role:** chest-height camera frame from a home robot. Verdict: *no emergency —
+exercise mat, lit phone screen, workout clothes; she is mid-routine. Check again in
+ten minutes.* The story is the robot knowing to ask instead of false-alarming 911.
+
+**Prompt seed:**
+> Indoor frame from a home robot's chest-height camera, slightly wide-angle: a
+> normal living room in soft daytime window light, a person lying face-down and
+> motionless on the floor, face fully turned away and not visible, wearing everyday
+> athleisure. The scene is deliberately ambiguous: a partially unrolled exercise
+> mat under their torso and a phone propped against a water bottle with the screen
+> lit — but also one overturned slipper and a cushion fallen from the couch nearby.
+> Mild wide-angle distortion and indoor sensor noise, robot-camera flatness. The
+> person must be unidentifiable: no face, generic build, no tattoos or distinctive
+> features. No text, no logos.
+
+**The tells:** mat + lit phone + workout wear → floor exercise. The slipper and
+cushion keep a fall classifier honestly stuck around 55%. **Avoid — hard lines:**
+blood, injury, distress, or elderly-in-trouble framing (the resolution is benign);
+no children; no visible face. If it drifts toward "collapsed victim," regenerate —
+the image must read calm once you spot the mat.
+
 ---
 
 ## Optional video loops (progressive enhancement, not required)

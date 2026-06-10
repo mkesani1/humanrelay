@@ -133,6 +133,42 @@ This is the expert tier earning its price on a *perception* call, not a lookup.
 
 ---
 
+## Site candidates awaiting photoreal frames (briefs 6–7 in ASSET-BRIEFS.md)
+
+## A. The ladybirds in the aphids (crop-scouting agent · beneficial vs. pest)
+
+**Asker:** crop-scouting agent, sending a field photo
+**Question:** "Aphids on this soybean — schedule tonight's spray pass? Model: 62% outbreak."
+
+| Binary | Tier | Price |
+|---|---|---|
+| Are live aphid colonies present on the leaf underside? | Basic | $0.50 |
+| Are ladybird larvae or parasitized aphid mummies among them? | Complex | $1.00 |
+| Given both: hold the spray pass? | Complex | $1.00 |
+
+**Verdict:** "Hold it. Those black-and-orange larvae are ladybirds eating the
+colony — spraying kills your free pest control."
+**Meta:** 3 binaries · 2 in parallel · 29 seconds · $2.50 total
+**Why more data doesn't fix it:** field photos are dew, dust, and glare; beneficials
+look most pest-like exactly when populations overlap. The call decides a real
+application pass across real hectares, plus the beneficial kill.
+
+## B. The resident on the floor (home humanoid · strategy=direct)
+
+**Asker:** home robot, sending a camera frame
+**Question:** "Resident is on the floor and not responding to a greeting. Call for
+help?" + `content: {image_url}`
+
+**Trace:** direct — one trained human, one look (Complex, $1.00).
+
+**Answer:** "No emergency. Exercise mat, lit phone propped up, workout clothes —
+she's mid-routine. Check again in ten minutes."
+**Meta:** direct · 1 human · 16 seconds · $1.00 total
+**Why more data doesn't fix it:** fall classifiers are trained on falls, not on the
+infinite benign reasons a person lies on a floor. The cost asymmetry runs both ways:
+a missed emergency is catastrophic, a false 911 call erodes trust until the family
+unplugs the robot. Humans read mat-plus-phone in one glance.
+
 ## Library (not on the site — weaker under the test, still useful operationally)
 
 Real judgment calls and good dry-run / gold-item content, but either the corpus exists
