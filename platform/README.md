@@ -17,6 +17,23 @@ npm run typecheck
 Production: set `DATABASE_URL` (Supabase), `ADMIN_TOKEN`, and `RELAY_MODE=live` +
 `ANTHROPIC_API_KEY`. Migrations in `db/migrations/` run automatically at boot.
 
+## Production deploy (Vercel + Supabase)
+
+Live infra: Supabase project `humanrelay-platform` (ref `knyflhjlgdttwkcnwgbh`, us-east-1).
+
+1. Vercel → Add New Project → import the repo → **Root Directory: `platform`** →
+   Framework: Other, no build command.
+2. Environment variables:
+   - `DATABASE_URL` — Supabase Dashboard → Connect → **Transaction pooler** URI (port 6543)
+   - `ADMIN_TOKEN` — long random string (admin + maintenance auth)
+   - `CRON_SECRET` — long random string (Vercel Cron auth)
+   - `RELAY_MODE` — `mock` until `ANTHROPIC_API_KEY` is set, then `live`
+3. Deploy, then add domain `api.humanrelay.com` (auto-DNS — same Vercel team hosts the zone).
+4. Smoke: `GET /health`, create an org via `/admin/orgs`, run one `/v1/classify` round trip.
+
+`api/index.ts` is the serverless entry; `/cron/maintenance` (hourly cron + opportunistic
+on-traffic runs) replaces the dev-mode background loops in `server.ts`.
+
 ## Try the whole loop locally
 
 ```bash
