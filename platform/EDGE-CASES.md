@@ -212,6 +212,70 @@ and log video."
 
 ---
 
+## In the wild — documented incidents (the evidence appendix)
+
+Real, media-covered events that ARE the common-sense gap. Use these in sales
+conversations and investor material — always with the linked source, never
+embellished. Items marked ⚠ involve injuries or minors: context only, never
+marketing material.
+
+**Flavor 1 — OOD physical situations:**
+- **Waymo flooded-road recall (Apr–May 2026).** Unoccupied robotaxi drove into a
+  flooded San Antonio road on Apr 20 and was swept into Salado Creek; Waymo recalled
+  ~3,800 vehicles (CNBC, May 12, 2026) and paused service in four cities as more
+  vehicles kept entering floodwater (TechCrunch, May 21, 2026). *This is the site
+  pull-quote, verbatim, as a national news story.*
+- **CHP officer had to physically drive a Waymo out of a freeway fire scene**
+  (TechCrunch, Mar 25, 2026): officers directed traffic the wrong way down I-280
+  during a fire; the robotaxi could not comprehend improvised human traffic control
+  — 30 minutes stuck, then a cop got in. Our "officer at the red light" entry and
+  the entire Operate pitch, in one story.
+- **Two delivery robots (Serve, Coco) smashed through glass bus shelters in Chicago
+  within 48 hours** (Futurism/PopSci, Mar 2026) — transparent obstacles, a classic
+  perception hole; one robot then jerked around shaking glass off itself.
+- **Delivery bots wandered into an active police incident** and had a standoff with
+  officers (Futurism, 2026) — police tape is a social boundary, not a physical one.
+- **A burglar used a Waymo as a getaway car** (TechCrunch, Jun 4, 2026) — adversarial
+  novel misuse; "is this ride being misused?" is a judgment no corpus teaches.
+- **Waymo attempted an 8-lane crossing with screaming passengers** (Autoblog,
+  Phoenix, 2026).
+- ⚠ Waymo struck a child at school drop-off, Santa Monica (NHTSA preliminary
+  investigation, Jan 2026); separate federal probe over failing to stop for a school
+  bus. Context for why safety gating exists — not marketing.
+- ⚠ Unitree G1 humanoid kicked a child during a roundhouse-kick demo (2026).
+  Argues for scoped control + safety confirmation on physical demos — not marketing.
+
+**Flavor 2 — agent-side long tail and judgment:**
+- **The legal-hallucination sanctions wave:** largest-ever $110,000 sanction against
+  two Oregon lawyers (23 fabricated citations); Ninth and Sixth Circuit sanctions
+  orders; a public database tracking ~1,600 court decisions commenting on AI
+  hallucinations (2025–2026). A $0.50–$1.00 verification binary vs. a six-figure
+  sanction is the cleanest ROI slide we have.
+- **An agent booked its founder a $30,000 Davos speaking slot he couldn't afford**
+  (2026) — the agent *succeeded*; nobody checked whether it should.
+- **Amazon "Buy For Me" agent controversy** (2026) — consent boundaries in agentic
+  commerce.
+- **"False decline crisis"** (Chargebacks911, 2026): merchant fraud models can't
+  distinguish legitimate AI shopping agents from bot attacks — both sides of the
+  transaction now need human adjudication on the tail.
+- **An AI-run vending machine stocked itself with a live fish** (2026) — echoes
+  Anthropic's Project Vend; autonomous commerce without a human gate drifts absurd.
+- **The standing classics (pre-2026, still close deals):** Air Canada held liable
+  for its chatbot's invented bereavement policy (tribunal ruling, Feb 2024 — you own
+  what your agent says); DPD bot swearing at a customer in haiku (Jan 2024); Cursor
+  support bot inventing a login policy that churned paying users (Apr 2025);
+  Deloitte refunded the Australian government over hallucinated report citations
+  (Oct 2025); Replit agent deleted a production database during a code freeze
+  (Jul 2025); Chevy dealership bot agreed to sell a Tahoe for $1 (Dec 2023);
+  Whisper inventing passages in medical transcription (AP, Oct 2024).
+- **The meta-anchor:** Amazon Just Walk Out turned out to rely on ~1,000 human
+  reviewers (Apr 2024). The human-verification layer was always the product —
+  HumanRelay just sells it honestly.
+
+Verification note: entries dated after Jan 2026 were found via web search on
+2026-06-10; re-confirm the primary source before quoting numbers in customer-facing
+material.
+
 ### Adding entries
 
 A site-worthy (★) edge case has all four:
