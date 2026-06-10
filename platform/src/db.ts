@@ -49,7 +49,11 @@ export async function createPgliteDb(): Promise<DB> {
 /** Server Postgres via pg Pool — point DATABASE_URL at Supabase in production. */
 export async function createPgDb(connectionString: string): Promise<DB> {
   const { default: pg } = await import("pg");
-  const pool = new pg.Pool({ connectionString });
+  const pool = new pg.Pool({
+    connectionString,
+    max: 5, // serverless-friendly; use Supabase's pooled (port 6543) connection string
+    ssl: /supabase\.(co|com)/.test(connectionString) ? { rejectUnauthorized: false } : undefined,
+  });
   return {
     async query<T>(text: string, params?: unknown[]) {
       const res = await pool.query(text, params);

@@ -333,6 +333,17 @@ export function createApp(deps: AppDeps) {
     return c.json(await dispatcher.processDue());
   });
 
+  // Serverless maintenance: Vercel Cron (Authorization: Bearer CRON_SECRET) or admin token.
+  app.get("/cron/maintenance", async (c) => {
+    const auth = c.req.header("authorization") ?? "";
+    const cronOk = !!process.env.CRON_SECRET && auth === `Bearer ${process.env.CRON_SECRET}`;
+    const adminOk = c.req.header("x-admin-token") === adminToken;
+    if (!cronOk && !adminOk) return c.json({ error: "forbidden" }, 403);
+    const leases = await engine.expireLeases();
+    const hooks = await dispatcher.processDue();
+    return c.json({ leases, webhooks: hooks });
+  });
+
   // ---------- Worker bench ----------
 
   app.get("/console", (c) => {
