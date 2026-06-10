@@ -26,11 +26,23 @@ export interface Platform {
   dispatcher: WebhookDispatcher;
   app: ReturnType<typeof createApp>;
   adminToken: string;
+  /** Non-null when boot-time migrations could not apply (e.g. the runtime role lacks DDL rights). */
+  migrationError: string | null;
 }
 
 /** Wire the whole platform together. Shared by server.ts and the test suite. */
 export async function buildPlatform(db: DB, opts: { adminToken?: string; relayMode?: string } = {}): Promise<Platform> {
-  await migrate(db);
+  // A failed migration must degrade the service, not kill it: endpoints that
+  // don't need the new schema keep working, and /health reports the pending
+  // migration so it's impossible to miss. (Learned in prod: the runtime role
+  // may not own the tables, so DDL can fail where DML succeeds.)
+  let migrationError: string | null = null;
+  try {
+    await migrate(db);
+  } catch (err) {
+    migrationError = err instanceof Error ? err.message : String(err);
+    console.error(`[humanrelay] MIGRATION FAILED — running on existing schema: ${migrationError}`);
+  }
   const systemOrgId = await bootstrapSystemOrg(db);
   const engine = new TaskEngine(db, systemOrgId);
   const llm = (opts.relayMode ?? process.env.RELAY_MODE ?? "mock") === "live" ? new RealLlm() : new MockLlm();
@@ -47,8 +59,8 @@ export async function buildPlatform(db: DB, opts: { adminToken?: string; relayMo
   });
 
   const adminToken = opts.adminToken ?? process.env.ADMIN_TOKEN ?? randomBytes(16).toString("hex");
-  const app = createApp({ db, engine, relay, teleop, capture, dispatcher, adminToken });
-  return { db, engine, relay, teleop, capture, dispatcher, app, adminToken };
+  const app = createApp({ db, engine, relay, teleop, capture, dispatcher, adminToken, migrationError });
+  return { db, engine, relay, teleop, capture, dispatcher, app, adminToken, migrationError };
 }
 
 const isMain = process.argv[1]?.endsWith("server.ts") || process.argv[1]?.endsWith("server.js");

@@ -20,6 +20,9 @@ async function getPlatform(): Promise<Platform> {
       const db = await createDb(); // DATABASE_URL -> pg Pool; absent -> PGlite (preview only)
       return buildPlatform(db);    // runs idempotent migrations on cold start
     })();
+    // Never cache a failed boot: a transient DB error on cold start would
+    // otherwise pin this instance at 500 for its entire lifetime.
+    platformPromise.catch(() => { platformPromise = null; });
   }
   return platformPromise;
 }

@@ -40,6 +40,30 @@ describe("API end to end", () => {
   });
   afterEach(async () => { await db.close(); });
 
+  it("boots degraded (not dead) when a migration cannot apply", async () => {
+    // Simulate prod: the runtime role can't run DDL on tables it doesn't own.
+    const raw = await createPgliteDb();
+    const flaky = {
+      ...raw,
+      exec: async (sql: string) => {
+        if (sql.includes("add column if not exists content")) {
+          throw new Error("must be owner of table relay_traces");
+        }
+        return raw.exec(sql);
+      },
+    };
+    const degraded = await buildPlatform(flaky, { adminToken: ADMIN });
+    expect(degraded.migrationError).toContain("must be owner");
+
+    // Service is up: health reports the pending migration, normal endpoints work.
+    const health = await jsonReq(degraded, "/health");
+    expect(health.status).toBe(200);
+    expect(health.body.migrations).toContain("pending");
+    const org = await jsonReq(degraded, "/admin/orgs", { body: { name: "DegradedCo" }, admin: true });
+    expect(org.status).toBe(201);
+    await flaky.close();
+  });
+
   it("rejects missing/invalid auth and wrong admin token", async () => {
     expect((await jsonReq(p, "/v1/judge", { body: {} })).status).toBe(401);
     expect((await jsonReq(p, "/v1/judge", { body: {}, key: "hr_live_nope" })).status).toBe(401);

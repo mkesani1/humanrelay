@@ -21,6 +21,7 @@ export interface AppDeps {
   capture: CaptureService;
   dispatcher: WebhookDispatcher;
   adminToken: string;
+  migrationError?: string | null;
 }
 
 type Env = { Variables: { orgId: string; apiKeyId: string } };
@@ -59,7 +60,12 @@ export function createApp(deps: AppDeps) {
     return c.json({ error: "internal error" }, 500);
   });
 
-  app.get("/health", (c) => c.json({ ok: true, service: "humanrelay-platform" }));
+  app.get("/health", (c) =>
+    c.json({
+      ok: true,
+      service: "humanrelay-platform",
+      migrations: deps.migrationError ? `pending: ${deps.migrationError}` : "ok",
+    }));
 
   // ---------- customer API auth ----------
 
