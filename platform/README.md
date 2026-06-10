@@ -90,6 +90,7 @@ POST /v1/teleop/sessions                           robot escalation → safety b
 POST /v1/teleop/sessions/:id/handback              ends session, emits demonstration task
 POST /v1/datasets   GET /v1/datasets/:id           provenance-bearing capture manifests
 POST /v1/webhooks   GET /v1/usage                  HMAC-signed deliveries; metered billing
+POST /v1/keys/rotate   GET /v1/keys                self-service rotation (grace_minutes 0–1440 keeps the old key alive); deliberately not an MCP tool
 ```
 
 Workers: `POST /worker/claim`, `POST /worker/answer`, `GET /worker/:id/stats`, UI at `/console`.

@@ -23,7 +23,7 @@ export interface AppDeps {
   adminToken: string;
 }
 
-type Env = { Variables: { orgId: string } };
+type Env = { Variables: { orgId: string; apiKeyId: string } };
 
 const PRIMITIVES: Primitive[] = ["classify", "judge", "extract", "escalate", "resolve"];
 
@@ -69,8 +69,10 @@ export function createApp(deps: AppDeps) {
     const header = c.req.header("authorization") ?? "";
     const raw = header.startsWith("Bearer ") ? header.slice(7) : null;
     if (!raw) return c.json({ error: "missing bearer token" }, 401);
+    // revoked_at in the future = rotation grace window: the old key keeps working until then.
     const { rows } = await db.query<{ id: string; org_id: string; rate_limit_per_min: number }>(
-      `select id, org_id, rate_limit_per_min from api_keys where key_hash = $1 and revoked_at is null`,
+      `select id, org_id, rate_limit_per_min from api_keys
+        where key_hash = $1 and (revoked_at is null or revoked_at > now())`,
       [hashKey(raw)],
     );
     const key = rows[0];
@@ -85,6 +87,7 @@ export function createApp(deps: AppDeps) {
     rateBuckets.set(key.id, window);
 
     c.set("orgId", key.org_id);
+    c.set("apiKeyId", key.id);
     await next();
   };
 
@@ -197,6 +200,49 @@ export function createApp(deps: AppDeps) {
     const dataset = await capture.getDataset((c.req.param("id") ?? ""), c.get("orgId"));
     if (!dataset) return c.json({ error: "not found" }, 404);
     return c.json({ dataset });
+  });
+
+  // ---------- API keys ----------
+  // Deliberately not exposed through the MCP server: an agent must never be able
+  // to rotate the credentials it runs on.
+
+  app.get("/v1/keys", requireOrg, async (c) => {
+    const { rows } = await db.query(
+      `select prefix, created_at, revoked_at,
+              (revoked_at is null or revoked_at > now()) as active
+         from api_keys where org_id = $1 order by created_at`,
+      [c.get("orgId")],
+    );
+    return c.json({ keys: rows });
+  });
+
+  // Self-service rotation: mints a new key and revokes the authenticating one.
+  // grace_minutes > 0 keeps the old key alive that long so in-flight agents can
+  // pick up the new credential without a hard cutover.
+  app.post("/v1/keys/rotate", requireOrg, async (c) => {
+    const body = z.object({
+      grace_minutes: z.number().int().min(0).max(1440).default(0),
+    }).parse(await c.req.json().catch(() => ({})));
+
+    const raw = "hr_live_" + randomBytes(24).toString("hex");
+    await db.query(
+      `insert into api_keys (org_id, key_hash, prefix, rate_limit_per_min)
+       select org_id, $2::text, $3::text, rate_limit_per_min from api_keys where id = $1`,
+      [c.get("apiKeyId"), hashKey(raw), raw.slice(0, 16)],
+    );
+    // least(): rotating again during a grace window can shorten it, never extend it.
+    const { rows } = await db.query<{ prefix: string; revoked_at: string }>(
+      `update api_keys
+          set revoked_at = least(coalesce(revoked_at, 'infinity'::timestamptz),
+                                 now() + make_interval(mins => $2))
+        where id = $1 returning prefix, revoked_at`,
+      [c.get("apiKeyId"), body.grace_minutes],
+    );
+    return c.json({
+      api_key: raw,
+      prefix: raw.slice(0, 16),
+      old_key: { prefix: rows[0]!.prefix, revokes_at: rows[0]!.revoked_at },
+    }, 201);
   });
 
   // ---------- Webhooks & usage ----------

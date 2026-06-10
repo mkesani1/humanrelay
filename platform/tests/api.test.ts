@@ -50,6 +50,37 @@ describe("API end to end", () => {
     expect(res.status).toBe(403);
   });
 
+  it("rotates API keys, with optional grace window for the old key", async () => {
+    // Immediate rotation: new key works, old key dies on the spot.
+    const rot = await jsonReq(p, "/v1/keys/rotate", { body: {}, key: apiKey });
+    expect(rot.status).toBe(201);
+    const second = rot.body.api_key;
+    expect(second).toMatch(/^hr_live_/);
+    expect(second).not.toBe(apiKey);
+    expect((await jsonReq(p, "/v1/usage", { key: apiKey })).status).toBe(401);
+    expect((await jsonReq(p, "/v1/usage", { key: second })).status).toBe(200);
+
+    // Graceful rotation: both keys work during the window.
+    const rot2 = await jsonReq(p, "/v1/keys/rotate", { body: { grace_minutes: 30 }, key: second });
+    expect(rot2.status).toBe(201);
+    const third = rot2.body.api_key;
+    expect(new Date(rot2.body.old_key.revokes_at).getTime()).toBeGreaterThan(Date.now());
+    expect((await jsonReq(p, "/v1/usage", { key: second })).status).toBe(200);
+    expect((await jsonReq(p, "/v1/usage", { key: third })).status).toBe(200);
+
+    // Rotating again with the grace-window key cannot extend its own life.
+    const rot3 = await jsonReq(p, "/v1/keys/rotate", { body: { grace_minutes: 1440 }, key: second });
+    expect(rot3.status).toBe(201);
+    expect(new Date(rot3.body.old_key.revokes_at).getTime())
+      .toBeLessThanOrEqual(new Date(rot2.body.old_key.revokes_at).getTime() + 1000);
+
+    // Key inventory: full lineage visible, revoked keys marked inactive.
+    const keys = await jsonReq(p, "/v1/keys", { key: third });
+    expect(keys.status).toBe(200);
+    expect(keys.body.keys.length).toBe(4);
+    expect(keys.body.keys.filter((k: { active: boolean }) => k.active).length).toBe(3);
+  });
+
   it("full task round trip with idempotency, webhook HMAC, and usage metering", async () => {
     // Register an org webhook.
     const hook = await jsonReq(p, "/v1/webhooks", { body: { url: "https://customer.example/hook" }, key: apiKey });
