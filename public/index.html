@@ -548,7 +548,7 @@
       <div class="gap reveal">
         <blockquote class="gap-quote">Every human knows not to drive into a flooded road. <em>No dataset does.</em></blockquote>
         <div class="gap-copy">
-          <p><strong>We call it the common-sense gap.</strong> Models learn from what got recorded. The real world keeps producing what didn't: the flooded road, the cones that contradict the lane paint, the officer waving you through a red light. Too rare, too new, too local for any training set — and deployment finds every one of them.</p>
+          <p><strong>We call it the common-sense gap.</strong> Models learn from what got recorded. The real world keeps producing what didn't: the flooded road, the cones that contradict the lane paint, the customer photo that's 60% wasp. Too rare, too new, too ambiguous for any training set — the long tail of the real world, and deployment finds every inch of it.</p>
           <p>The flywheel closes that gap. When your robot or agent meets a situation no dataset covered, a person who has lived it resolves it in seconds — and the resolution returns as a labeled demonstration. The edge case your fleet hits this morning is training data by tonight.</p>
         </div>
       </div>
@@ -651,7 +651,7 @@
       <div class="relay-demo">
         <div>
           <h3 style="font-family:var(--serif); font-size:1.6rem; margin-bottom:12px;">Relay: complex questions, priced binaries.</h3>
-          <p style="color:var(--ink-soft); margin-bottom:18px;">Relay is the intelligence layer between your agent and our humans. It decomposes any question into binary decisions, routes each to the right tier, runs them in parallel, and reassembles the answer — with the full trace returned for your learning loop. The examples on the right are the common-sense gap in action: questions no model should guess at, resolved for a few dollars.</p>
+          <p style="color:var(--ink-soft); margin-bottom:18px;">Relay is the intelligence layer between your agent and our humans. It decomposes any question into binary decisions, routes each to the right tier, runs them in parallel, and reassembles the answer — with the full trace returned for your learning loop. The examples on the right are the long tail in action: the model is 60% sure, 60% isn't good enough, and a human verifies for a few dollars.</p>
           <ul class="checks">
             <li><strong>Negotiate.</strong> Already a binary? It routes directly. If not, Relay proposes a decomposition.</li>
             <li><strong>Decompose.</strong> Independent binaries run in parallel across workers.</li>
@@ -665,17 +665,17 @@
         </div>
         <div>
           <div class="decomp reveal" id="relay-demo">
-            <div class="d-line" data-slot="asker">Your delivery robot asks</div>
-            <div class="d-q" data-slot="q">"The road ahead is covered in water. Proceed?"</div>
+            <div class="d-line" data-slot="asker">Your pest-control agent asks</div>
+            <div class="d-q" data-slot="q">"Customer photo: what's nesting in the wall — bees or wasps? Model says 60% wasps."</div>
             <div class="d-line">Relay decomposes</div>
             <div data-slot="bins">
-            <div class="d-bin"><span>Does the water span the full width of the road?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
-            <div class="d-bin"><span>Are vehicles ahead stalled or turning around?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
-            <div class="d-bin"><span>Given both: safe to proceed?</span><span><span class="tier">Complex</span> <span class="price">$1.00</span></span></div>
+            <div class="d-bin"><span>Are the insects fuzzy rather than smooth and shiny?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
+            <div class="d-bin"><span>Is the nest waxy comb rather than papery layers?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
+            <div class="d-bin"><span>Given both: dispatch an exterminator rather than a beekeeper?</span><span><span class="tier">Complex</span> <span class="price">$1.00</span></span></div>
             </div>
             <div class="d-line">Relay reassembles</div>
-            <div class="d-result" data-slot="result">"No. Full-width standing water and cars turning back — reroute."</div>
-            <div class="d-meta" data-slot="meta">3 binaries · 2 in parallel · 31 seconds · $2.00 total</div>
+            <div class="d-result" data-slot="result">"Bees. Fuzzy bodies on wax comb — book a live removal, not an exterminator."</div>
+            <div class="d-meta" data-slot="meta">3 binaries · 2 in parallel · 26 seconds · $2.00 total</div>
           </div>
           <div class="demo-dots" id="relay-demo-dots" role="tablist" aria-label="Relay edge-case examples"></div>
         </div>
@@ -1005,6 +1005,17 @@ result = hr.<span class="fn">judge</span>(
     (function () {
       const EXAMPLES = [
         {
+          asker: 'Your pest-control agent asks',
+          q: '"Customer photo: what’s nesting in the wall — bees or wasps? Model says 60% wasps."',
+          bins: [
+            ['Are the insects fuzzy rather than smooth and shiny?', 'Basic', '$0.50'],
+            ['Is the nest waxy comb rather than papery layers?', 'Basic', '$0.50'],
+            ['Given both: dispatch an exterminator rather than a beekeeper?', 'Complex', '$1.00'],
+          ],
+          result: '"Bees. Fuzzy bodies on wax comb — book a live removal, not an exterminator."',
+          meta: '3 binaries · 2 in parallel · 26 seconds · $2.00 total',
+        },
+        {
           asker: 'Your delivery robot asks',
           q: '"The road ahead is covered in water. Proceed?"',
           bins: [
@@ -1014,6 +1025,17 @@ result = hr.<span class="fn">judge</span>(
           ],
           result: '"No. Full-width standing water and cars turning back — reroute."',
           meta: '3 binaries · 2 in parallel · 31 seconds · $2.00 total',
+        },
+        {
+          asker: 'Your marketplace agent asks',
+          q: '"New listing: is this $1,400 handbag authentic? Model confidence: 58%."',
+          bins: [
+            ['Is the date code format valid for the claimed production year?', 'Basic', '$0.50'],
+            ['Do the logo stamp font and spacing match the brand’s?', 'Complex', '$1.00'],
+            ['Given both: approve the listing?', 'Complex', '$1.00'],
+          ],
+          result: '"Reject. Date-code format was retired years before the claimed year — counterfeit."',
+          meta: '3 binaries · 2 in parallel · 33 seconds · $2.50 total',
         },
         {
           asker: 'Your robotaxi asks',
@@ -1027,37 +1049,15 @@ result = hr.<span class="fn">judge</span>(
           meta: '3 binaries · 2 in parallel · 28 seconds · $2.00 total',
         },
         {
-          asker: 'Your AV asks',
-          q: '"An officer is waving me through a red light. Go?"',
+          asker: 'Your survey agent asks',
+          q: '"Drone frame from the turbine site: common buzzard or protected golden eagle?"',
           bins: [
-            ['Is the person directing traffic in uniform or hi-vis at an active scene?', 'Basic', '$0.50'],
-            ['Is the gesture clearly directed at this vehicle?', 'Basic', '$0.50'],
-            ['Given both: proceed against the signal?', 'Complex', '$1.00'],
+            ['Are white patches visible at the base of the primaries?', 'Basic', '$0.50'],
+            ['Is the tail pattern consistent with a juvenile golden eagle?', 'Expert', '$2.50'],
+            ['Given both: log a protected-species sighting and hold work?', 'Complex', '$1.00'],
           ],
-          result: '"Go. Uniformed officer, gesture aimed at you — hand signals override the light."',
-          meta: '3 binaries · 2 in parallel · 31 seconds · $2.00 total',
-        },
-        {
-          asker: 'Your sidewalk robot asks',
-          q: '"Storm debris: a cable is hanging across the sidewalk. Pass under it?"',
-          bins: [
-            ['Is the cable attached to a utility pole at either end?', 'Basic', '$0.50'],
-            ['Are warning markers or utility crews present?', 'Basic', '$0.50'],
-            ['Given both: treat it as live and reroute?', 'Complex', '$1.00'],
-          ],
-          result: '"Reroute. Attached overhead, sagging, no crew on scene — treat it as live."',
-          meta: '3 binaries · 2 in parallel · 27 seconds · $2.00 total',
-        },
-        {
-          asker: 'Your kitchen robot asks',
-          q: '"This chicken was left out during prep. Still safe to cook?"',
-          bins: [
-            ['Was it unrefrigerated for more than two hours?', 'Basic', '$0.50'],
-            ['Any visible discoloration or off texture?', 'Basic', '$0.50'],
-            ['Given both: safe to cook and serve?', 'Complex', '$1.00'],
-          ],
-          result: '"No. Three hours on the counter — discard and restock."',
-          meta: '3 binaries · 2 in parallel · 26 seconds · $2.00 total',
+          result: '"Golden eagle, juvenile. Log the sighting and hold work in the buffer zone."',
+          meta: '3 binaries · 2 in parallel · 41 seconds · $4.00 total',
         },
       ];
 

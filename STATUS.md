@@ -52,13 +52,15 @@ Dry-run seeder: `platform/scripts/seed-dry-run.sh` (customer API only, rehearsed
 
 **2026-06-10 (pm)**
 - Common-sense-gap thesis woven into the site flywheel (pull-quote + copy);
-  Relay demo rotates 5 edge-case examples (flooded road, contradicting
-  construction cones, officer waving through a red light, downed cable,
-  chicken on the counter) — `platform/EDGE-CASES.md` is the source of truth,
-  keep in sync. **The strict entry test (founder-set): the situation genuinely
-  cannot be in the training set** (the Waymo-flooded-road test). Cut for
-  failing it: boiler (specialist lookup), pharmacy interaction (database),
-  grandparent wire + crosswalk wave (corpora exist → library only).
+  Relay demo rotates 5 examples — bee-or-wasp photo (default), flooded road,
+  counterfeit listing, contradicting construction cones, eagle-in-drone-frame —
+  `platform/EDGE-CASES.md` is the source of truth, keep in sync.
+  **The founder-set entry test: more training data doesn't fix the case.**
+  Two admissible flavors: out-of-distribution situations (robots/AVs: the
+  Waymo-flooded-road test) and long-tail instance ambiguity (agents: "model
+  says 60% wasp; 60% isn't good enough" — the volume business). Cut for
+  failing it: boiler (specialist lookup), pharmacy interaction (database);
+  officer-at-red-light, downed cable, chicken, wire, crosswalk → library only.
 - `POST /v1/keys/rotate` (self-service, optional `grace_minutes` 0–1440) +
   `GET /v1/keys`. Live and verified in prod. Deliberately not an MCP tool.
 - Customer-zero dry-run kit (`DRY-RUN.md` + `seed-dry-run.sh`), rehearsed end-to-end

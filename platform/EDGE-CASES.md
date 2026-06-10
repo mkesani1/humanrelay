@@ -2,21 +2,27 @@
 
 > Every human knows not to drive into a flooded road. No dataset does.
 
-This is the canonical library of **common-sense gap** scenarios: situations deployed
-robots and agents hit in the field that **genuinely cannot be in the training set** —
-too rare, too new, or too local for any corpus — but that any adult resolves in seconds.
-The canonical real-world anchors: an AV meeting a flooded road, construction cones that
-contradict the lane markings, a robotaxi rolling into fresh concrete. This is the class
-of problem AV companies staff remote-assistance desks for; HumanRelay is that desk,
-as an API, for everyone.
+This is the canonical library of **common-sense gap** scenarios: cases where a deployed
+agent or robot needs an answer, the model can't be trusted to produce one, and a human
+verifies in seconds. The unifying test: **more training data does not fix this case.**
 
-**The entry test (strict):** the model could not have had this in training. Two common
-failure modes get rejected:
+It comes in two flavors — keep both represented on the site:
+
+1. **Out-of-distribution situations** (robots, AVs): the physical world produced
+   something too rare, too new, or too local for any corpus — the flooded road, the
+   construction cones contradicting lane paint, the robotaxi rolling into fresh
+   concrete. This is what AV companies staff remote-assistance desks for.
+2. **Long-tail instance ambiguity** (agents — the higher-volume case): the *category*
+   is in every training set, but *this instance* lives in the tail. The customer's
+   photo is 60% wasp; field-guide images didn't help. 60% isn't good enough when the
+   dispatch, the listing, or the compliance hold rides on it. Human verification is
+   the product.
+
+**Rejected flavors** (the cut history at the bottom keeps them from creeping back):
 - *Knowledge gaps* — "ask a specialist a thing specialists know" (drug interactions,
-  boiler service intervals). That's a database row; models train on it. Cut.
-- *Well-corpused judgment* — fraud scripts, common pedestrian interactions. Banks and
-  AV labs have millions of examples; a model can be trained on them. Library-only,
-  never the site.
+  boiler service intervals). That's a database row; models train on it.
+- *Well-corpused judgment* — known fraud scripts, routine pedestrian interactions.
+  Labs have millions of examples. Library-only, never the site.
 
 Each entry is written as a real Relay trace — the question, the decomposition, the
 tiers, and the verdict a trained worker would return.
@@ -34,7 +40,26 @@ Basic $0.50 / Complex $1.00 / Expert $2.50, every verdict defensible in a custom
 
 ---
 
-## ★ 1. The flooded road (delivery robot · the thesis example)
+## ★ 1. Bee or wasp (pest-control agent · long-tail image verification — the default card)
+
+**Asker:** pest-control dispatch agent
+**Question:** "Customer photo: what's nesting in the wall — bees or wasps? Model says
+60% wasps."
+
+| Binary | Tier | Price |
+|---|---|---|
+| Are the insects fuzzy rather than smooth and shiny? | Basic | $0.50 |
+| Is the nest waxy comb rather than papery layers? | Basic | $0.50 |
+| Given both: dispatch an exterminator rather than a beekeeper? | Complex | $1.00 |
+
+**Verdict:** "Bees. Fuzzy bodies on wax comb — book a live removal, not an exterminator."
+**Meta:** 3 binaries · 2 in parallel · 26 seconds · $2.00 total
+**Why more data doesn't fix it:** classifiers ace field-guide photos and fail on what
+customers actually send — backlit, blurry, half a nest behind drywall. The fork is
+consequential: honeybees are protected and get a beekeeper; wasps get poison. A wrong
+dispatch costs a truck roll either way.
+
+## ★ 2. The flooded road (delivery robot · the thesis example)
 
 **Asker:** delivery robot
 **Question:** "The road ahead is covered in water. Proceed?"
@@ -47,11 +72,29 @@ Basic $0.50 / Complex $1.00 / Expert $2.50, every verdict defensible in a custom
 
 **Verdict:** "No. Full-width standing water and cars turning back — reroute."
 **Meta:** 3 binaries · 2 in parallel · 31 seconds · $2.00 total
-**Why it can't be trained:** flooding is rare, local, and visually unique every time;
-depth is invisible from a camera frame. Humans don't estimate depth either — they read
-the *social* evidence (other drivers turning around) and a lifetime prior about water.
+**Why more data doesn't fix it:** flooding is rare, local, and visually unique every
+time; depth is invisible from a camera frame. Humans read the *social* evidence (other
+drivers turning around) and a lifetime prior about water.
 
-## ★ 2. The contradicting cones (robotaxi · unusual construction)
+## ★ 3. The counterfeit listing (marketplace agent · adversarial long tail)
+
+**Asker:** marketplace agent
+**Question:** "New listing: is this $1,400 handbag authentic? Model confidence: 58%."
+
+| Binary | Tier | Price |
+|---|---|---|
+| Is the date code format valid for the claimed production year? | Basic | $0.50 |
+| Do the logo stamp font and spacing match the brand's? | Complex | $1.00 |
+| Given both: approve the listing? | Complex | $1.00 |
+
+**Verdict:** "Reject. Date-code format was retired years before the claimed year —
+counterfeit."
+**Meta:** 3 binaries · 2 in parallel · 33 seconds · $2.50 total
+**Why more data doesn't fix it:** counterfeits are adversarial — new fakes are
+manufactured specifically to beat last season's detectors. The tail regrows weekly.
+Marketplaces run human authentication desks for exactly this; we're that desk by API.
+
+## ★ 4. The contradicting cones (robotaxi · unusual construction)
 
 **Asker:** robotaxi
 **Question:** "Construction cones contradict the lane markings ahead. Which do I follow?"
@@ -65,81 +108,70 @@ the *social* evidence (other drivers turning around) and a lifetime prior about 
 **Verdict:** "Follow the cones. The painted lane runs into fresh concrete — the
 markings predate today's work."
 **Meta:** 3 binaries · 2 in parallel · 28 seconds · $2.00 total
-**Why it can't be trained:** every construction zone is improvised that morning, by a
-crew, with whatever cones they had. The ground truth (which signal is current) exists
-only at that intersection, that day. A robotaxi famously drove into wet concrete over
-exactly this.
+**Why more data doesn't fix it:** every construction zone is improvised that morning,
+by a crew, with whatever cones they had. The ground truth (which signal is current)
+exists only at that intersection, that day. A robotaxi famously drove into wet
+concrete over exactly this.
 
-## ★ 3. The officer at the red light (AV · authority override)
+## ★ 5. The eagle in the drone frame (survey agent · expert-tier long tail)
 
-**Asker:** AV
-**Question:** "An officer is waving me through a red light. Go?"
-
-| Binary | Tier | Price |
-|---|---|---|
-| Is the person directing traffic in uniform or hi-vis at an active scene? | Basic | $0.50 |
-| Is the gesture clearly directed at this vehicle? | Basic | $0.50 |
-| Given both: proceed against the signal? | Complex | $1.00 |
-
-**Verdict:** "Go. Uniformed officer, gesture aimed at you — hand signals override the light."
-**Meta:** 3 binaries · 2 in parallel · 31 seconds · $2.00 total
-**Why it can't be trained:** a human ordering you to break the written rule, with
-improvised gestures, at an incident scene that didn't exist an hour ago. Authority
-recognition + intent reading + rule override in one shot — and the right answer is
-*yes*, which makes it a terrible thing to learn from data.
-
-## ★ 4. The cable across the path (sidewalk robot · storm aftermath)
-
-**Asker:** sidewalk robot
-**Question:** "Storm debris: a cable is hanging across the sidewalk. Pass under it?"
+**Asker:** environmental survey agent
+**Question:** "Drone frame from the turbine site: common buzzard or protected golden
+eagle?"
 
 | Binary | Tier | Price |
 |---|---|---|
-| Is the cable attached to a utility pole at either end? | Basic | $0.50 |
-| Are warning markers or utility crews present? | Basic | $0.50 |
-| Given both: treat it as live and reroute? | Complex | $1.00 |
+| Are white patches visible at the base of the primaries? | Basic | $0.50 |
+| Is the tail pattern consistent with a juvenile golden eagle? | Expert | $2.50 |
+| Given both: log a protected-species sighting and hold work? | Complex | $1.00 |
 
-**Verdict:** "Reroute. Attached overhead, sagging, no crew on scene — treat it as live."
-**Meta:** 3 binaries · 2 in parallel · 27 seconds · $2.00 total
-**Why it can't be trained:** downed lines exist for hours after a storm and then
-vanish; the corpus is tiny and the visual difference between clothesline and live wire
-is contextual, not visual. Humans default to "treat it as live" — a prior about
-consequences, not pixels.
-
-## ★ 5. The chicken on the counter (kitchen robot · elapsed-state judgment)
-
-**Asker:** kitchen robot
-**Question:** "This chicken was left out during prep. Still safe to cook?"
-
-| Binary | Tier | Price |
-|---|---|---|
-| Was it unrefrigerated for more than two hours? | Basic | $0.50 |
-| Any visible discoloration or off texture? | Basic | $0.50 |
-| Given both: safe to cook and serve? | Complex | $1.00 |
-
-**Verdict:** "No. Three hours on the counter — discard and restock."
-**Meta:** 3 binaries · 2 in parallel · 26 seconds · $2.00 total
-**Why it can't be trained:** the rule is written down; the *state of this kitchen* is
-not. What the dataset can't contain is the elapsed history of this particular bird in
-this particular afternoon — exactly the context a human on the scene reconstructs in
-seconds.
+**Verdict:** "Golden eagle, juvenile. Log the sighting and hold work in the buffer zone."
+**Meta:** 3 binaries · 2 in parallel · 41 seconds · $4.00 total
+**Why more data doesn't fix it:** bird classifiers are excellent on clear adult
+specimens and punt on distant, motion-blurred juveniles — the exact frames compliance
+decisions hang on. A raptor specialist reads plumage stage + structure in one look.
+This is the expert tier earning its price on a *perception* call, not a lookup.
 
 ---
 
-## Library (not on the site — weaker under the strict test, still useful operationally)
+## Library (not on the site — weaker under the test, still useful operationally)
 
-These are real judgment calls and good dry-run / gold-item content, but a determined
-lab *could* train on them (fraud corpora exist; pedestrian interactions are abundant).
-Don't use them to argue the thesis to a robotics customer.
+Real judgment calls and good dry-run / gold-item content, but either the corpus exists
+or the case is narrower than the thesis. Don't use these to argue the thesis in a
+customer call.
 
-## 6. The crosswalk wave (sidewalk robot · social negotiation)
+## 6. The officer at the red light (AV · authority override)
+
+**Question:** "An officer is waving me through a red light. Go?"
+**Binaries:** Is the person directing traffic in uniform or hi-vis at an active scene?
+(Basic) · Is the gesture clearly directed at this vehicle? (Basic) · Given both:
+proceed against the signal? (Complex)
+**Verdict:** "Go. Uniformed officer, gesture aimed at you — hand signals override the light."
+
+## 7. The cable across the path (sidewalk robot · storm aftermath)
+
+**Question:** "Storm debris: a cable is hanging across the sidewalk. Pass under it?"
+**Binaries:** Is the cable attached to a utility pole at either end? (Basic) · Are
+warning markers or utility crews present? (Basic) · Given both: treat it as live and
+reroute? (Complex)
+**Verdict:** "Reroute. Attached overhead, sagging, no crew on scene — treat it as live."
+
+## 8. The chicken on the counter (kitchen robot · elapsed-state judgment)
+
+**Question:** "This chicken was left out during prep. Still safe to cook?"
+**Binaries:** Was it unrefrigerated for more than two hours? (Basic) · Any visible
+discoloration or off texture? (Basic) · Given both: safe to cook and serve? (Complex)
+**Verdict:** "No. Three hours on the counter — discard and restock."
+Used by `scripts/seed-dry-run.sh`.
+
+## 9. The crosswalk wave (sidewalk robot · social negotiation)
 
 **Question:** "A driver is waving me across, but their car is still rolling. Cross?"
 **Binaries:** Has the vehicle come to a complete stop? (Basic) · Is a second lane of
 traffic present and unstopped? (Basic) · Given both: cross now? (Complex)
 **Verdict:** "No. Wait for the full stop — a wave is not a guarantee."
 
-## 7. The shattered blender (support agent · fraud judgment)
+## 10. The shattered blender (support agent · fraud judgment)
 
 **Question:** "Customer says the blender arrived shattered. Refund $89?"
 **Binaries:** Does the photo show a damaged item in its original packaging? (Basic) ·
@@ -148,7 +180,7 @@ refund? (Complex)
 **Verdict:** "Approve. Outer box intact, crushed corner inside — classic transit damage."
 Used by `scripts/seed-dry-run.sh`.
 
-## 8. The grandparent wire (banking agent · social engineering)
+## 11. The grandparent wire (banking agent · social engineering)
 
 **Question:** "82-year-old customer is wiring $9,400 to a 'grandson stranded abroad.'
 Process it?"
@@ -156,7 +188,7 @@ Process it?"
 scam script? (Complex) · Given both: hold for a fraud call-back? (Complex)
 **Verdict:** "Hold it. New payee plus the stranded-relative script — call the customer first."
 
-## 9. The leaning pallet (warehouse robot · physical hazard)
+## 12. The leaning pallet (warehouse robot · physical hazard)
 
 **Question:** "A pallet stack in aisle 7 is leaning. Pass under it?"
 **Binaries:** Is the lean visibly past vertical from two angles? (Basic) · Is the top
@@ -164,14 +196,14 @@ layer unsecured? (Basic) · Given both: safe to pass? (Complex)
 **Verdict:** "No. Take aisle 8 and flag it — that stack is coming down."
 Used by `scripts/seed-dry-run.sh`.
 
-## 10. The dog in the driveway (delivery robot · animal behavior)
+## 13. The dog in the driveway (delivery robot · animal behavior)
 
 **Question:** "A dog is sitting in the delivery path. Continue to the door?"
 **Binaries:** Is the dog restrained or fenced? (Basic) · Is its posture relaxed —
 ears, tail, stance? (Complex) · Given both: proceed? (Complex)
 **Verdict:** "No. Unrestrained and stiff posture — leave the package at the gate."
 
-## 11. The door left ajar (home robot · security vs. courtesy)
+## 14. The door left ajar (home robot · security vs. courtesy)
 
 **Question:** "Resident's front door is ajar and no one answers. Close it?"
 **Binaries:** Any signs of forced entry on frame or lock? (Complex) · Is a resident
@@ -184,12 +216,16 @@ and log video."
 ### Adding entries
 
 A site-worthy (★) edge case has all four:
-1. **It cannot be in the training set** — too rare, too new, or too local for any
-   corpus. The Waymo-flooded-road test: if a lab could buy or scrape enough examples
-   to train on it, it goes in the library section at best, never on the site.
+1. **More training data doesn't fix it** — either the situation is out-of-distribution
+   (too rare, too new, too local for any corpus) or the instance sits in the long tail
+   where model confidence is stuck around 60% and 60% isn't good enough. If a lab
+   could buy or scrape its way to reliability on this case, it's library-only.
 2. **A human resolves it in under a minute** from the context the machine can send.
 3. **The wrong answer is expensive** — safety, money, liability, or trust.
 4. **The verdict is defensible** — a calibrated worker pool agrees (gold-item quality).
+
+Mix both flavors on the site: agent-side long-tail verification is the volume business;
+robot/AV out-of-distribution scenes are the thesis anchor.
 
 Cut history (so they don't creep back): the boiler (specialist knowledge = lookup),
 the pharmacy interaction (drug interactions are a database; models train on it).
