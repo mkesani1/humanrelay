@@ -245,6 +245,14 @@
     .fly-card .n { font-family: var(--serif); font-size: 1.7rem; color: var(--vermillion); }
     .fly-card .l { font-size: 0.88rem; color: var(--dark-muted); margin-top: 6px; }
 
+    /* Common-sense gap */
+    .gap { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; margin-bottom: 16px; }
+    .gap-quote { font-family: var(--serif); font-size: clamp(1.45rem, 2.8vw, 2.05rem); line-height: 1.3; font-weight: 500; }
+    .gap-quote em { color: var(--vermillion); }
+    .gap-copy p { color: var(--dark-muted); font-size: 0.95rem; margin-bottom: 14px; }
+    .gap-copy p:last-child { margin-bottom: 0; }
+    .gap-copy strong { color: var(--dark-text); }
+
     /* ============ PRODUCT SECTIONS ============ */
     .product { padding: 100px 0; }
     .product.alt { background: var(--paper-deep); }
@@ -297,6 +305,11 @@
     .decomp .d-bin .tier { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dark-muted); }
     .decomp .d-result { background: rgba(224,90,51,0.12); border: 1px solid rgba(224,90,51,0.45); border-radius: 10px; padding: 13px 16px; font-weight: 500; }
     .decomp .d-meta { margin-top: 14px; font-size: 0.8rem; color: var(--dark-muted); text-align: center; }
+    .decomp.swap { opacity: 0; transform: translateY(6px); }
+    .demo-dots { display: flex; gap: 8px; justify-content: center; margin-top: 16px; }
+    .demo-dot { width: 28px; height: 4px; border-radius: 99px; border: none; background: var(--border); cursor: pointer; padding: 0; transition: background 0.2s; }
+    .demo-dot:hover { background: var(--muted); }
+    .demo-dot.active { background: var(--vermillion); }
 
     /* Code block */
     .code-block { background: var(--dark); border-radius: var(--radius); overflow: hidden; }
@@ -393,7 +406,8 @@
       .stat:nth-child(2) { border-right: none; }
       .stat:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
       .prim-grid { grid-template-columns: repeat(2, 1fr); }
-      .fly-cards, .wf-grid, .fit-grid { grid-template-columns: 1fr; }
+      .fly-cards, .wf-grid, .fit-grid, .gap { grid-template-columns: 1fr; }
+      .gap { gap: 24px; }
       .price-grid { grid-template-columns: repeat(2, 1fr); }
       .loop-step { flex: 1 1 100%; border-radius: 0 !important; }
       .loop-step + .loop-step { border-left: 1px solid var(--dark-border); border-top: none; }
@@ -531,6 +545,13 @@
         <h2>Every intervention is a labeled demonstration.</h2>
         <p>Your hardest moments become your model's best data. A robot stalls — or an agent hits a question it shouldn't guess at. Our people resolve it live. The resolution comes back annotated and training-ready. Next quarter's model escalates less. That loop is the product.</p>
       </div>
+      <div class="gap reveal">
+        <blockquote class="gap-quote">Every human knows not to drive into a flooded road. <em>No dataset does.</em></blockquote>
+        <div class="gap-copy">
+          <p><strong>We call it the common-sense gap.</strong> Models learn from what got recorded. Common sense lives in what didn't: don't drive into standing water, don't cook the chicken that sat out all afternoon, don't believe the story that doesn't add up. Nobody writes any of that down — so no dataset teaches it, and deployment finds the holes within weeks.</p>
+          <p>The flywheel closes that gap. When your robot or agent meets a situation no dataset covered, a person who has lived it resolves it in seconds — and the resolution returns as a labeled demonstration. The edge case your fleet hits this morning is training data by tonight.</p>
+        </div>
+      </div>
       <div class="loop">
         <div class="loop-step reveal"><div class="ls-n">1</div><div class="ls-t">Capture</div><div class="ls-d">Egocentric human video at scale seeds the model.</div></div>
         <div class="loop-step reveal"><div class="ls-n">2</div><div class="ls-t">Train</div><div class="ls-d">Annotated, taxonomy-aligned data goes into pretraining.</div></div>
@@ -630,7 +651,7 @@
       <div class="relay-demo">
         <div>
           <h3 style="font-family:var(--serif); font-size:1.6rem; margin-bottom:12px;">Relay: complex questions, priced binaries.</h3>
-          <p style="color:var(--ink-soft); margin-bottom:18px;">Relay is the intelligence layer between your agent and our humans. It decomposes any question into binary decisions, routes each to the right tier, runs them in parallel, and reassembles the answer — with the full trace returned for your learning loop.</p>
+          <p style="color:var(--ink-soft); margin-bottom:18px;">Relay is the intelligence layer between your agent and our humans. It decomposes any question into binary decisions, routes each to the right tier, runs them in parallel, and reassembles the answer — with the full trace returned for your learning loop. The examples on the right are the common-sense gap in action: questions no model should guess at, resolved for a few dollars.</p>
           <ul class="checks">
             <li><strong>Negotiate.</strong> Already a binary? It routes directly. If not, Relay proposes a decomposition.</li>
             <li><strong>Decompose.</strong> Independent binaries run in parallel across workers.</li>
@@ -642,16 +663,21 @@
             <span class="chip"><b>Expert</b>$2.50 / call</span>
           </div>
         </div>
-        <div class="decomp reveal">
-          <div class="d-line">Your robot asks</div>
-          <div class="d-q">"Should I replace this boiler or repair it?"</div>
-          <div class="d-line">Relay decomposes</div>
-          <div class="d-bin"><span>Is the unit more than 15 years old?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
-          <div class="d-bin"><span>Visible corrosion on the heat exchanger?</span><span><span class="tier">Expert</span> <span class="price">$2.50</span></span></div>
-          <div class="d-bin"><span>Flue gas reading within safe limits?</span><span><span class="tier">Expert</span> <span class="price">$2.50</span></span></div>
-          <div class="d-line">Relay reassembles</div>
-          <div class="d-result">"Replace. Corrosion present, flue reading borderline, unit is 18 years old."</div>
-          <div class="d-meta">3 binaries · 2 in parallel · 47 seconds · $5.50 total</div>
+        <div>
+          <div class="decomp reveal" id="relay-demo">
+            <div class="d-line" data-slot="asker">Your robot asks</div>
+            <div class="d-q" data-slot="q">"Should I replace this boiler or repair it?"</div>
+            <div class="d-line">Relay decomposes</div>
+            <div data-slot="bins">
+            <div class="d-bin"><span>Is the unit more than 15 years old?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
+            <div class="d-bin"><span>Visible corrosion on the heat exchanger?</span><span><span class="tier">Expert</span> <span class="price">$2.50</span></span></div>
+            <div class="d-bin"><span>Flue gas reading within safe limits?</span><span><span class="tier">Expert</span> <span class="price">$2.50</span></span></div>
+            </div>
+            <div class="d-line">Relay reassembles</div>
+            <div class="d-result" data-slot="result">"Replace. Corrosion present, flue reading borderline, unit is 18 years old."</div>
+            <div class="d-meta" data-slot="meta">3 binaries · 2 in parallel · 47 seconds · $5.50 total</div>
+          </div>
+          <div class="demo-dots" id="relay-demo-dots" role="tablist" aria-label="Relay edge-case examples"></div>
         </div>
       </div>
 
@@ -974,6 +1000,120 @@ result = hr.<span class="fn">judge</span>(
       );
       window.location.href = 'mailto:hello@humanrelay.com?subject=' + subject + '&body=' + body;
     });
+
+    /* Relay demo — rotating edge-case examples (see platform/EDGE-CASES.md) */
+    (function () {
+      const EXAMPLES = [
+        {
+          asker: 'Your robot asks',
+          q: '"Should I replace this boiler or repair it?"',
+          bins: [
+            ['Is the unit more than 15 years old?', 'Basic', '$0.50'],
+            ['Visible corrosion on the heat exchanger?', 'Expert', '$2.50'],
+            ['Flue gas reading within safe limits?', 'Expert', '$2.50'],
+          ],
+          result: '"Replace. Corrosion present, flue reading borderline, unit is 18 years old."',
+          meta: '3 binaries · 2 in parallel · 47 seconds · $5.50 total',
+        },
+        {
+          asker: 'Your delivery robot asks',
+          q: '"The road ahead is covered in water. Proceed?"',
+          bins: [
+            ['Does the water span the full width of the road?', 'Basic', '$0.50'],
+            ['Are vehicles ahead stalled or turning around?', 'Basic', '$0.50'],
+            ['Given both: safe to proceed?', 'Complex', '$1.00'],
+          ],
+          result: '"No. Full-width standing water and cars turning back — reroute."',
+          meta: '3 binaries · 2 in parallel · 31 seconds · $2.00 total',
+        },
+        {
+          asker: 'Your support agent asks',
+          q: '"Customer says the blender arrived shattered. Refund $89?"',
+          bins: [
+            ['Does the photo show a damaged item in its original packaging?', 'Basic', '$0.50'],
+            ['Is the damage consistent with shipping, not use?', 'Complex', '$1.00'],
+            ['Given both: approve the refund?', 'Complex', '$1.00'],
+          ],
+          result: '"Approve. Outer box intact, crushed corner inside — classic transit damage."',
+          meta: '3 binaries · 2 in parallel · 38 seconds · $2.50 total',
+        },
+        {
+          asker: 'Your kitchen robot asks',
+          q: '"This chicken was left out during prep. Still safe to cook?"',
+          bins: [
+            ['Was it unrefrigerated for more than two hours?', 'Basic', '$0.50'],
+            ['Any visible discoloration or off texture?', 'Basic', '$0.50'],
+            ['Given both: safe to cook and serve?', 'Complex', '$1.00'],
+          ],
+          result: '"No. Three hours on the counter — discard and restock."',
+          meta: '3 binaries · 2 in parallel · 26 seconds · $2.00 total',
+        },
+      ];
+
+      const card = document.getElementById('relay-demo');
+      const dotsWrap = document.getElementById('relay-demo-dots');
+      if (!card || !dotsWrap) return;
+      const slots = {
+        asker: card.querySelector('[data-slot="asker"]'),
+        q: card.querySelector('[data-slot="q"]'),
+        bins: card.querySelector('[data-slot="bins"]'),
+        result: card.querySelector('[data-slot="result"]'),
+        meta: card.querySelector('[data-slot="meta"]'),
+      };
+      let current = 0, timer = null;
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function render(i) {
+        const ex = EXAMPLES[i];
+        slots.asker.textContent = ex.asker;
+        slots.q.textContent = ex.q;
+        slots.bins.textContent = '';
+        ex.bins.forEach(([q, tier, price]) => {
+          const row = document.createElement('div');
+          row.className = 'd-bin';
+          const left = document.createElement('span');
+          left.textContent = q;
+          const right = document.createElement('span');
+          const t = document.createElement('span'); t.className = 'tier'; t.textContent = tier;
+          const p = document.createElement('span'); p.className = 'price'; p.textContent = price;
+          right.append(t, ' ', p);
+          row.append(left, right);
+          slots.bins.appendChild(row);
+        });
+        slots.result.textContent = ex.result;
+        slots.meta.textContent = ex.meta;
+        dotsWrap.querySelectorAll('.demo-dot').forEach((d, j) => d.classList.toggle('active', j === i));
+        current = i;
+      }
+
+      function show(i) {
+        if (i === current) return;
+        if (reducedMotion) { render(i); return; }
+        card.classList.add('swap');
+        setTimeout(() => { render(i); card.classList.remove('swap'); }, 300);
+      }
+
+      EXAMPLES.forEach((ex, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'demo-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('role', 'tab');
+        dot.setAttribute('aria-label', 'Show example: ' + ex.q);
+        dot.addEventListener('click', () => { show(i); restart(); });
+        dotsWrap.appendChild(dot);
+      });
+
+      function restart() {
+        if (timer) clearInterval(timer);
+        if (reducedMotion) return;
+        timer = setInterval(() => {
+          if (document.hidden) return;
+          show((current + 1) % EXAMPLES.length);
+        }, 8000);
+      }
+      card.addEventListener('mouseenter', () => { if (timer) clearInterval(timer); timer = null; });
+      card.addEventListener('mouseleave', restart);
+      restart();
+    })();
 
     /* Scroll reveal */
     const io = new IntersectionObserver(entries => {
