@@ -176,6 +176,35 @@ blood, injury, distress, or elderly-in-trouble framing (the resolution is benign
 no children; no visible face. If it drifts toward "collapsed victim," regenerate —
 the image must read calm once you spot the mat.
 
+## 8. `pills.png` — "She asked for her heart pill — two identical white pills on the counter. Which one?" (home care robot)
+
+**Role:** chest-height camera frame from a home care robot. Verdict: *the scored
+pill with the faint imprint matches the heart-med bottle; the blank one is the
+supplement — confirm the imprint before she takes it, and flag the caregiver to
+store them separately.* Design note: pill-ID by imprint is a database (fails the
+entry test); the untrainable part is reading worn/glared evidence in a messy home
+frame — and holding safely when it can't be read.
+
+**Prompt seed:**
+> Indoor frame from a home robot's chest-height camera, slight downward angle onto
+> a kitchen counter in soft window light: two small white round pills side by side,
+> nearly identical in size and shape. One pill has a faint score line across it and
+> a partially worn imprint that only barely catches the raking light — a single
+> letter at most, not a full readable code. The other pill is completely smooth and
+> blank. Context around them, slightly behind the pills: an amber prescription
+> bottle with its cap off and label turned away from camera, a white supplement jar
+> with its label also turned away, a weekly pill organizer with one compartment
+> open, and a glass of water. No readable text anywhere in frame — all labels
+> turned or out of focus. Mild wide-angle distortion, indoor sensor noise,
+> realistic counter clutter. No hands, no people, no brand marks.
+
+**The tells:** faint score line + partial imprint on one pill vs. the perfectly
+blank other; the two containers as context. **Ambiguity:** pills ~95% identical at
+a glance, imprint visible only in the raking light — a 55% classifier is believable;
+a human who zooms gets there. **Avoid — hard lines:** no fully legible imprint code
+(real codes identify real products), no readable labels, no colorful distinct pills,
+no pharmacy setting, no hands or people.
+
 ---
 
 ## Optional video loops (progressive enhancement, not required)

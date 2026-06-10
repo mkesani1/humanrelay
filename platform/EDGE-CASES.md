@@ -169,6 +169,26 @@ infinite benign reasons a person lies on a floor. The cost asymmetry runs both w
 a missed emergency is catastrophic, a false 911 call erodes trust until the family
 unplugs the robot. Humans read mat-plus-phone in one glance.
 
+## C. The two white pills (home care robot · strategy=direct)
+
+**Asker:** home care robot, sending a camera frame
+**Question:** "She asked for her heart pill — two identical white pills on the
+counter. Which one?" + `content: {image_url}`
+
+**Trace:** direct — one trained human, one look (Complex, $1.00).
+
+**Answer:** "The scored one with the faint imprint matches the heart-med bottle;
+the blank one is the supplement. Confirm the imprint before she takes it — and
+flag the caregiver: these need separate containers."
+**Meta:** direct · 1 human · 21 seconds · $1.00 total
+**Why more data doesn't fix it:** pill-imprint databases are perfect and useless
+when the pill is out of its bottle with the imprint worn, glared, or face-down.
+Reading degraded evidence in a messy home frame is human work (same class as the
+counterfeit date code) — and when the evidence isn't readable, the human returns
+the *safe* action (hold, verify, alert), which no confidence threshold produces on
+its own. The cost asymmetry is brutal: a delayed dose is an inconvenience; the
+wrong pill to a cardiac patient is a headline.
+
 ## Library (not on the site — weaker under the test, still useful operationally)
 
 Real judgment calls and good dry-run / gold-item content, but either the corpus exists
