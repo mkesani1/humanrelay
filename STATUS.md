@@ -52,10 +52,13 @@ Dry-run seeder: `platform/scripts/seed-dry-run.sh` (customer API only, rehearsed
 
 **2026-06-10 (pm)**
 - Common-sense-gap thesis woven into the site flywheel (pull-quote + copy);
-  Relay demo rotates 5 edge-case examples (flooded road, crosswalk wave,
-  grandparent wire, warfarin interaction, chicken on the counter) —
-  `platform/EDGE-CASES.md` is the source of truth, keep in sync. The boiler
-  example was cut: knowledge gaps aren't judgment gaps.
+  Relay demo rotates 5 edge-case examples (flooded road, contradicting
+  construction cones, officer waving through a red light, downed cable,
+  chicken on the counter) — `platform/EDGE-CASES.md` is the source of truth,
+  keep in sync. **The strict entry test (founder-set): the situation genuinely
+  cannot be in the training set** (the Waymo-flooded-road test). Cut for
+  failing it: boiler (specialist lookup), pharmacy interaction (database),
+  grandparent wire + crosswalk wave (corpora exist → library only).
 - `POST /v1/keys/rotate` (self-service, optional `grace_minutes` 0–1440) +
   `GET /v1/keys`. Live and verified in prod. Deliberately not an MCP tool.
 - Customer-zero dry-run kit (`DRY-RUN.md` + `seed-dry-run.sh`), rehearsed end-to-end

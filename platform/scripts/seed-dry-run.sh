@@ -5,7 +5,9 @@
 #   API=https://api.humanrelay.com HR_API_KEY=hr_live_... ./scripts/seed-dry-run.sh
 #   WARMUP_ONLY=1 ...   # just the two warm-up tasks
 #
-# Content mirrors platform/EDGE-CASES.md — the common-sense gap library.
+# Task mix drawn from platform/EDGE-CASES.md, plus a warfarin escalate that
+# exists to exercise the expert tier + rationale enforcement (it is NOT a
+# common-sense-gap example — see the library's entry test).
 # Customer-API only: no admin token, nothing here can touch other orgs.
 set -euo pipefail
 

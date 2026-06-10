@@ -548,7 +548,7 @@
       <div class="gap reveal">
         <blockquote class="gap-quote">Every human knows not to drive into a flooded road. <em>No dataset does.</em></blockquote>
         <div class="gap-copy">
-          <p><strong>We call it the common-sense gap.</strong> Models learn from what got recorded. Common sense lives in what didn't: don't drive into standing water, don't cook the chicken that sat out all afternoon, don't believe the story that doesn't add up. Nobody writes any of that down — so no dataset teaches it, and deployment finds the holes within weeks.</p>
+          <p><strong>We call it the common-sense gap.</strong> Models learn from what got recorded. The real world keeps producing what didn't: the flooded road, the cones that contradict the lane paint, the officer waving you through a red light. Too rare, too new, too local for any training set — and deployment finds every one of them.</p>
           <p>The flywheel closes that gap. When your robot or agent meets a situation no dataset covered, a person who has lived it resolves it in seconds — and the resolution returns as a labeled demonstration. The edge case your fleet hits this morning is training data by tonight.</p>
         </div>
       </div>
@@ -1016,37 +1016,37 @@ result = hr.<span class="fn">judge</span>(
           meta: '3 binaries · 2 in parallel · 31 seconds · $2.00 total',
         },
         {
+          asker: 'Your robotaxi asks',
+          q: '"Construction cones contradict the lane markings ahead. Which do I follow?"',
+          bins: [
+            ['Do the cones form a single continuous path through the zone?', 'Basic', '$0.50'],
+            ['Is fresh surface work visible where the painted lane runs?', 'Basic', '$0.50'],
+            ['Given both: follow the cones over the markings?', 'Complex', '$1.00'],
+          ],
+          result: '"Follow the cones. The painted lane runs into fresh concrete — the markings predate today’s work."',
+          meta: '3 binaries · 2 in parallel · 28 seconds · $2.00 total',
+        },
+        {
+          asker: 'Your AV asks',
+          q: '"An officer is waving me through a red light. Go?"',
+          bins: [
+            ['Is the person directing traffic in uniform or hi-vis at an active scene?', 'Basic', '$0.50'],
+            ['Is the gesture clearly directed at this vehicle?', 'Basic', '$0.50'],
+            ['Given both: proceed against the signal?', 'Complex', '$1.00'],
+          ],
+          result: '"Go. Uniformed officer, gesture aimed at you — hand signals override the light."',
+          meta: '3 binaries · 2 in parallel · 31 seconds · $2.00 total',
+        },
+        {
           asker: 'Your sidewalk robot asks',
-          q: '"A driver is waving me across, but their car is still rolling. Cross?"',
+          q: '"Storm debris: a cable is hanging across the sidewalk. Pass under it?"',
           bins: [
-            ['Has the vehicle come to a complete stop?', 'Basic', '$0.50'],
-            ['Is a second lane of traffic present and unstopped?', 'Basic', '$0.50'],
-            ['Given both: cross now?', 'Complex', '$1.00'],
+            ['Is the cable attached to a utility pole at either end?', 'Basic', '$0.50'],
+            ['Are warning markers or utility crews present?', 'Basic', '$0.50'],
+            ['Given both: treat it as live and reroute?', 'Complex', '$1.00'],
           ],
-          result: '"No. Wait for the full stop — a wave is not a guarantee."',
-          meta: '3 binaries · 2 in parallel · 24 seconds · $2.00 total',
-        },
-        {
-          asker: 'Your banking agent asks',
-          q: '"82-year-old customer is wiring $9,400 to a ‘grandson stranded abroad.’ Process it?"',
-          bins: [
-            ['Is this payee new on the account?', 'Basic', '$0.50'],
-            ['Does the memo match a known scam script?', 'Complex', '$1.00'],
-            ['Given both: hold for a fraud call-back?', 'Complex', '$1.00'],
-          ],
-          result: '"Hold it. New payee plus the stranded-relative script — call the customer first."',
-          meta: '3 binaries · 2 in parallel · 35 seconds · $2.50 total',
-        },
-        {
-          asker: 'Your pharmacy agent asks',
-          q: '"Refill request: patient takes warfarin, new scrip is high-dose ibuprofen. Fill it?"',
-          bins: [
-            ['Are both prescriptions active for the same patient?', 'Basic', '$0.50'],
-            ['Is this a flagged interaction class?', 'Expert', '$2.50'],
-            ['Given both: escalate to the prescriber before filling?', 'Expert', '$2.50'],
-          ],
-          result: '"Escalate. Known bleed-risk interaction — confirm with the prescriber."',
-          meta: '3 binaries · 2 in parallel · 52 seconds · $5.50 total',
+          result: '"Reroute. Attached overhead, sagging, no crew on scene — treat it as live."',
+          meta: '3 binaries · 2 in parallel · 27 seconds · $2.00 total',
         },
         {
           asker: 'Your kitchen robot asks',
