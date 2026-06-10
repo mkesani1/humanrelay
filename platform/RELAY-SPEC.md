@@ -3,6 +3,16 @@
 Relay is the intelligence layer between a customer's agent and the HumanRelay workforce.
 Its contract: take any question an agent can't answer, find the **smallest set of human-answerable
 binary decisions** that resolves it, and return a verdict with a full audit trace.
+The smallest set is very often **one**: a robot sends a camera frame and asks "is this
+safe to drive through?" — that's `strategy=direct`, one human, one look, one price.
+Decomposition is reserved for genuinely multi-part questions.
+
+**Attached content:** `POST /v1/relay` accepts an optional `content` value (an image
+URL, a document, sensor context). It is stored on the trace and rides into **every**
+binary task payload so workers see it alongside the question. Content-bearing traces
+**bypass the answer cache entirely** (lookup and record): the question text alone no
+longer identifies the case — same text + different frame must never share answers.
+Decomposition *structure* still transfers, so the pattern library stays active.
 
 This spec covers the production behavior implemented in `src/relay/`; the V0→V2 ladder
 matches the public roadmap on humanrelay.com.
@@ -66,6 +76,8 @@ agent question
   similarity ≥ 0.97 over recent consensus entries.
 - Serve threshold: **3 consecutive agreeing human resolutions**. A conflicting resolution
   resets consensus to 1.
+- **Content-bearing traces never touch the cache** — neither lookup nor record. The
+  text is not the case when a frame/document is attached.
 - Economics: a cache hit converts a $0.50–$2.50 human call into a free lookup, still billed
   as resolved work.
 

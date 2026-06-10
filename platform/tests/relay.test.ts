@@ -130,4 +130,35 @@ describe("relay engine", () => {
     expect(t5.strategy).toBe("cache");
     expect(t5.total_cost_cents).toBe(0);
   });
+
+  it("content rides into every task and bypasses the answer cache", async () => {
+    const worker = await createWorker(ctx.db, { tier: "expert" });
+    const q = "Is this safe to drive through?";
+    const frame1 = { image_url: "https://cdn.example/frame-1.jpg" };
+
+    // Direct content-bearing trace: the worker's task payload carries the frame.
+    const t1 = await relay.start(ctx.orgId, q, { content: frame1 });
+    expect(t1.strategy).toBe("direct");
+    const { rows: tasks1 } = await ctx.db.query<{ payload: Record<string, unknown> }>(
+      `select payload from tasks where parent_id = $1`, [t1.id]);
+    expect(tasks1[0]!.payload["content"]).toEqual(frame1);
+    await workThroughTasks(ctx, [worker], () => ({ answer: "no" }));
+    expect((await relay.getTrace(t1.id))!.status).toBe("completed");
+
+    // The content-bearing verdict was NOT cached; text-only runs build consensus normally.
+    for (let i = 0; i < 3; i++) {
+      await relay.start(ctx.orgId, q);
+      await workThroughTasks(ctx, [worker], () => ({ answer: "no" }));
+    }
+    const textOnly = await relay.start(ctx.orgId, q);
+    expect(textOnly.strategy).toBe("cache");
+
+    // A new frame with the same question text must never share that cached answer.
+    const t2 = await relay.start(ctx.orgId, q, { content: { image_url: "https://cdn.example/frame-2.jpg" } });
+    expect(t2.strategy).toBe("direct");
+    expect(t2.status).toBe("running");
+    expect(t2.cache_hits).toBe(0);
+    const { rows: tasks2 } = await ctx.db.query(`select id from tasks where parent_id = $1`, [t2.id]);
+    expect(tasks2).toHaveLength(1);
+  });
 });

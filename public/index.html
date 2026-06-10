@@ -653,8 +653,8 @@
           <h3 style="font-family:var(--serif); font-size:1.6rem; margin-bottom:12px;">Relay: complex questions, priced binaries.</h3>
           <p style="color:var(--ink-soft); margin-bottom:18px;">Relay is the intelligence layer between your agent and our humans. It decomposes any question into binary decisions, routes each to the right tier, runs them in parallel, and reassembles the answer — with the full trace returned for your learning loop. The examples on the right are the long tail in action: the model is 60% sure, 60% isn't good enough, and a human verifies for a few dollars.</p>
           <ul class="checks">
-            <li><strong>Negotiate.</strong> Already a binary? It routes directly. If not, Relay proposes a decomposition.</li>
-            <li><strong>Decompose.</strong> Independent binaries run in parallel across workers.</li>
+            <li><strong>Direct first.</strong> An image and a question — "is this safe to drive through?" — go straight to one human, at one price.</li>
+            <li><strong>Decompose when it earns it.</strong> Genuinely multi-part questions split into binaries that run in parallel across workers.</li>
             <li><strong>Reassemble.</strong> Answers compose into a final response with reasoning.</li>
           </ul>
           <div class="price-chips">
@@ -667,13 +667,13 @@
           <div class="decomp reveal" id="relay-demo">
             <div class="d-line" data-slot="asker">Your pest-control agent asks</div>
             <div class="d-q" data-slot="q">"Customer photo: what's nesting in the wall — bees or wasps? Model says 60% wasps."</div>
-            <div class="d-line">Relay decomposes</div>
+            <div class="d-line" data-slot="how">Relay decomposes</div>
             <div data-slot="bins">
             <div class="d-bin"><span>Are the insects fuzzy rather than smooth and shiny?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
             <div class="d-bin"><span>Is the nest waxy comb rather than papery layers?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
             <div class="d-bin"><span>Given both: dispatch an exterminator rather than a beekeeper?</span><span><span class="tier">Complex</span> <span class="price">$1.00</span></span></div>
             </div>
-            <div class="d-line">Relay reassembles</div>
+            <div class="d-line" data-slot="out">Relay reassembles</div>
             <div class="d-result" data-slot="result">"Bees. Fuzzy bodies on wax comb — book a live removal, not an exterminator."</div>
             <div class="d-meta" data-slot="meta">3 binaries · 2 in parallel · 26 seconds · $2.00 total</div>
           </div>
@@ -1016,15 +1016,15 @@ result = hr.<span class="fn">judge</span>(
           meta: '3 binaries · 2 in parallel · 26 seconds · $2.00 total',
         },
         {
-          asker: 'Your delivery robot asks',
-          q: '"The road ahead is covered in water. Proceed?"',
+          asker: 'Your delivery robot sends a camera frame',
+          q: '"Is this safe to drive through?"',
+          how: 'Relay routes — already one question',
           bins: [
-            ['Does the water span the full width of the road?', 'Basic', '$0.50'],
-            ['Are vehicles ahead stalled or turning around?', 'Basic', '$0.50'],
-            ['Given both: safe to proceed?', 'Complex', '$1.00'],
+            ['One trained human, one look at the frame', 'Complex', '$1.00'],
           ],
-          result: '"No. Full-width standing water and cars turning back — reroute."',
-          meta: '3 binaries · 2 in parallel · 31 seconds · $2.00 total',
+          out: 'Human answers',
+          result: '"No. Water spans the road and cars are turning back — reroute."',
+          meta: 'direct · 1 human · 19 seconds · $1.00 total',
         },
         {
           asker: 'Your marketplace agent asks',
@@ -1038,15 +1038,15 @@ result = hr.<span class="fn">judge</span>(
           meta: '3 binaries · 2 in parallel · 33 seconds · $2.50 total',
         },
         {
-          asker: 'Your robotaxi asks',
-          q: '"Construction cones contradict the lane markings ahead. Which do I follow?"',
+          asker: 'Your robotaxi sends a camera frame',
+          q: '"Cones contradict the lane markings. Which do I follow?"',
+          how: 'Relay routes — already one question',
           bins: [
-            ['Do the cones form a single continuous path through the zone?', 'Basic', '$0.50'],
-            ['Is fresh surface work visible where the painted lane runs?', 'Basic', '$0.50'],
-            ['Given both: follow the cones over the markings?', 'Complex', '$1.00'],
+            ['One trained human, one look at the frame', 'Complex', '$1.00'],
           ],
-          result: '"Follow the cones. The painted lane runs into fresh concrete — the markings predate today’s work."',
-          meta: '3 binaries · 2 in parallel · 28 seconds · $2.00 total',
+          out: 'Human answers',
+          result: '"The cones. That painted lane runs into fresh concrete."',
+          meta: 'direct · 1 human · 22 seconds · $1.00 total',
         },
         {
           asker: 'Your survey agent asks',
@@ -1067,7 +1067,9 @@ result = hr.<span class="fn">judge</span>(
       const slots = {
         asker: card.querySelector('[data-slot="asker"]'),
         q: card.querySelector('[data-slot="q"]'),
+        how: card.querySelector('[data-slot="how"]'),
         bins: card.querySelector('[data-slot="bins"]'),
+        out: card.querySelector('[data-slot="out"]'),
         result: card.querySelector('[data-slot="result"]'),
         meta: card.querySelector('[data-slot="meta"]'),
       };
@@ -1078,6 +1080,8 @@ result = hr.<span class="fn">judge</span>(
         const ex = EXAMPLES[i];
         slots.asker.textContent = ex.asker;
         slots.q.textContent = ex.q;
+        slots.how.textContent = ex.how || 'Relay decomposes';
+        slots.out.textContent = ex.out || 'Relay reassembles';
         slots.bins.textContent = '';
         ex.bins.forEach(([q, tier, price]) => {
           const row = document.createElement('div');

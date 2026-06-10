@@ -34,6 +34,7 @@ export interface TraceRow {
   id: string;
   org_id: string;
   question: string;
+  content: unknown | null;
   tier_cap: Tier;
   max_cost_cents: number | null;
   strategy: string | null;
@@ -63,17 +64,20 @@ export class RelayEngine {
   async start(
     orgId: string,
     question: string,
-    opts: { tierCap?: Tier; maxCostCents?: number } = {},
+    opts: { tierCap?: Tier; maxCostCents?: number; content?: unknown } = {},
   ): Promise<TraceRow> {
     const tierCap = opts.tierCap ?? "expert";
+    const hasContent = opts.content !== undefined && opts.content !== null;
     const { rows } = await this.db.query<TraceRow>(
-      `insert into relay_traces (org_id, question, tier_cap, max_cost_cents) values ($1,$2,$3,$4) returning *`,
-      [orgId, question, tierCap, opts.maxCostCents ?? null],
+      `insert into relay_traces (org_id, question, tier_cap, max_cost_cents, content) values ($1,$2,$3,$4,$5) returning *`,
+      [orgId, question, tierCap, opts.maxCostCents ?? null, hasContent ? JSON.stringify(opts.content) : null],
     );
     const trace = rows[0]!;
 
-    // [0] Whole-question cache short-circuit.
-    const hit = await this.cache.lookup(question);
+    // [0] Whole-question cache short-circuit — only when the question text alone
+    // identifies the case. A content-bearing trace (a camera frame, a document)
+    // always gets fresh human eyes: same text + different frame must never share answers.
+    const hit = hasContent ? null : await this.cache.lookup(question);
     if (hit) {
       await this.db.query(
         `update relay_traces set status='completed', strategy='cache', verdict=$2,
@@ -202,7 +206,9 @@ export class RelayEngine {
     b.verdict = task.result ?? {};
     b.rationale = task.rationale;
     b.cost_cents = task.price_cents;
-    await this.cache.record(b.question, b.tier, b.verdict);
+    // Content-bearing answers are about the attached frame/document, not the
+    // question text — caching them under the text would poison future lookups.
+    if (trace.content == null) await this.cache.record(b.question, b.tier, b.verdict);
 
     const total = binaries.reduce((s, x) => s + (x.verdict ? x.cost_cents : 0), 0);
     await this.db.query(`update relay_traces set plan=$2, total_cost_cents=$3 where id=$1`, [
@@ -224,7 +230,8 @@ export class RelayEngine {
 
       const q = contextualized(b, binaries);
       // Per-binary cache: skip the human when consensus already exists.
-      const hit = await this.cache.lookup(q);
+      // Never for content-bearing traces — the text doesn't identify the case.
+      const hit = trace.content == null ? await this.cache.lookup(q) : null;
       if (hit) {
         b.verdict = hit.verdict;
         b.rationale = `cache (consensus ${hit.consensus_count})`;
@@ -240,7 +247,11 @@ export class RelayEngine {
         orgId: trace.org_id,
         primitive: "classify",
         tier: b.tier,
-        payload: { question: q, relay: true },
+        payload: {
+          question: q,
+          relay: true,
+          ...(trace.content != null ? { content: trace.content } : {}),
+        },
         skillTags: b.skill_tags,
         parentKind: "relay",
         parentId: trace.id,
@@ -265,8 +276,10 @@ export class RelayEngine {
                 plan=$5, completed_at=now() where id=$1`,
         [traceId, JSON.stringify(out.verdict), out.rationale, total, JSON.stringify({ binaries })],
       );
-      // [6] Learn: whole-question cache + decomposition pattern.
-      await this.cache.record(trace.question, trace.tier_cap, out.verdict);
+      // [6] Learn: whole-question cache + decomposition pattern. Content-bearing
+      // verdicts stay out of the cache (text alone doesn't identify the case);
+      // decomposition *structure* still transfers, so patterns are always saved.
+      if (trace.content == null) await this.cache.record(trace.question, trace.tier_cap, out.verdict);
       if (binaries.length > 1) await this.savePattern(trace.question, binaries);
       await this.notify((await this.getTrace(traceId))!);
     } else if (dirty) {

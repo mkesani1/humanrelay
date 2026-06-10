@@ -35,8 +35,11 @@ Used in three places:
 3. **Worker calibration** — entries seed gold items: the expected verdicts are
    unambiguous to a calibrated human, which is exactly what makes them gold.
 
-Conventions: 3 binaries per entry (keeps the site card height stable), tier pricing
-Basic $0.50 / Complex $1.00 / Expert $2.50, every verdict defensible in a customer call.
+Conventions: tier pricing Basic $0.50 / Complex $1.00 / Expert $2.50; every verdict
+defensible in a customer call. **Robot/AV cases are usually `strategy=direct`** — an
+image is sent, a question is asked, one human answers; don't force a decomposition
+where one look resolves it. Decomposed entries keep exactly 3 binaries (stable site
+card height).
 
 ---
 
@@ -59,19 +62,17 @@ customers actually send — backlit, blurry, half a nest behind drywall. The for
 consequential: honeybees are protected and get a beekeeper; wasps get poison. A wrong
 dispatch costs a truck roll either way.
 
-## ★ 2. The flooded road (delivery robot · the thesis example)
+## ★ 2. The flooded road (delivery robot · the thesis example · strategy=direct)
 
-**Asker:** delivery robot
-**Question:** "The road ahead is covered in water. Proceed?"
+**Asker:** delivery robot, sending a camera frame
+**Question:** "Is this safe to drive through?" + `content: {image_url}`
 
-| Binary | Tier | Price |
-|---|---|---|
-| Does the water span the full width of the road? | Basic | $0.50 |
-| Are vehicles ahead stalled or turning around? | Basic | $0.50 |
-| Given both: safe to proceed? | Complex | $1.00 |
+**Trace:** direct — already one question. One trained human looks at the frame
+(Complex, $1.00). No decomposition: a robot's escalation is an image and a question,
+and the answer is one judgment.
 
-**Verdict:** "No. Full-width standing water and cars turning back — reroute."
-**Meta:** 3 binaries · 2 in parallel · 31 seconds · $2.00 total
+**Answer:** "No. Water spans the road and cars are turning back — reroute."
+**Meta:** direct · 1 human · 19 seconds · $1.00 total
 **Why more data doesn't fix it:** flooding is rare, local, and visually unique every
 time; depth is invisible from a camera frame. Humans read the *social* evidence (other
 drivers turning around) and a lifetime prior about water.
@@ -94,20 +95,15 @@ counterfeit."
 manufactured specifically to beat last season's detectors. The tail regrows weekly.
 Marketplaces run human authentication desks for exactly this; we're that desk by API.
 
-## ★ 4. The contradicting cones (robotaxi · unusual construction)
+## ★ 4. The contradicting cones (robotaxi · unusual construction · strategy=direct)
 
-**Asker:** robotaxi
-**Question:** "Construction cones contradict the lane markings ahead. Which do I follow?"
+**Asker:** robotaxi, sending a camera frame
+**Question:** "Cones contradict the lane markings. Which do I follow?" + `content: {image_url}`
 
-| Binary | Tier | Price |
-|---|---|---|
-| Do the cones form a single continuous path through the zone? | Basic | $0.50 |
-| Is fresh surface work visible where the painted lane runs? | Basic | $0.50 |
-| Given both: follow the cones over the markings? | Complex | $1.00 |
+**Trace:** direct — one trained human looks at the frame (Complex, $1.00).
 
-**Verdict:** "Follow the cones. The painted lane runs into fresh concrete — the
-markings predate today's work."
-**Meta:** 3 binaries · 2 in parallel · 28 seconds · $2.00 total
+**Answer:** "The cones. That painted lane runs into fresh concrete."
+**Meta:** direct · 1 human · 22 seconds · $1.00 total
 **Why more data doesn't fix it:** every construction zone is improvised that morning,
 by a crew, with whatever cones they had. The ground truth (which signal is current)
 exists only at that intersection, that day. A robotaxi famously drove into wet
@@ -230,5 +226,6 @@ robot/AV out-of-distribution scenes are the thesis anchor.
 Cut history (so they don't creep back): the boiler (specialist knowledge = lookup),
 the pharmacy interaction (drug interactions are a database; models train on it).
 
-Keep site entries (★) at exactly 3 binaries and update `public/index.html` in the same
+Robot/AV entries default to `strategy=direct` (image + question → one human);
+decomposed entries keep exactly 3 binaries. Update `public/index.html` in the same
 commit.

@@ -61,6 +61,13 @@ Dry-run seeder: `platform/scripts/seed-dry-run.sh` (customer API only, rehearsed
   says 60% wasp; 60% isn't good enough" — the volume business). Cut for
   failing it: boiler (specialist lookup), pharmacy interaction (database);
   officer-at-red-light, downed cable, chicken, wire, crosswalk → library only.
+  **Robot/AV cases are `strategy=direct`** — an image is sent, a question is
+  asked ("is this safe to drive through?"), one human answers at one price.
+  Don't dress robot escalations up as decompositions.
+- `POST /v1/relay` now accepts `content` (camera frame, document): rides into
+  every binary task payload; content-bearing traces bypass the answer cache
+  entirely (same text + different frame must never share answers). Migration
+  0003, SDK + MCP tool updated, 42 tests passing.
 - `POST /v1/keys/rotate` (self-service, optional `grace_minutes` 0–1440) +
   `GET /v1/keys`. Live and verified in prod. Deliberately not an MCP tool.
 - Customer-zero dry-run kit (`DRY-RUN.md` + `seed-dry-run.sh`), rehearsed end-to-end

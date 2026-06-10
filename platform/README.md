@@ -84,7 +84,7 @@ Customer (Bearer `hr_live_...`):
 
 ```
 POST /v1/classify|judge|extract|escalate|resolve   create a human task (Idempotency-Key honored)
-POST /v1/relay                                     decompose + resolve a complex question
+POST /v1/relay                                     resolve a question (optional content attachment, e.g. a camera frame); direct or decomposed
 GET  /v1/tasks/:id  /v1/relay/:id                  status, verdict, rationale, audit trail
 POST /v1/teleop/sessions                           robot escalation → safety binary → operator
 POST /v1/teleop/sessions/:id/handback              ends session, emits demonstration task

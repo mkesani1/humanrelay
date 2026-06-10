@@ -103,8 +103,8 @@ export class HumanRelay {
     };
   }
 
-  /** Relay: decompose a complex question into human-answered binaries and wait for the verdict. */
-  async relay(question: string, opts: { tier_cap?: Tier; max_cost_cents?: number } = {}): Promise<RelayResult> {
+  /** Relay: route a question (with optional attached content, e.g. a camera frame) to humans and wait for the verdict. */
+  async relay(question: string, opts: { content?: unknown; tier_cap?: Tier; max_cost_cents?: number } = {}): Promise<RelayResult> {
     const started = await this.call("/v1/relay", "POST", { question, ...opts });
     if (started.relay.status === "completed") return toRelayResult(started.relay);
     if (started.relay.status === "over_budget") {

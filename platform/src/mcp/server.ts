@@ -70,14 +70,15 @@ for (const [name, description] of primitives) {
 
 server.tool(
   "humanrelay_relay",
-  "Resolve a complex question via Relay: it decomposes the question into priced human-answered binaries, runs them in parallel, and reassembles the answer. Use for questions too complex for a single yes/no.",
+  "Resolve a question via Relay. Single questions (an image + 'is this safe to drive through?') route straight to one human; genuinely multi-part questions decompose into priced human-answered binaries that run in parallel and reassemble into a verdict.",
   {
-    question: z.string().describe("The complex question to resolve"),
+    question: z.string().describe("The question to resolve"),
+    content: z.unknown().optional().describe("Attached content the humans should see, e.g. an image URL or document — rides along to every human task"),
     tier_cap: z.enum(["basic", "complex", "expert"]).default("expert"),
     max_cost_cents: z.number().int().positive().optional().describe("Refuse plans costing more than this"),
   },
-  async ({ question, tier_cap, max_cost_cents }) => {
-    const out = await api("/v1/relay", { question, tier_cap, max_cost_cents });
+  async ({ question, content, tier_cap, max_cost_cents }) => {
+    const out = await api("/v1/relay", { question, content, tier_cap, max_cost_cents });
     return asText({
       relay_id: out.relay.id,
       status: out.relay.status,

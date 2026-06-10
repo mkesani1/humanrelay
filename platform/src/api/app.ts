@@ -39,6 +39,7 @@ const TaskBody = z.object({
 
 const RelayBody = z.object({
   question: z.string().min(3),
+  content: z.unknown().optional(), // attached frame/document; rides into every binary task
   tier_cap: z.enum(["basic", "complex", "expert"]).default("expert"),
   max_cost_cents: z.number().int().positive().optional(),
 });
@@ -132,6 +133,7 @@ export function createApp(deps: AppDeps) {
     const trace = await relay.start(c.get("orgId"), body.question, {
       tierCap: body.tier_cap,
       maxCostCents: body.max_cost_cents,
+      content: body.content,
     });
     return c.json({ relay: publicTrace(trace) }, trace.status === "completed" ? 200 : 202);
   });
