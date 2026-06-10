@@ -52,6 +52,7 @@ export async function createPgDb(connectionString: string): Promise<DB> {
   const pool = new pg.Pool({
     connectionString,
     max: 5, // serverless-friendly; use Supabase's pooled (port 6543) connection string
+    connectionTimeoutMillis: 8000, // fail fast with a clear error instead of hanging a function
     ssl: /supabase\.(co|com)/.test(connectionString) ? { rejectUnauthorized: false } : undefined,
   });
   return {
