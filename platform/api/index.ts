@@ -42,3 +42,4 @@ export const PUT = handler;
 export const PATCH = handler;
 export const DELETE = handler;
 export const OPTIONS = handler;
+export default handler;

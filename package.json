@@ -1,6 +1,20 @@
 {
-    "name": "third-space-cafe-tracker",
-    "version": "1.0.0",
-    "private": true,
-    "description": "Third Space Cafe — Financial Tracker Dashboard"
+  "name": "humanrelay",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "HumanRelay — site (public/) + platform API (api/ -> platform/src)",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.0",
+    "@electric-sql/pglite": "^0.5.1",
+    "@hono/node-server": "^2.0.4",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "hono": "^4.12.25",
+    "pg": "^8.21.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.2",
+    "@types/pg": "^8.20.0"
+  }
 }

@@ -1,5 +1,15 @@
 {
-    "buildCommand": "",
-    "outputDirectory": "public",
-    "framework": null
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "",
+  "outputDirectory": "public",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "api.humanrelay.com" }],
+      "destination": "/api/index"
+    },
+    { "source": "/cron/maintenance", "destination": "/api/index" }
+  ],
+  "crons": [{ "path": "/cron/maintenance", "schedule": "0 * * * *" }]
 }
