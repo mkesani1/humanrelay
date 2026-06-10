@@ -51,7 +51,7 @@ curl -s -X POST localhost:8787/admin/workers -H 'x-admin-token: dev' \
 # 3. Agent asks a question
 curl -s -X POST localhost:8787/v1/relay -H 'authorization: Bearer hr_live_...' \
   -H 'content-type: application/json' \
-  -d '{"question":"Should I replace this boiler or repair it?"}'
+  -d '{"question":"The road ahead is covered in water. Should my delivery robot proceed or reroute?"}'
 
 # 4. Open the worker bench and answer the binaries
 open http://localhost:8787/console     # enter the worker id, press Y/N

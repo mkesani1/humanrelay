@@ -665,17 +665,17 @@
         </div>
         <div>
           <div class="decomp reveal" id="relay-demo">
-            <div class="d-line" data-slot="asker">Your robot asks</div>
-            <div class="d-q" data-slot="q">"Should I replace this boiler or repair it?"</div>
+            <div class="d-line" data-slot="asker">Your delivery robot asks</div>
+            <div class="d-q" data-slot="q">"The road ahead is covered in water. Proceed?"</div>
             <div class="d-line">Relay decomposes</div>
             <div data-slot="bins">
-            <div class="d-bin"><span>Is the unit more than 15 years old?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
-            <div class="d-bin"><span>Visible corrosion on the heat exchanger?</span><span><span class="tier">Expert</span> <span class="price">$2.50</span></span></div>
-            <div class="d-bin"><span>Flue gas reading within safe limits?</span><span><span class="tier">Expert</span> <span class="price">$2.50</span></span></div>
+            <div class="d-bin"><span>Does the water span the full width of the road?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
+            <div class="d-bin"><span>Are vehicles ahead stalled or turning around?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
+            <div class="d-bin"><span>Given both: safe to proceed?</span><span><span class="tier">Complex</span> <span class="price">$1.00</span></span></div>
             </div>
             <div class="d-line">Relay reassembles</div>
-            <div class="d-result" data-slot="result">"Replace. Corrosion present, flue reading borderline, unit is 18 years old."</div>
-            <div class="d-meta" data-slot="meta">3 binaries · 2 in parallel · 47 seconds · $5.50 total</div>
+            <div class="d-result" data-slot="result">"No. Full-width standing water and cars turning back — reroute."</div>
+            <div class="d-meta" data-slot="meta">3 binaries · 2 in parallel · 31 seconds · $2.00 total</div>
           </div>
           <div class="demo-dots" id="relay-demo-dots" role="tablist" aria-label="Relay edge-case examples"></div>
         </div>
@@ -1005,17 +1005,6 @@ result = hr.<span class="fn">judge</span>(
     (function () {
       const EXAMPLES = [
         {
-          asker: 'Your robot asks',
-          q: '"Should I replace this boiler or repair it?"',
-          bins: [
-            ['Is the unit more than 15 years old?', 'Basic', '$0.50'],
-            ['Visible corrosion on the heat exchanger?', 'Expert', '$2.50'],
-            ['Flue gas reading within safe limits?', 'Expert', '$2.50'],
-          ],
-          result: '"Replace. Corrosion present, flue reading borderline, unit is 18 years old."',
-          meta: '3 binaries · 2 in parallel · 47 seconds · $5.50 total',
-        },
-        {
           asker: 'Your delivery robot asks',
           q: '"The road ahead is covered in water. Proceed?"',
           bins: [
@@ -1027,15 +1016,37 @@ result = hr.<span class="fn">judge</span>(
           meta: '3 binaries · 2 in parallel · 31 seconds · $2.00 total',
         },
         {
-          asker: 'Your support agent asks',
-          q: '"Customer says the blender arrived shattered. Refund $89?"',
+          asker: 'Your sidewalk robot asks',
+          q: '"A driver is waving me across, but their car is still rolling. Cross?"',
           bins: [
-            ['Does the photo show a damaged item in its original packaging?', 'Basic', '$0.50'],
-            ['Is the damage consistent with shipping, not use?', 'Complex', '$1.00'],
-            ['Given both: approve the refund?', 'Complex', '$1.00'],
+            ['Has the vehicle come to a complete stop?', 'Basic', '$0.50'],
+            ['Is a second lane of traffic present and unstopped?', 'Basic', '$0.50'],
+            ['Given both: cross now?', 'Complex', '$1.00'],
           ],
-          result: '"Approve. Outer box intact, crushed corner inside — classic transit damage."',
-          meta: '3 binaries · 2 in parallel · 38 seconds · $2.50 total',
+          result: '"No. Wait for the full stop — a wave is not a guarantee."',
+          meta: '3 binaries · 2 in parallel · 24 seconds · $2.00 total',
+        },
+        {
+          asker: 'Your banking agent asks',
+          q: '"82-year-old customer is wiring $9,400 to a ‘grandson stranded abroad.’ Process it?"',
+          bins: [
+            ['Is this payee new on the account?', 'Basic', '$0.50'],
+            ['Does the memo match a known scam script?', 'Complex', '$1.00'],
+            ['Given both: hold for a fraud call-back?', 'Complex', '$1.00'],
+          ],
+          result: '"Hold it. New payee plus the stranded-relative script — call the customer first."',
+          meta: '3 binaries · 2 in parallel · 35 seconds · $2.50 total',
+        },
+        {
+          asker: 'Your pharmacy agent asks',
+          q: '"Refill request: patient takes warfarin, new scrip is high-dose ibuprofen. Fill it?"',
+          bins: [
+            ['Are both prescriptions active for the same patient?', 'Basic', '$0.50'],
+            ['Is this a flagged interaction class?', 'Expert', '$2.50'],
+            ['Given both: escalate to the prescriber before filling?', 'Expert', '$2.50'],
+          ],
+          result: '"Escalate. Known bleed-risk interaction — confirm with the prescriber."',
+          meta: '3 binaries · 2 in parallel · 52 seconds · $5.50 total',
         },
         {
           asker: 'Your kitchen robot asks',
