@@ -39,7 +39,10 @@ Conventions: tier pricing Basic $0.50 / Complex $1.00 / Expert $2.50; every verd
 defensible in a customer call. **Robot/AV cases are usually `strategy=direct`** — an
 image is sent, a question is asked, one human answers; don't force a decomposition
 where one look resolves it. Decomposed entries keep exactly 3 binaries (stable site
-card height).
+card height). **Every site card shows the attached frame** as an inline SVG
+illustration drawn in-brand (flat shapes, muted scene palette, vermillion accents,
+an "attached frame" chip) — never real or stock photos posing as customer data,
+never fake EXIF/timestamps. Illustrative is honest; fake-real is not.
 
 ---
 

@@ -299,6 +299,9 @@
     .decomp .d-line { color: var(--dark-muted); font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; margin: 18px 0 8px; }
     .decomp .d-line:first-child { margin-top: 0; }
     .decomp .d-q { background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 10px; padding: 13px 16px; font-weight: 500; }
+    .decomp .d-frame { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--dark-border); margin-bottom: 8px; line-height: 0; }
+    .decomp .d-frame svg { width: 100%; height: auto; display: block; }
+    .decomp .d-frame .fr-tag { position: absolute; top: 9px; left: 10px; font-size: 0.6rem; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(237,232,221,0.9); background: rgba(32,30,26,0.6); padding: 3px 9px; border-radius: 5px; line-height: 1.4; }
     .decomp .d-bin { display: flex; justify-content: space-between; align-items: center; gap: 12px;
       background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 10px; padding: 11px 16px; margin-bottom: 8px; }
     .decomp .d-bin .price { color: var(--vermillion); font-weight: 700; white-space: nowrap; }
@@ -665,8 +668,9 @@
         </div>
         <div>
           <div class="decomp reveal" id="relay-demo">
-            <div class="d-line" data-slot="asker">Your pest-control agent asks</div>
-            <div class="d-q" data-slot="q">"Customer photo: what's nesting in the wall — bees or wasps? Model says 60% wasps."</div>
+            <div class="d-line" data-slot="asker">Your pest-control agent sends a customer photo</div>
+            <div class="d-frame" data-slot="frame"><span class="fr-tag">customer photo</span><svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration: insects on waxy comb inside an opened wall cavity"><rect width="640" height="220" fill="#948B7A"/><rect x="0" y="178" width="640" height="42" fill="#7E7565"/><path d="M170,46 Q142,118 188,178 Q322,206 466,182 Q530,118 484,52 Q330,12 170,46 Z" fill="#3C352B"/><g fill="#C9973B" stroke="#8F6A25" stroke-width="2"><polygon points="268,76 290,64 312,76 312,100 290,112 268,100"/><polygon points="316,76 338,64 360,76 360,100 338,112 316,100"/><polygon points="364,76 386,64 408,76 408,100 386,112 364,100"/><polygon points="244,112 266,100 288,112 288,136 266,148 244,136"/><polygon points="292,112 314,100 336,112 336,136 314,148 292,136"/><polygon points="340,112 362,100 384,112 384,136 362,148 340,136"/><polygon points="388,112 410,100 432,112 432,136 410,148 388,136"/><polygon points="316,148 338,136 360,148 360,172 338,184 316,172"/></g><g transform="rotate(-18 330 95)"><ellipse cx="330" cy="95" rx="15" ry="9" fill="#2E2820"/><rect x="322" y="86" width="5" height="18" fill="#D9A441"/><rect x="331" y="86" width="5" height="18" fill="#D9A441"/><ellipse cx="324" cy="84" rx="9" ry="5" fill="#EDE8DD" opacity="0.4"/></g><g transform="rotate(12 392 132)"><ellipse cx="392" cy="132" rx="14" ry="8" fill="#2E2820"/><rect x="385" y="124" width="4" height="16" fill="#D9A441"/><rect x="393" y="124" width="4" height="16" fill="#D9A441"/><ellipse cx="387" cy="122" rx="8" ry="4" fill="#EDE8DD" opacity="0.4"/></g><g transform="rotate(-40 268 150)"><ellipse cx="268" cy="150" rx="13" ry="8" fill="#2E2820"/><rect x="261" y="142" width="4" height="16" fill="#D9A441"/><rect x="269" y="142" width="4" height="16" fill="#D9A441"/></g><polygon points="0,0 220,0 80,220 0,220" fill="#FFFFFF" opacity="0.05"/></svg></div>
+            <div class="d-q" data-slot="q">"What's nesting in the wall — bees or wasps? Model says 60% wasps."</div>
             <div class="d-line" data-slot="how">Relay decomposes</div>
             <div data-slot="bins">
             <div class="d-bin"><span>Are the insects fuzzy rather than smooth and shiny?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
@@ -1003,10 +1007,20 @@ result = hr.<span class="fn">judge</span>(
 
     /* Relay demo — rotating edge-case examples (see platform/EDGE-CASES.md) */
     (function () {
+      const FRAMES = {
+        bee: '<svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration: insects on waxy comb inside an opened wall cavity"><rect width="640" height="220" fill="#948B7A"/><rect x="0" y="178" width="640" height="42" fill="#7E7565"/><path d="M170,46 Q142,118 188,178 Q322,206 466,182 Q530,118 484,52 Q330,12 170,46 Z" fill="#3C352B"/><g fill="#C9973B" stroke="#8F6A25" stroke-width="2"><polygon points="268,76 290,64 312,76 312,100 290,112 268,100"/><polygon points="316,76 338,64 360,76 360,100 338,112 316,100"/><polygon points="364,76 386,64 408,76 408,100 386,112 364,100"/><polygon points="244,112 266,100 288,112 288,136 266,148 244,136"/><polygon points="292,112 314,100 336,112 336,136 314,148 292,136"/><polygon points="340,112 362,100 384,112 384,136 362,148 340,136"/><polygon points="388,112 410,100 432,112 432,136 410,148 388,136"/><polygon points="316,148 338,136 360,148 360,172 338,184 316,172"/></g><g transform="rotate(-18 330 95)"><ellipse cx="330" cy="95" rx="15" ry="9" fill="#2E2820"/><rect x="322" y="86" width="5" height="18" fill="#D9A441"/><rect x="331" y="86" width="5" height="18" fill="#D9A441"/><ellipse cx="324" cy="84" rx="9" ry="5" fill="#EDE8DD" opacity="0.4"/></g><g transform="rotate(12 392 132)"><ellipse cx="392" cy="132" rx="14" ry="8" fill="#2E2820"/><rect x="385" y="124" width="4" height="16" fill="#D9A441"/><rect x="393" y="124" width="4" height="16" fill="#D9A441"/><ellipse cx="387" cy="122" rx="8" ry="4" fill="#EDE8DD" opacity="0.4"/></g><g transform="rotate(-40 268 150)"><ellipse cx="268" cy="150" rx="13" ry="8" fill="#2E2820"/><rect x="261" y="142" width="4" height="16" fill="#D9A441"/><rect x="269" y="142" width="4" height="16" fill="#D9A441"/></g><polygon points="0,0 220,0 80,220 0,220" fill="#FFFFFF" opacity="0.05"/></svg>',
+        flood: '<svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration: standing water across a road, a car ahead turning back in the rain"><rect width="640" height="220" fill="#59636D"/><rect x="0" y="78" width="640" height="24" fill="#454E57"/><path d="M0,220 L236,100 L404,100 L640,220 Z" fill="#3B4045"/><rect x="0" y="128" width="640" height="64" fill="#66767F"/><g stroke="#9FB2BC" stroke-width="2" opacity="0.4"><line x1="60" y1="148" x2="170" y2="148"/><line x1="240" y1="166" x2="390" y2="166"/><line x1="430" y1="142" x2="560" y2="142"/><line x1="120" y1="180" x2="300" y2="180"/></g><g><rect x="288" y="94" width="64" height="22" rx="6" fill="#23211C"/><rect x="298" y="84" width="40" height="14" rx="5" fill="#2E2C28"/><rect x="290" y="100" width="6" height="9" rx="2" fill="#E05A33"/><rect x="346" y="100" width="6" height="9" rx="2" fill="#E05A33"/></g><g stroke="#C9D2D8" stroke-width="1.5" opacity="0.3"><line x1="80" y1="8" x2="66" y2="48"/><line x1="180" y1="20" x2="166" y2="60"/><line x1="300" y1="6" x2="286" y2="46"/><line x1="420" y1="18" x2="406" y2="58"/><line x1="530" y1="8" x2="516" y2="48"/><line x1="600" y1="30" x2="586" y2="70"/></g></svg>',
+        bag: '<svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration: a leather handbag with an authentication zoom on the logo stamp and date code"><rect width="640" height="220" fill="#EDE7DA"/><ellipse cx="280" cy="198" rx="150" ry="11" fill="#23211C" opacity="0.12"/><path d="M236,78 Q280,18 324,78" fill="none" stroke="#7A4E2B" stroke-width="11" stroke-linecap="round"/><path d="M196,86 Q196,72 212,72 L348,72 Q364,72 364,86 L374,176 Q375,192 356,192 L204,192 Q185,192 186,176 Z" fill="#8A5A33"/><path d="M196,86 Q196,72 212,72 L348,72 Q364,72 364,86 L366,112 Q281,126 194,112 Z" fill="#76492A"/><rect x="266" y="106" width="28" height="14" rx="3" fill="#C9973B"/><path d="M198,124 Q281,138 362,124" stroke="#E8DCC8" stroke-width="2" stroke-dasharray="5 5" fill="none"/><rect x="252" y="146" width="56" height="18" rx="2" fill="none" stroke="#5C3A1E" stroke-width="2"/><line x1="308" y1="150" x2="430" y2="62" stroke="#23211C" stroke-width="1.5" opacity="0.35"/><line x1="308" y1="164" x2="430" y2="150" stroke="#23211C" stroke-width="1.5" opacity="0.35"/><rect x="430" y="36" width="172" height="128" rx="8" fill="#FFFFFF" stroke="#23211C" stroke-width="2"/><rect x="448" y="54" width="136" height="44" rx="3" fill="none" stroke="#5C3A1E" stroke-width="3"/><path d="M458,76 q10,-14 20,0 q10,14 20,0 q10,-14 20,0 q10,14 20,0 q10,-14 16,-2" stroke="#5C3A1E" stroke-width="3" fill="none"/><g fill="#5C3A1E" opacity="0.8"><rect x="448" y="116" width="18" height="22" rx="2"/><rect x="470" y="116" width="18" height="22" rx="2"/><rect x="492" y="116" width="18" height="22" rx="2"/><rect x="536" y="116" width="18" height="22" rx="2"/><rect x="558" y="116" width="18" height="22" rx="2"/></g><rect x="514" y="116" width="18" height="22" rx="2" fill="#E05A33"/></svg>',
+        cones: '<svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration: traffic cones cutting across painted lane lines that run into fresh concrete"><rect width="640" height="220" fill="#3A3D40"/><path d="M60,220 L268,40" stroke="#D8D3C8" stroke-width="5" opacity="0.5" fill="none"/><polygon points="310,40 460,40 550,130 380,130" fill="#71767A"/><line x1="360" y1="62" x2="512" y2="116" stroke="#9CA1A5" stroke-width="3" opacity="0.5"/><path d="M330,220 L356,40" stroke="#D8D3C8" stroke-width="6" stroke-dasharray="28 22" opacity="0.9" fill="none"/><g transform="translate(160,150)"><ellipse cx="0" cy="46" rx="26" ry="7" fill="#23211C" opacity="0.4"/><polygon points="-22,44 0,-14 22,44" fill="#E05A33"/><polygon points="-13,18 13,18 17,30 -17,30" fill="#EDE8DD"/><rect x="-26" y="44" width="52" height="6" rx="3" fill="#C44A27"/></g><g transform="translate(252,118) scale(0.78)"><ellipse cx="0" cy="46" rx="26" ry="7" fill="#23211C" opacity="0.4"/><polygon points="-22,44 0,-14 22,44" fill="#E05A33"/><polygon points="-13,18 13,18 17,30 -17,30" fill="#EDE8DD"/><rect x="-26" y="44" width="52" height="6" rx="3" fill="#C44A27"/></g><g transform="translate(330,92) scale(0.6)"><ellipse cx="0" cy="46" rx="26" ry="7" fill="#23211C" opacity="0.4"/><polygon points="-22,44 0,-14 22,44" fill="#E05A33"/><polygon points="-13,18 13,18 17,30 -17,30" fill="#EDE8DD"/><rect x="-26" y="44" width="52" height="6" rx="3" fill="#C44A27"/></g><g transform="translate(396,74) scale(0.48)"><ellipse cx="0" cy="46" rx="26" ry="7" fill="#23211C" opacity="0.4"/><polygon points="-22,44 0,-14 22,44" fill="#E05A33"/><polygon points="-13,18 13,18 17,30 -17,30" fill="#EDE8DD"/><rect x="-26" y="44" width="52" height="6" rx="3" fill="#C44A27"/></g></svg>',
+        eagle: '<svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration: drone frame with a targeting reticle on a distant raptor near a wind turbine"><rect width="640" height="220" fill="#AEB9C2"/><ellipse cx="130" cy="58" rx="84" ry="17" fill="#C7CFD6" opacity="0.7"/><ellipse cx="520" cy="158" rx="92" ry="15" fill="#C7CFD6" opacity="0.5"/><path d="M0,220 L0,196 Q160,176 320,194 Q480,210 640,192 L640,220 Z" fill="#7B8471"/><polygon points="116,196 124,196 121,86 119,86" fill="#E9EAE8"/><rect x="111" y="76" width="18" height="10" rx="4" fill="#E9EAE8"/><g stroke="#E9EAE8" stroke-width="7" stroke-linecap="round"><line x1="120" y1="80" x2="120" y2="18"/><line x1="120" y1="80" x2="174" y2="112"/><line x1="120" y1="80" x2="66" y2="112"/></g><path d="M404,84 Q422,64 438,79 Q454,62 472,82 Q452,77 441,88 Q436,83 430,87 Q420,78 404,84 Z" fill="#2E2A26"/><g stroke="#FFFFFF" stroke-width="2.5" fill="none" opacity="0.95"><path d="M392,64 L392,48 L410,48"/><path d="M466,48 L484,48 L484,64"/><path d="M484,100 L484,116 L466,116"/><path d="M410,116 L392,116 L392,100"/><line x1="438" y1="42" x2="438" y2="50"/><line x1="438" y1="114" x2="438" y2="122"/><line x1="386" y1="82" x2="394" y2="82"/><line x1="482" y1="82" x2="490" y2="82"/></g></svg>',
+      };
+
       const EXAMPLES = [
         {
-          asker: 'Your pest-control agent asks',
-          q: '"Customer photo: what’s nesting in the wall — bees or wasps? Model says 60% wasps."',
+          asker: 'Your pest-control agent sends a customer photo',
+          tag: 'customer photo',
+          svg: FRAMES.bee,
+          q: '"What’s nesting in the wall — bees or wasps? Model says 60% wasps."',
           bins: [
             ['Are the insects fuzzy rather than smooth and shiny?', 'Basic', '$0.50'],
             ['Is the nest waxy comb rather than papery layers?', 'Basic', '$0.50'],
@@ -1017,6 +1031,8 @@ result = hr.<span class="fn">judge</span>(
         },
         {
           asker: 'Your delivery robot sends a camera frame',
+          tag: 'camera frame',
+          svg: FRAMES.flood,
           q: '"Is this safe to drive through?"',
           how: 'Relay routes — already one question',
           bins: [
@@ -1027,8 +1043,10 @@ result = hr.<span class="fn">judge</span>(
           meta: 'direct · 1 human · 19 seconds · $1.00 total',
         },
         {
-          asker: 'Your marketplace agent asks',
-          q: '"New listing: is this $1,400 handbag authentic? Model confidence: 58%."',
+          asker: 'Your marketplace agent sends listing photos',
+          tag: 'listing photo',
+          svg: FRAMES.bag,
+          q: '"Is this $1,400 handbag authentic? Model confidence: 58%."',
           bins: [
             ['Is the date code format valid for the claimed production year?', 'Basic', '$0.50'],
             ['Do the logo stamp font and spacing match the brand’s?', 'Complex', '$1.00'],
@@ -1039,6 +1057,8 @@ result = hr.<span class="fn">judge</span>(
         },
         {
           asker: 'Your robotaxi sends a camera frame',
+          tag: 'camera frame',
+          svg: FRAMES.cones,
           q: '"Cones contradict the lane markings. Which do I follow?"',
           how: 'Relay routes — already one question',
           bins: [
@@ -1049,8 +1069,10 @@ result = hr.<span class="fn">judge</span>(
           meta: 'direct · 1 human · 22 seconds · $1.00 total',
         },
         {
-          asker: 'Your survey agent asks',
-          q: '"Drone frame from the turbine site: common buzzard or protected golden eagle?"',
+          asker: 'Your survey agent sends a drone frame',
+          tag: 'drone frame',
+          svg: FRAMES.eagle,
+          q: '"Common buzzard or protected golden eagle?"',
           bins: [
             ['Are white patches visible at the base of the primaries?', 'Basic', '$0.50'],
             ['Is the tail pattern consistent with a juvenile golden eagle?', 'Expert', '$2.50'],
@@ -1066,6 +1088,7 @@ result = hr.<span class="fn">judge</span>(
       if (!card || !dotsWrap) return;
       const slots = {
         asker: card.querySelector('[data-slot="asker"]'),
+        frame: card.querySelector('[data-slot="frame"]'),
         q: card.querySelector('[data-slot="q"]'),
         how: card.querySelector('[data-slot="how"]'),
         bins: card.querySelector('[data-slot="bins"]'),
@@ -1079,6 +1102,7 @@ result = hr.<span class="fn">judge</span>(
       function render(i) {
         const ex = EXAMPLES[i];
         slots.asker.textContent = ex.asker;
+        slots.frame.innerHTML = '<span class="fr-tag">' + ex.tag + '</span>' + ex.svg;
         slots.q.textContent = ex.q;
         slots.how.textContent = ex.how || 'Relay decomposes';
         slots.out.textContent = ex.out || 'Relay reassembles';
