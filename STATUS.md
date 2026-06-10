@@ -83,14 +83,16 @@ auditing, webhooks), M1–M6 platform milestones, site v2 with humanrelay.com do
 1. **Founder: rotate the pilot API key** — one command, kills the launch-day key:
    `curl -s -X POST https://api.humanrelay.com/v1/keys/rotate -H "Authorization: Bearer <current key>"`
    (response shows the new key once; add `-d '{"grace_minutes":30}'` for soft cutover).
-2. **Google Search Console** — needs the founder's Google account in a browser.
-   Prereqs verified: robots.txt → sitemap.xml, both live. Steps: add property
-   `humanrelay.com` (domain property; DNS TXT via Vercel DNS) → verify → submit
-   `https://humanrelay.com/sitemap.xml`.
-3. **Run the customer-zero dry run** with real IndiVillage workers (`platform/DRY-RUN.md`).
-4. **First paying pilot** — the goal behind all of it. Pipeline work: pick 5 target
+2. **Run the customer-zero dry run** with real IndiVillage workers (`platform/DRY-RUN.md`).
+3. **First paying pilot** — the goal behind all of it. Pipeline work: pick 5 target
    robotics/agent companies, send the pilot one-pager, get one signed scope.
-5. Stripe billing hookup (meters ready), `RELAY_MODE=live`, real embeddings for the
+4. Stripe billing hookup (meters ready), `RELAY_MODE=live`, real embeddings for the
    binary cache, LiveKit teleop transport — per `ARCHITECTURE.md` phases.
+
+**Done 2026-06-10:** Google Search Console — domain property `humanrelay.com`
+verified via DNS TXT (record lives in Vercel DNS, comment "Google Search Console
+domain verification" — don't delete it), sitemap submitted (Status: Success),
+homepage already indexed with the FAQ rich result detected; recrawl requested for
+the new flywheel content.
 
 We're not done until customers are coming through the door.
