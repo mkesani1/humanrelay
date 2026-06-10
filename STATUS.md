@@ -83,6 +83,13 @@ auditing, webhooks), M1–M6 platform milestones, site v2 with humanrelay.com do
 ## Conventions
 
 - Every claim on the site must be defensible in a customer call. No inflated numbers.
+- **Schema changes:** the runtime role (`humanrelay_app`) does NOT own the tables —
+  boot-time migrations that need DDL fail with "must be owner" (caused a ~25-min
+  API outage on 2026-06-10). Apply new migrations via the Supabase connector's
+  `apply_migration` (owner role, founder authorization required) **before** pushing
+  code that depends on them, and insert the matching `schema_migrations` row.
+  Boot now degrades instead of dying: `/health` shows `migrations: pending: <err>`
+  and a failed cold start is never cached.
 - Brand: warm paper `#F5F0E8` / vermillion `#E05A33`, "HumanRelay." wordmark with
   vermillion dot, Fraunces display over Inter.
 - Commit and push frequently; main auto-deploys production.
