@@ -28,6 +28,7 @@ demonstration (the flywheel). Canonical examples: `platform/EDGE-CASES.md`.
 | DB | Supabase `humanrelay-platform`, ref `knyflhjlgdttwkcnwgbh` (us-east-1) | transaction pooler, port 6543 |
 | Email | Google Workspace, hello@humanrelay.com | |
 | Cron | Vercel cron, hourly `/cron/maintenance` | leases + webhook dispatch |
+| Analytics | Vercel Web Analytics (project → Analytics tab) | first-party, cookie-free; script live since 2026-06-11, verified end-to-end |
 | Orgs in prod | `HumanRelay Internal` (system), `HumanRelay Pilot` (customer zero) | first production human judgment completed 2026-06-10 |
 
 Secrets (`DATABASE_URL`, `ADMIN_TOKEN`, `CRON_SECRET`, `RELAY_MODE`) live only in
