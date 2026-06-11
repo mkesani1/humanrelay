@@ -50,6 +50,16 @@ Dry-run seeder: `platform/scripts/seed-dry-run.sh` (customer API only, rehearsed
 
 ## Shipped log
 
+**2026-06-11**
+- Relay demo is now photoreal: four founder-generated frames live
+  (flood = default, crop scout, two pills, resident-on-floor), each
+  band-cropped past generator watermarks and zoom-checked (no readable
+  labels/imprints/faces/plates). Rotation shows photo-backed cards only;
+  bee/bag/cones/eagle (SVG) rejoin as their photos land — briefs in
+  ASSET-BRIEFS.md. Pipeline for new frames: drop in ~/Downloads →
+  band crop to 2.91:1 → zoom checks → 1600×550 WebP → add img/alt to
+  the card entry in public/index.html.
+
 **2026-06-10 (pm)**
 - Common-sense-gap thesis woven into the site flywheel (pull-quote + copy);
   Relay demo rotates 5 examples — bee-or-wasp photo (default), flooded road,
