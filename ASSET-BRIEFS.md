@@ -205,6 +205,37 @@ a human who zooms gets there. **Avoid — hard lines:** no fully legible imprint
 (real codes identify real products), no readable labels, no colorful distinct pills,
 no pharmacy setting, no hands or people.
 
+## 9. `listings.png` — "Two listings, one UPC. Same product?" (catalog agent)
+
+**Role:** the two product photos a marketplace catalog agent is comparing — same
+invented gin brand in old vs. refreshed packaging, presented side by side as one
+frame. Verdict: *merge — same product, label refresh; keep the newer image.*
+(Modeled on a real same-UPC duplicate found in a live delivery catalog; the real
+brand can't appear on our site, so the brand is invented.)
+
+**Prompt seed:**
+> Single image composed as two side-by-side e-commerce product photos on a clean
+> white background, thin dividing line between panels, like a catalog comparison
+> tool. Both panels show the same 750 ml clear-glass gin bottle of a completely
+> fictional brand called "ALDERTON'S" — bold readable brand name, no resemblance
+> to any real gin brand's colors or crest. LEFT panel: the older packaging — a
+> slightly dated label design with a cluttered oval crest, beige-and-navy palette,
+> serif type, a small "award" ribbon graphic. RIGHT panel: the refreshed packaging
+> of the same brand — cleaner modern label, same navy palette simplified, same
+> brand name, subtle botanical line illustration, slightly taller-looking neck
+> label. Identical bottle size in both panels. Studio product lighting, soft
+> shadows, true e-commerce style. The only legible text is the brand name
+> "ALDERTON'S" and "LONDON DRY GIN" — no barcodes, no UPC digits, no proof
+> statements legible, no other readable text.
+
+**The tells:** same brand name and variant on both labels; same bottle volume;
+everything else (label style, crest, colors) differs. **Ambiguity:** the two
+panels should look different enough at a glance that "different products" is a
+plausible model call — the resolution is reading the labels. **Avoid — hard
+lines:** any real gin trade dress (Gordon's yellow/green, Tanqueray green,
+Beefeater red, Bombay blue), legible barcodes or numeric codes, more than the
+two short lines of readable text (generation models garble longer text).
+
 ---
 
 ## Optional video loops (progressive enhancement, not required)

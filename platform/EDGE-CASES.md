@@ -189,6 +189,30 @@ the *safe* action (hold, verify, alert), which no confidence threshold produces 
 its own. The cost asymmetry is brutal: a delayed dose is an inconvenience; the
 wrong pill to a cardiac patient is a headline.
 
+## D. The duplicate listing (catalog agent · product matching)
+
+**Asker:** retail catalog agent, sending two listing photos
+**Question:** "Two listings, one UPC: 'London Dry Gin' and '80 Proof Dry Gin'.
+Same product?" + `content: {image_urls}`
+
+| Binary | Tier | Price |
+|---|---|---|
+| Do both labels read the same brand and variant? | Basic | $0.50 |
+| Do size and strength statements agree (750 ml, 80 proof)? | Basic | $0.50 |
+| Given both: merge the listings, newer image as primary? | Complex | $1.00 |
+
+**Verdict:** "Merge. Same gin — the second image is the current label refresh.
+Keep it as primary and normalize the title."
+**Meta:** 3 binaries · 2 in parallel · 24 seconds · $2.00 total
+**Why more data doesn't fix it:** packaging refreshes ship continuously and
+regionally; the model sees two names and two bottles and a shared UPC it can't
+trust (UPC reuse and data-entry errors are endemic). A human reads both labels in
+one look. At marketplace scale this is millions of merge/split calls a year — each
+wrong one is a lost sale, a wrong delivery, or (for alcohol) a compliance question.
+*Source case: a real same-UPC duplicate pair found in a live delivery-platform
+catalog (founder, 2026-06-11) — real brand imagery stays out of our marketing;
+the site frame uses an invented brand (brief 9).*
+
 ## Library (not on the site — weaker under the test, still useful operationally)
 
 Real judgment calls and good dry-run / gold-item content, but either the corpus exists
