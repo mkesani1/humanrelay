@@ -668,18 +668,16 @@
         </div>
         <div>
           <div class="decomp reveal" id="relay-demo">
-            <div class="d-line" data-slot="asker">Your pest-control agent sends a customer photo</div>
-            <div class="d-frame" data-slot="frame"><span class="fr-tag">customer photo</span><svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration: insects on waxy comb inside an opened wall cavity"><rect width="640" height="220" fill="#948B7A"/><rect x="0" y="178" width="640" height="42" fill="#7E7565"/><path d="M170,46 Q142,118 188,178 Q322,206 466,182 Q530,118 484,52 Q330,12 170,46 Z" fill="#3C352B"/><g fill="#C9973B" stroke="#8F6A25" stroke-width="2"><polygon points="268,76 290,64 312,76 312,100 290,112 268,100"/><polygon points="316,76 338,64 360,76 360,100 338,112 316,100"/><polygon points="364,76 386,64 408,76 408,100 386,112 364,100"/><polygon points="244,112 266,100 288,112 288,136 266,148 244,136"/><polygon points="292,112 314,100 336,112 336,136 314,148 292,136"/><polygon points="340,112 362,100 384,112 384,136 362,148 340,136"/><polygon points="388,112 410,100 432,112 432,136 410,148 388,136"/><polygon points="316,148 338,136 360,148 360,172 338,184 316,172"/></g><g transform="rotate(-18 330 95)"><ellipse cx="330" cy="95" rx="15" ry="9" fill="#2E2820"/><rect x="322" y="86" width="5" height="18" fill="#D9A441"/><rect x="331" y="86" width="5" height="18" fill="#D9A441"/><ellipse cx="324" cy="84" rx="9" ry="5" fill="#EDE8DD" opacity="0.4"/></g><g transform="rotate(12 392 132)"><ellipse cx="392" cy="132" rx="14" ry="8" fill="#2E2820"/><rect x="385" y="124" width="4" height="16" fill="#D9A441"/><rect x="393" y="124" width="4" height="16" fill="#D9A441"/><ellipse cx="387" cy="122" rx="8" ry="4" fill="#EDE8DD" opacity="0.4"/></g><g transform="rotate(-40 268 150)"><ellipse cx="268" cy="150" rx="13" ry="8" fill="#2E2820"/><rect x="261" y="142" width="4" height="16" fill="#D9A441"/><rect x="269" y="142" width="4" height="16" fill="#D9A441"/></g><polygon points="0,0 220,0 80,220 0,220" fill="#FFFFFF" opacity="0.05"/></svg></div>
-            <div class="d-q" data-slot="q">"What's nesting in the wall — bees or wasps? Model says 60% wasps."</div>
-            <div class="d-line" data-slot="how">Relay decomposes</div>
+            <div class="d-line" data-slot="asker">Your delivery robot sends a camera frame</div>
+            <div class="d-frame" data-slot="frame"><span class="fr-tag">camera frame</span><img src="frames/flood.webp" alt="Camera frame: floodwater covering a residential street curb to curb, a car ahead turning back with brake lights on in the rain" width="1600" height="550" decoding="async"></div>
+            <div class="d-q" data-slot="q">"Is this safe to drive through?"</div>
+            <div class="d-line" data-slot="how">Relay routes — already one question</div>
             <div data-slot="bins">
-            <div class="d-bin"><span>Are the insects fuzzy rather than smooth and shiny?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
-            <div class="d-bin"><span>Is the nest waxy comb rather than papery layers?</span><span><span class="tier">Basic</span> <span class="price">$0.50</span></span></div>
-            <div class="d-bin"><span>Given both: dispatch an exterminator rather than a beekeeper?</span><span><span class="tier">Complex</span> <span class="price">$1.00</span></span></div>
+            <div class="d-bin"><span>One trained human, one look at the frame</span><span><span class="tier">Complex</span> <span class="price">$1.00</span></span></div>
             </div>
-            <div class="d-line" data-slot="out">Relay reassembles</div>
-            <div class="d-result" data-slot="result">"Bees. Fuzzy bodies on wax comb — book a live removal, not an exterminator."</div>
-            <div class="d-meta" data-slot="meta">3 binaries · 2 in parallel · 26 seconds · $2.00 total</div>
+            <div class="d-line" data-slot="out">Human answers</div>
+            <div class="d-result" data-slot="result">"No. Water spans the road and cars are turning back — reroute."</div>
+            <div class="d-meta" data-slot="meta">direct · 1 human · 19 seconds · $1.00 total</div>
           </div>
           <div class="demo-dots" id="relay-demo-dots" role="tablist" aria-label="Relay edge-case examples"></div>
         </div>
@@ -1045,6 +1043,48 @@ result = hr.<span class="fn">judge</span>(
           meta: 'direct · 1 human · 19 seconds · $1.00 total',
         },
         {
+          asker: 'Your crop-scouting agent sends a field photo',
+          tag: 'field photo',
+          img: 'frames/crop.webp',
+          alt: 'Field photo: soybean leaf with an aphid colony and two dark ladybird larvae among them',
+          q: '"Aphids on this soybean — schedule tonight’s spray pass? Model: 62% outbreak."',
+          bins: [
+            ['Are live aphid colonies present on the leaf underside?', 'Basic', '$0.50'],
+            ['Are ladybird larvae or parasitized aphid mummies among them?', 'Complex', '$1.00'],
+            ['Given both: hold the spray pass?', 'Complex', '$1.00'],
+          ],
+          result: '"Hold it. Those black-and-orange larvae are ladybirds eating the colony — spraying kills your free pest control."',
+          meta: '3 binaries · 2 in parallel · 29 seconds · $2.50 total',
+        },
+        {
+          asker: 'Your home care robot sends a camera frame',
+          tag: 'camera frame',
+          img: 'frames/pills.webp',
+          alt: 'Camera frame: two nearly identical white pills on a kitchen counter, one faintly scored, with a prescription bottle and pill organizer behind them',
+          q: '"She asked for her heart pill — two identical white pills on the counter. Which one?"',
+          how: 'Relay routes — already one question',
+          bins: [
+            ['One trained human, one look at the frame', 'Complex', '$1.00'],
+          ],
+          out: 'Human answers',
+          result: '"The scored one with the faint imprint matches the heart-med bottle; the blank one is the supplement. Confirm before she takes it."',
+          meta: 'direct · 1 human · 21 seconds · $1.00 total',
+        },
+        {
+          asker: 'Your home robot sends a camera frame',
+          tag: 'camera frame',
+          img: 'frames/floor.webp',
+          alt: 'Camera frame: a person lying face-down on an exercise mat in a living room, phone propped up with its screen on',
+          q: '"Resident is on the floor and not responding to a greeting. Call for help?"',
+          how: 'Relay routes — already one question',
+          bins: [
+            ['One trained human, one look at the frame', 'Complex', '$1.00'],
+          ],
+          out: 'Human answers',
+          result: '"No emergency. Exercise mat, lit phone propped up, workout clothes — he’s mid-routine. Check again in ten minutes."',
+          meta: 'direct · 1 human · 16 seconds · $1.00 total',
+        },
+        {
           asker: 'Your marketplace agent sends listing photos',
           tag: 'listing photo',
           svg: FRAMES.bag,
@@ -1085,6 +1125,9 @@ result = hr.<span class="fn">judge</span>(
         },
       ];
 
+      // Photoreal frames only — SVG-backed cards rejoin the rotation as their photos land.
+      const LIVE = EXAMPLES.filter((e) => e.img);
+
       const card = document.getElementById('relay-demo');
       const dotsWrap = document.getElementById('relay-demo-dots');
       if (!card || !dotsWrap) return;
@@ -1102,7 +1145,7 @@ result = hr.<span class="fn">judge</span>(
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       function render(i) {
-        const ex = EXAMPLES[i];
+        const ex = LIVE[i];
         slots.asker.textContent = ex.asker;
         // Photoreal frame when the asset exists; drawn SVG placeholder otherwise.
         slots.frame.innerHTML = '<span class="fr-tag">' + ex.tag + '</span>' +
@@ -1136,7 +1179,7 @@ result = hr.<span class="fn">judge</span>(
         setTimeout(() => { render(i); card.classList.remove('swap'); }, 300);
       }
 
-      EXAMPLES.forEach((ex, i) => {
+      LIVE.forEach((ex, i) => {
         const dot = document.createElement('button');
         dot.className = 'demo-dot' + (i === 0 ? ' active' : '');
         dot.setAttribute('role', 'tab');
@@ -1146,14 +1189,14 @@ result = hr.<span class="fn">judge</span>(
       });
 
       // Warm the photoreal frames so rotation never swaps in a blank image.
-      EXAMPLES.forEach((ex) => { if (ex.img) { const pre = new Image(); pre.src = ex.img; } });
+      LIVE.forEach((ex) => { const pre = new Image(); pre.src = ex.img; });
 
       function restart() {
         if (timer) clearInterval(timer);
         if (reducedMotion) return;
         timer = setInterval(() => {
           if (document.hidden) return;
-          show((current + 1) % EXAMPLES.length);
+          show((current + 1) % LIVE.length);
         }, 8000);
       }
       card.addEventListener('mouseenter', () => { if (timer) clearInterval(timer); timer = null; });

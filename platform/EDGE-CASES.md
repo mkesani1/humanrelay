@@ -162,7 +162,7 @@ help?" + `content: {image_url}`
 **Trace:** direct — one trained human, one look (Complex, $1.00).
 
 **Answer:** "No emergency. Exercise mat, lit phone propped up, workout clothes —
-she's mid-routine. Check again in ten minutes."
+he's mid-routine. Check again in ten minutes."
 **Meta:** direct · 1 human · 16 seconds · $1.00 total
 **Why more data doesn't fix it:** fall classifiers are trained on falls, not on the
 infinite benign reasons a person lies on a floor. The cost asymmetry runs both ways:
