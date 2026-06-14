@@ -22,9 +22,9 @@ demonstration (the flywheel). Canonical examples: `platform/EDGE-CASES.md`.
 
 | Thing | Where | Notes |
 |---|---|---|
-| Site | https://humanrelay.com | static, `public/index.html`, single file |
-| API | https://api.humanrelay.com | same Vercel project, Host-header rewrite → `/api/index` |
-| Vercel project | `humanrelay.com` (`prj_rQtepgbkfFqfnBpX832zU4m5D2rh`, team `team_axY29JS4o7JgkXdfGbml7Nl2`) | main auto-deploys production |
+| Marketing site | https://humanrelay.com | **Replit-controlled as of 2026-06-14 — NOT this repo.** `public/index.html` here is now a stale fork; do NOT deploy it / treat it as live. Live site is ahead (e.g. "+1,000 hrs"); make site edits in Replit. |
+| API | https://api.humanrelay.com | still this repo on Vercel (Host-header rewrite → `/api/index`). Source of truth for the platform; pushes here deploy the API, not the site. |
+| Vercel project | `humanrelay.com` (`prj_rQtepgbkfFqfnBpX832zU4m5D2rh`, team `team_axY29JS4o7JgkXdfGbml7Nl2`) | main auto-deploys the API. (humanrelay.com DNS now points at Replit for the marketing page.) |
 | DB | Supabase `humanrelay-platform`, ref `knyflhjlgdttwkcnwgbh` (us-east-1) | transaction pooler, port 6543 |
 | Email | Google Workspace, hello@humanrelay.com | |
 | Cron | Vercel cron, hourly `/cron/maintenance` | leases + webhook dispatch |
